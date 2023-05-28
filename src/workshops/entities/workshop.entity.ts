@@ -1,0 +1,141 @@
+import { ObjectType, Field } from '@nestjs/graphql';
+import { Event } from 'src/events/entities/event.entity';
+import slugify from 'slugify';
+import { User } from 'src/users/entities/user.entity';
+import {
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
+@ObjectType()
+@Entity()
+export class Workshop {
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+  })
+  @Field(() => Number, { description: 'id of the workshop' })
+  id: number;
+
+  @Column()
+  @Field(() => String, { description: 'Title of the workshop' })
+  title: string;
+
+  @Column({ unique: true })
+  @Field(() => String, { description: 'Slug of the workshop' })
+  slug: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, {
+    description: 'Body SEO of the workshop',
+    nullable: true,
+  })
+  seobody: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, {
+    description: 'Title SEO of the workshop',
+    nullable: true,
+  })
+  seotitle: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, {
+    description: 'Description of the workshop',
+    nullable: true,
+  })
+  body: string;
+
+  @Column({ nullable: true })
+  @Field(() => Number, {
+    description: 'Price of the workshop',
+    nullable: true,
+  })
+  price: number;
+
+  @ManyToMany(() => User)
+  @JoinTable()
+  @Field(() => [User], { description: 'User of the Workshop', nullable: true })
+  lecturers: User[];
+
+  @Column({ nullable: true })
+  @Field(() => String, { description: 'Image of the workshop', nullable: true })
+  image: string;
+
+  @Column({ default: false })
+  @Field(() => Boolean, { description: 'Is workshop featured' })
+  featured: boolean;
+
+  @Column({ nullable: true })
+  @Field(() => Number, {
+    description: 'Capacity of workshop',
+    nullable: true,
+  })
+  capacity: number;
+
+  @Column({ nullable: true })
+  @Field(() => Date, {
+    description: 'Startdate of workshop',
+    nullable: true,
+  })
+  start_date: Date;
+
+  @ManyToOne(() => Event, (event) => event.id, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinTable()
+  @Field(() => Event, { description: 'Event of the workshop', nullable: true })
+  event: Event;
+
+  @ManyToOne(() => User, (user) => user.id, { nullable: true })
+  @Field(() => User, { description: 'User of the workshop', nullable: true })
+  user: User;
+
+  @Column({ default: true })
+  @Field(() => Boolean, {
+    description: 'Status of the workshop',
+  })
+  status: boolean;
+
+  @Column({ default: 'not_started' })
+  @Field(() => String, {
+    description: 'State of the workshop',
+  })
+  state: 'not_started' | 'running' | 'ended' | 'canceled';
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
+  @Field(() => Date, { nullable: true })
+  created: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+    onUpdate: 'CURRENT_TIMESTAMP(6)',
+    nullable: true,
+  })
+  @Field(() => Date, { nullable: true })
+  updated: Date;
+
+  @BeforeInsert()
+  generateSlug() {
+    this.slug =
+      slugify(this.title, {
+        replacement: '-',
+        lower: true,
+        remove: /[*+~.()'"!:@]/g,
+      }) +
+      '-' +
+      Math.floor(Math.random() * 10) +
+      1;
+  }
+}

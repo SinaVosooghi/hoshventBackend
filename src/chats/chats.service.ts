@@ -1,0 +1,177 @@
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DepartmentsService } from 'src/departments/departments.service';
+import { MessagesService } from 'src/messages/messages.service';
+import { User } from 'src/users/entities/user.entity';
+import { Like, Repository } from 'typeorm';
+import { CreateChatInput } from './dto/create-chat.input';
+import { GetChatsArgs } from './dto/get-chats.args';
+import { Chat } from './entities/chat.entity';
+
+@Injectable()
+export class ChatsService {
+  constructor(
+    @InjectRepository(Chat)
+    private readonly chatRepository: Repository<Chat>,
+    private readonly messageService: MessagesService,
+  ) {}
+
+  async create(createChatInput: CreateChatInput, user: User): Promise<boolean> {
+    try {
+      createChatInput.to.map(async (userItem) => {
+        const item = await this.chatRepository.create({
+          ...createChatInput,
+          to: userItem,
+          from: user,
+        });
+        const chat = await this.chatRepository.save(item);
+
+        this.messageService.create(
+          {
+            chat: chat,
+            body: createChatInput.body,
+          },
+          user,
+        );
+      });
+
+      return true;
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('Duplicate error');
+      }
+    }
+  }
+
+  async createInvoice(
+    createChatInput: CreateChatInput,
+    currentUser: User,
+  ): Promise<boolean> {
+    try {
+      createChatInput.to.map(async (userItem) => {
+        const item = await this.chatRepository.create({
+          subject: createChatInput.subject,
+          repliable: false,
+          priority: 'high',
+          type: 'invoice',
+          from: currentUser,
+          to: userItem,
+          invoice: createChatInput.invoice,
+        });
+        const chat = await this.chatRepository.save(item);
+
+        this.messageService.create(
+          {
+            chat: chat,
+            body: createChatInput.body,
+          },
+          currentUser,
+        );
+      });
+
+      return true;
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('Duplicate error');
+      }
+      throw new Error(err);
+    }
+  }
+
+  async findAll({
+    skip,
+    limit,
+    searchTerm,
+    type,
+    status,
+    priority,
+    department,
+  }: GetChatsArgs) {
+    const [result, total] = await this.chatRepository.findAndCount({
+      where: {
+        subject: searchTerm ? Like(`%${searchTerm}%`) : null,
+        type: type ?? null,
+        status: status ?? null,
+        priority: priority ?? null,
+        department: department ? { id: department } : null,
+      },
+      relations: ['messages', 'from', 'messages.user', 'invoice', 'department'],
+      order: { id: 'DESC' },
+      take: limit,
+      skip: skip,
+    });
+    return { chats: result, count: total };
+  }
+
+  async findAllApi(
+    { skip, limit, searchTerm, type, status, priority }: GetChatsArgs,
+    user,
+  ) {
+    const [result, total] = await this.chatRepository.findAndCount({
+      where: [
+        {
+          subject: searchTerm ? Like(`%${searchTerm}%`) : null,
+        },
+        { type: type ?? null },
+        { status: status ?? null },
+        { priority: priority ?? null },
+        { from: user ? { id: user.id } : null },
+        { to: user ? { id: user.id } : null },
+      ],
+      relations: ['messages', 'from', 'messages.user', 'invoice', 'department'],
+      order: { id: 'DESC' },
+      take: limit,
+      skip: skip,
+    });
+    return { chats: result, count: total };
+  }
+
+  async findOne(id: number): Promise<Chat> {
+    const message = await this.chatRepository.findOne({
+      where: { id: id },
+      relations: [
+        'messages',
+        'from',
+        'to',
+        'messages.user',
+        'invoice',
+        'department',
+      ],
+    });
+    if (!message) {
+      throw new NotFoundException(`Chat #${id} not found`);
+    }
+
+    return message;
+  }
+
+  async findOneApi(id: number, user: User): Promise<Chat> {
+    const message = await this.chatRepository.findOne({
+      where: { id: id },
+      relations: [
+        'messages',
+        'from',
+        'to',
+        'messages.user',
+        'invoice',
+        'department',
+      ],
+    });
+    if (!message) {
+      throw new NotFoundException(`Chat #${id} not found`);
+    }
+
+    return message;
+  }
+
+  async remove(id: number): Promise<boolean> {
+    const message = await this.chatRepository.findOneBy({ id: id });
+
+    await this.chatRepository.remove(message);
+    return true;
+  }
+}

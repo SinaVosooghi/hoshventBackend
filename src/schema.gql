@@ -1,0 +1,2385 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Blog {
+  """Author of the blog"""
+  author: User
+
+  """body of the blog"""
+  body: String!
+
+  """Category of the blog"""
+  category: Category
+  created: DateTime
+
+  """Featured of the blog"""
+  featured: Boolean!
+
+  """Id of the blog"""
+  id: Float!
+
+  """Image of the blog"""
+  image: String
+
+  """Read time of the blog"""
+  readtime: Float
+
+  """Body SEO of the blog"""
+  seobody: String
+
+  """Title SEO of the blog"""
+  seotitle: String
+
+  """Slug of the blog"""
+  slug: String!
+
+  """Status of the blog"""
+  status: Boolean!
+
+  """title of the blog"""
+  title: String!
+  updated: DateTime
+}
+
+type BlogPaginate {
+  blogs: [Blog!]
+  count: Float!
+}
+
+type Category {
+  """Description of the Category"""
+  body: String
+
+  """Category parent of the category"""
+  category: Category
+  created: DateTime
+
+  """Is category featured"""
+  featured: Boolean!
+
+  """id of the Category"""
+  id: Float!
+
+  """Image of the course"""
+  image: String
+
+  """Body SEO of the Category"""
+  seobody: String
+
+  """Title SEO of the Category"""
+  seotitle: String
+
+  """Slug of the Category"""
+  slug: String!
+
+  """Status of the category"""
+  status: Boolean
+
+  """Title of the Category"""
+  title: String!
+
+  """Type of the Category"""
+  type: String!
+  updated: DateTime
+}
+
+type CategoryPaginate {
+  categories: [Category!]
+  count: Float!
+}
+
+type Chat {
+  """Close of the Chat"""
+  closed: Boolean
+  created: DateTime
+
+  """Department user of the chat"""
+  department: Department
+
+  """From user of the chat"""
+  from: User!
+  from_read: DateTime
+
+  """Id of the Chat"""
+  id: Float!
+
+  """Invoice user of the chat"""
+  invoice: Invoice
+
+  """Message of chats"""
+  messages: [Message!]
+
+  """priority of the Chat"""
+  priority: String!
+
+  """Can reply of the Chat"""
+  repliable: Boolean
+
+  """starred of the Chat"""
+  starred: Boolean
+
+  """status of the Chat"""
+  status: Boolean!
+
+  """subject of the Chat"""
+  subject: String!
+
+  """From user of the chat"""
+  to: User!
+  to_read: DateTime
+
+  """type of the Chat"""
+  type: String!
+  updated: DateTime
+}
+
+type ChatPaginate {
+  chats: [Chat!]
+  count: Float!
+}
+
+type Comment {
+  """title of the Comment"""
+  body: String!
+
+  """Comment of the Comment"""
+  comments: Comment
+  created: DateTime
+
+  """Id of the Comment"""
+  id: Float!
+
+  """status of the Comment"""
+  status: Boolean!
+  updated: DateTime
+
+  """User of the Comment"""
+  user: User
+}
+
+type CommentPaginate {
+  comments: [Comment!]
+  count: Float!
+}
+
+type Contact {
+  body: String
+  created: DateTime
+  email: String
+
+  """Id of the blog"""
+  id: Float!
+  name: String
+  subject: String!
+}
+
+type ContactPaginate {
+  contacts: [Contact!]
+  count: Float!
+}
+
+type Coupon {
+  """description of the coupon"""
+  body: String
+
+  """Code of the coupon"""
+  code: String!
+  created: DateTime
+
+  """expire date of the coupon"""
+  expiredate: DateTime
+
+  """Id of the coupon"""
+  id: Float!
+
+  """limit of the coupon"""
+  limit: Float
+
+  """percent of the coupon"""
+  percent: Float
+
+  """start date of the coupon"""
+  startdate: DateTime
+
+  """status of the coupon"""
+  status: Boolean!
+
+  """title of the coupon"""
+  title: String!
+
+  """Type of the coupon"""
+  type: String!
+  updated: DateTime
+}
+
+type CouponPaginate {
+  count: Float!
+  coupons: [Coupon!]
+}
+
+input CreateBlogInput {
+  """body of the blog"""
+  body: String!
+
+  """Category of the blog"""
+  category: Float!
+
+  """Featured of the blog"""
+  featured: Boolean!
+
+  """Image of the blog"""
+  image: String
+
+  """Read time of the blog"""
+  readtime: Float
+
+  """Body SEO of the blog"""
+  seobody: String
+
+  """Title SEO of the blog"""
+  seotitle: String
+
+  """Slug of the blog"""
+  slug: String!
+
+  """Status of the blog"""
+  status: Boolean!
+
+  """title of the blog"""
+  title: String!
+}
+
+input CreateCategoryInput {
+  """Description of the Category"""
+  body: String
+  category: Float
+
+  """Is course featured"""
+  featured: Boolean
+
+  """Image of the Service"""
+  image: Upload
+
+  """Title of the Category"""
+  slug: String!
+
+  """Status of the category"""
+  status: Boolean
+
+  """Title of the Category"""
+  title: String!
+
+  """Type of the Category"""
+  type: String!
+}
+
+input CreateChatInput {
+  """body of the Chat"""
+  body: String!
+
+  """Close of the Chat"""
+  closed: Boolean
+
+  """Department user of the chat"""
+  department: Float
+
+  """From user of the chat"""
+  from: Float
+
+  """Invoice user of the chat"""
+  invoice: Float
+
+  """priority of the Chat"""
+  priority: String!
+
+  """Can reply of the Chat"""
+  repliable: Boolean
+
+  """status of the Chat"""
+  status: Boolean
+
+  """subject of the Chat"""
+  subject: String!
+
+  """To user of the chat"""
+  to: [Float!]!
+
+  """type of the Chat"""
+  type: String!
+}
+
+input CreateCommentInput {
+  """body of the Comment"""
+  body: String!
+
+  """status of the Comment"""
+  status: Boolean
+
+  """User of the Comment"""
+  user: Float!
+}
+
+input CreateContactInput {
+  body: String!
+  email: String
+  name: String
+  subject: String!
+}
+
+input CreateCouponInput {
+  """description of the coupon"""
+  body: String
+
+  """Code of the coupon"""
+  code: String!
+
+  """expire date of the coupon"""
+  expiredate: DateTime
+
+  """limit of the coupon"""
+  limit: Float
+
+  """percent of the coupon"""
+  percent: Float
+
+  """start date of the coupon"""
+  startdate: DateTime
+
+  """status of the coupon"""
+  status: Boolean!
+
+  """title of the coupon"""
+  title: String!
+
+  """Type of the coupon"""
+  type: String!
+}
+
+input CreateDepartmentInput {
+  """Description of the Category"""
+  body: String
+
+  """Image of the course"""
+  image: String
+
+  """Status of the category"""
+  status: Boolean
+
+  """Title of the Category"""
+  title: String!
+}
+
+input CreateEventInput {
+  """body of the Event"""
+  body: String!
+
+  """Site of the Event"""
+  category: Float!
+
+  """Featured of the Event"""
+  featured: Boolean
+
+  """Image of the Event"""
+  image: Upload
+
+  """Body SEO of the Event"""
+  seobody: String
+
+  """Title SEO of the Event"""
+  seotitle: String
+
+  """Site of the Event"""
+  site: Float!
+
+  """Slug of the Event"""
+  slug: String!
+
+  """Status of the Event"""
+  status: Boolean!
+
+  """title of the Event"""
+  title: String!
+}
+
+input CreateInvoiceInput {
+  """discount of invoice"""
+  coupon: Float
+
+  """Payment has been done of the invoice"""
+  donepayment: Boolean!
+  duedate: DateTime
+
+  """Invoice number of the invoice"""
+  invoicenumber: Float!
+  issuedate: DateTime
+  items: [JSONObject!]
+
+  """Title of the invoice"""
+  note: String
+  order: Float
+
+  """Payment of the invoice"""
+  payment: Float
+
+  """Payment type of the invoice"""
+  paymenttype: String!
+
+  """Salesperson of the invoice"""
+  salesperson: String
+
+  """Shipping of invoice"""
+  shipping: Float
+
+  """Type of the invoice"""
+  type: String!
+
+  """User of invoice"""
+  user: Float
+}
+
+input CreateItemInput {
+  """Order of the item"""
+  order: Float!
+
+  """Price of the items"""
+  price: Float!
+
+  """Product of the item"""
+  product: Float
+
+  """number of the items"""
+  quantity: Float!
+}
+
+input CreateMessageInput {
+  """title of the Chat"""
+  body: String!
+
+  """Chat of the message"""
+  chat: Float!
+}
+
+input CreateOrderInput {
+  """Coupon of the order"""
+  coupon: Float!
+
+  """Payment of the order"""
+  payment: Float
+
+  """Shipping of the order"""
+  shipping: Float!
+
+  """status of the order"""
+  status: Boolean! = false
+
+  """Subtotal of the order"""
+  subtotal: Float!
+
+  """Amount of the order"""
+  totalprice: Float!
+
+  """User of the order"""
+  user: Float!
+}
+
+input CreatePaymentInput {
+  """Amount of the payment"""
+  amount: Float!
+
+  """Authority of the payment"""
+  authority: String!
+
+  """Course of the payment"""
+  course: Float!
+
+  """Payment method of the payment"""
+  paymentmethod: String!
+
+  """product of the payment"""
+  product: Float!
+
+  """Refid of the payment"""
+  refid: String!
+
+  """Status of the payment"""
+  statusCode: String!
+
+  """User of the payment"""
+  user: Float!
+}
+
+input CreatePlanInput {
+  """body of the Plan"""
+  body: String!
+
+  """Image of the Plan"""
+  image: Upload
+
+  """body of the Plan"""
+  price: Float
+
+  """Sms of the Plan"""
+  sms: Float
+
+  """Status of the Plan"""
+  status: Boolean!
+
+  """title of the Plan"""
+  title: String!
+}
+
+input CreateProductInput {
+  """body of the product"""
+  body: String
+
+  """Category of the product"""
+  category: Float!
+
+  """Is product featured"""
+  featured: Boolean!
+
+  """Enable comments of product"""
+  hascomment: Boolean!
+
+  """Image of the product"""
+  image: [String!]
+
+  """Off Price of the product"""
+  offprice: Float
+  prerequisite: [JSONObject!]
+
+  """Price of the product"""
+  price: Float
+
+  """Quantity of the product"""
+  quantity: Float
+
+  """Body SEO of the blog"""
+  seobody: String
+
+  """Title SEO of the blog"""
+  seotitle: String
+
+  """Slug of the Category"""
+  slug: String!
+
+  """Status of product"""
+  status: Boolean!
+
+  """title of the product"""
+  title: String!
+  variations: [JSONObject!]
+}
+
+input CreateRoleInput {
+  body: String
+  permissions: JSONObject
+
+  """Title field (placeholder)"""
+  title: String!
+}
+
+input CreateServiceInput {
+  """body of the Service"""
+  body: String!
+
+  """Events of the services"""
+  events: [Float!]
+
+  """Image of the Service"""
+  image: Upload
+
+  """body of the Service"""
+  price: Float
+
+  """Status of the Service"""
+  status: Boolean!
+
+  """title of the Service"""
+  title: String!
+}
+
+input CreateSettingInput {
+  about: String
+  address: String
+  companyName: String
+  contact: String
+  copyright: String
+  description: String
+  email: String
+  facebook: String
+  faq: String
+  favicon: String
+  instagram: String
+  keywords: String
+  linkedin: String
+  logo: String
+  logo_second: String
+  maintenance: Boolean! = false
+  phoneNumber: String
+  policy: String
+  seodescription: String
+  tax: Float
+  title: String
+  twitter: String
+  whatsapp: String
+  workinghours: String
+  youtube: String
+}
+
+input CreateShippingInput {
+  """Description of the shipping"""
+  body: String
+
+  """Cost of the shipping"""
+  cost: Float
+
+  """Status of the shipping"""
+  status: Boolean!
+
+  """Title of the shipping"""
+  title: String!
+}
+
+input CreateSiteInput {
+  """Address of website"""
+  address: String
+
+  """Description of the Site"""
+  body: String
+
+  """Domain of the Site"""
+  cardnumber: String
+
+  """Category of the Site"""
+  category: Float
+
+  """City of website"""
+  city: String
+
+  """Company name of the Site"""
+  company: String
+
+  """Country of website"""
+  country: String
+
+  """Domain of the Site"""
+  domain: String
+
+  """Email of the Site"""
+  email: String
+
+  """Language of website"""
+  language: String
+
+  """Logo of the course"""
+  logo: String
+
+  """Phonenumber of website"""
+  phonenumber: String
+
+  """Plan of the Site"""
+  plan: Float
+
+  """Body SEO of the Site"""
+  seobody: String
+
+  """Title SEO of the Site"""
+  seotitle: String
+
+  """Domain of the Site"""
+  sheba: String
+
+  """Slug of the Site"""
+  slug: String!
+
+  """Status of the Site"""
+  status: Boolean
+
+  """Timezone of website"""
+  timezone: String
+
+  """Title of the Site"""
+  title: String!
+
+  """Type of the Site"""
+  type: String!
+  user: Float
+
+  """Zipcode of website"""
+  zipcode: String
+}
+
+input CreateSliderInput {
+  alt: String
+  body: String
+  image: String
+  link: String!
+  status: Boolean!
+}
+
+input CreateUserInput {
+  """about of the user"""
+  about: String
+
+  """address of the user"""
+  address: String
+
+  """Image of the Event"""
+  avatar: Upload
+
+  """email of the user"""
+  email: String!
+
+  """first name of the user"""
+  firstName: String!
+
+  """last name of the user"""
+  lastName: String!
+
+  """Level of the user"""
+  level: String
+
+  """mobilenumber of the user"""
+  mobilenumber: Float!
+
+  """mobilenumber of the user"""
+  password: String!
+
+  """mobilenumber of the user"""
+  phonenumber: Float
+
+  """Postalcode of the user"""
+  postalcode: String
+
+  """role of the user"""
+  role: Float
+
+  """Site of the user"""
+  site: Float
+
+  """status of the user"""
+  status: Boolean
+
+  """username of the user"""
+  username: String
+
+  """type of the user"""
+  usertype: String!
+}
+
+input CreateWorkshopInput {
+  """Description of the workshop"""
+  body: String
+
+  """Capacity of workshop"""
+  capacity: Float
+
+  """Event of the workshop"""
+  event: Float
+
+  """Is workshop featured"""
+  featured: Boolean!
+
+  """Image of the Event"""
+  image: Upload
+
+  """User of the Workshop"""
+  lecturers: [Float!]
+
+  """Price of the workshop"""
+  price: Float
+
+  """Body SEO of the workshop"""
+  seobody: String
+
+  """Title SEO of the workshop"""
+  seotitle: String
+
+  """Slug of the workshop"""
+  slug: String!
+
+  """Startdate of workshop"""
+  start_date: DateTime
+
+  """State of the workshop"""
+  state: String = "not_started"
+
+  """Status of the workshop"""
+  status: Boolean
+
+  """Title of the workshop"""
+  title: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Department {
+  """Description of the Category"""
+  body: String
+
+  """Chats user of the department"""
+  chats: [Chat!]
+  created: DateTime
+
+  """id of the Category"""
+  id: Float!
+
+  """Image of the course"""
+  image: String
+
+  """Status of the category"""
+  status: Boolean
+
+  """Title of the Category"""
+  title: String!
+  updated: DateTime
+}
+
+type DepartmentPaginate {
+  count: Float!
+  departments: [Department!]
+}
+
+type Event {
+  """body of the blog"""
+  body: String!
+
+  """Author of the blog"""
+  category: Category
+  created: DateTime
+
+  """Featured of the blog"""
+  featured: Boolean!
+
+  """Id of the blog"""
+  id: Float!
+
+  """Image of the blog"""
+  image: String
+
+  """Body SEO of the blog"""
+  seobody: String
+
+  """Title SEO of the blog"""
+  seotitle: String
+
+  """Author of the blog"""
+  site: Site
+
+  """Slug of the blog"""
+  slug: String!
+
+  """Status of the blog"""
+  status: Boolean!
+
+  """title of the blog"""
+  title: String!
+  updated: DateTime
+
+  """Author of the blog"""
+  user: User
+}
+
+type EventPaginate {
+  count: Float!
+  events: [Event!]
+}
+
+input GetBlogsArgs {
+  category: String
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  sort: String
+  status: Boolean
+}
+
+input GetCategoriesArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+  type: String
+}
+
+input GetChatsArgs {
+  department: Float
+  limit: Float
+  priority: String
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+  type: String
+}
+
+input GetCommentsArgs {
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+}
+
+input GetContactsArgs {
+  category: String
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  sort: String
+  status: Boolean
+}
+
+input GetCouponsArgs {
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+  type: String
+}
+
+input GetDepartmentsArgs {
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+}
+
+input GetEventsArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  site: String
+  skip: Float!
+  sort: String
+  status: Boolean
+}
+
+input GetInvoicesArgs {
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+  type: String
+}
+
+input GetOrdersArgs {
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+  type: String
+}
+
+input GetPaymentsArgs {
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+}
+
+input GetPlansArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  site: String
+  skip: Float!
+  sort: String
+  status: Boolean
+}
+
+input GetProductsArgs {
+  category: String
+  featured: Boolean
+  limit: Float
+  price: String
+  searchTerm: String
+  skip: Float!
+  sort: String
+  status: Boolean
+}
+
+input GetRolesApiArgs {
+  limit: Float
+  searchTerm: String
+  skip: Float!
+}
+
+input GetServicesArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  site: String
+  skip: Float!
+  sort: String
+  status: Boolean
+}
+
+input GetShippingsArgs {
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+}
+
+input GetSitesArgs {
+  external: Boolean
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+  type: String
+}
+
+input GetSlidersArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+  type: String
+}
+
+input GetUsersApiArgs {
+  limit: Float
+  role: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+  usertype: String
+}
+
+input GetWorkshopsArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+}
+
+type Invoice {
+  created: DateTime
+
+  """Done payment"""
+  donepayment: Boolean!
+  duedate: DateTime
+
+  """id of the invoice"""
+  id: Float!
+
+  """Invoice number of the invoice"""
+  invoicenumber: Float!
+  issuedate: DateTime
+
+  """Title of the invoice"""
+  note: String
+
+  """Order of invoice"""
+  order: Order!
+
+  """Payment type of the invoice"""
+  paymenttype: String
+  readat: DateTime
+
+  """Salesperson of the invoice"""
+  salesperson: String
+
+  """Total of the invoice"""
+  total: Float!
+
+  """Type of the invoice"""
+  type: String!
+  updated: DateTime
+
+  """User of invoice"""
+  user: User
+}
+
+type InvoicePaginate {
+  count: Float!
+  invoices: [Invoice!]
+}
+
+type Item {
+  created: DateTime
+
+  """Id of the item"""
+  id: Float!
+
+  """Order of the item"""
+  order: Order!
+
+  """Price of the items"""
+  price: Float!
+
+  """Product of the item"""
+  product: Product
+
+  """number of the items"""
+  quantity: Float!
+  updated: DateTime
+}
+
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
+
+type Message {
+  """title of the Chat"""
+  body: String!
+
+  """Chat of the message"""
+  chat: Chat!
+  created: DateTime
+
+  """Id of the message"""
+  id: Float!
+  read: DateTime
+  updated: DateTime
+
+  """ User of the chat"""
+  user: User
+}
+
+type Mutation {
+  createBlog(input: CreateBlogInput!): Blog!
+  createCategory(input: CreateCategoryInput!): Category!
+  createChat(input: CreateChatInput!): Boolean!
+  createComment(input: CreateCommentInput!): Comment!
+  createContact(input: CreateContactInput!): Contact!
+  createCoupon(input: CreateCouponInput!): Coupon!
+  createDepartment(input: CreateDepartmentInput!): Department!
+  createEvent(input: CreateEventInput!): Event!
+  createInvoice(input: CreateInvoiceInput!): Invoice!
+  createInvoiceChat(input: CreateChatInput!): Boolean!
+  createItem(createItemInput: CreateItemInput!): Item!
+  createMessage(input: CreateMessageInput!): Message!
+  createOrder(input: CreateOrderInput!): Order!
+  createPayment(input: CreatePaymentInput!): Payment!
+  createPlan(input: CreatePlanInput!): Plan!
+  createProduct(input: CreateProductInput!): Product!
+  createRole(input: CreateRoleInput!): Role!
+  createService(input: CreateServiceInput!): Service!
+  createSetting(input: CreateSettingInput!): Setting!
+  createShipping(input: CreateShippingInput!): Shipping!
+  createSite(input: CreateSiteInput!): Site!
+  createSlider(input: CreateSliderInput!): Slider!
+  createUser(input: CreateUserInput!): User!
+  createWorkshop(input: CreateWorkshopInput!): Workshop!
+  login: User!
+  removeBlog(id: Int!): Boolean!
+  removeCategory(id: Int!): Boolean!
+  removeChat(id: Int!): Chat!
+  removeComment(id: Int!): Boolean!
+  removeContact(id: Int!): Boolean!
+  removeCoupon(id: Int!): Boolean!
+  removeDepartment(id: Int!): Boolean!
+  removeEvent(id: Int!): Boolean!
+  removeImage(id: Int!): Boolean!
+  removeInvoice(id: Int!): Boolean!
+  removeItem(id: Int!): Boolean!
+  removeMessage(id: Int!): Message!
+  removeOrder(id: Int!): Boolean!
+  removePayment(id: Int!): Boolean!
+  removePlan(id: Int!): Boolean!
+  removeProduct(id: Int!): Boolean!
+  removeRole(id: Int!): Boolean!
+  removeService(id: Int!): Boolean!
+  removeSetting(id: Int!): Setting!
+  removeShipping(id: Int!): Boolean!
+  removeSite(id: Int!): Boolean!
+  removeSlider(id: Int!): Boolean!
+  removeUser(id: Int!): Boolean!
+  removeWorkshop(id: Int!): Boolean!
+  updateBlog(input: UpdateBlogInput!): Blog!
+  updateCategory(input: UpdateCategoryInput!): Category!
+  updateComment(input: UpdateCommentInput!): Comment!
+  updateContact(input: UpdateContactInput!): Contact!
+  updateCoupon(input: UpdateCouponInput!): Coupon!
+  updateDepartment(input: UpdateDepartmentInput!): Department!
+  updateEvent(input: UpdateEventInput!): Event!
+  updateInvoice(input: UpdateInvoiceInput!): Invoice!
+  updateItem(updateItemInput: UpdateItemInput!): Item!
+  updateMessage(input: UpdateMessageInput!): Message!
+  updateOrder(input: UpdateOrderInput!): Order!
+  updatePayment(input: UpdatePaymentInput!): Payment!
+  updatePlan(input: UpdatePlanInput!): Plan!
+  updateProduct(input: UpdateProductInput!): Product!
+  updateRole(input: UpdateRoleInput!): Role!
+  updateService(input: UpdateServiceInput!): Service!
+  updateSetting(input: UpdateSettingInput!): Setting!
+  updateShipping(input: UpdateShippingInput!): Shipping!
+  updateSite(input: UpdateSiteInput!): Site!
+  updateSlider(input: UpdateSliderInput!): Slider!
+  updateUser(input: UpdateUserInput!): User!
+  updateWorkshop(input: UpdateWorkshopInput!): Workshop!
+}
+
+type Order {
+  """Coupon of the order"""
+  coupon: Coupon!
+  created: DateTime
+
+  """Id of the order"""
+  id: Float!
+
+  """Invoice of invoice"""
+  invoice: Invoice
+
+  """Items of the order"""
+  items: [Item!]
+
+  """Payment of the order"""
+  payment: Payment
+  readat: DateTime
+
+  """Shipping of the order"""
+  shipping: Shipping!
+
+  """status of the order"""
+  status: Boolean!
+
+  """Subtotal of the order"""
+  subtotal: Float!
+
+  """Amount of the order"""
+  totalprice: Float!
+  updated: DateTime
+
+  """User of the order"""
+  user: User!
+}
+
+type OrderPaginate {
+  count: Float!
+  orders: [Order!]
+}
+
+type Payment {
+  """Amount of the payment"""
+  amount: Float!
+
+  """Authority of the payment"""
+  authority: String!
+  created: DateTime
+
+  """Id of the payment"""
+  id: Float!
+
+  """Payment method of the payment"""
+  paymentmethod: String!
+
+  """Product of the payment"""
+  product: Float!
+
+  """Refid of the payment"""
+  refid: String!
+
+  """Status of the payment"""
+  statusCode: String!
+  updated: DateTime
+
+  """User of the payment"""
+  user: Float!
+}
+
+type PaymentPaginate {
+  count: Float!
+  payments: [Payment!]
+}
+
+type PermissionObjectType {
+  key: String
+  value: Boolean
+}
+
+type PermissionType {
+  create: [PermissionObjectType!]
+  delete: [PermissionObjectType!]
+  read: [PermissionObjectType!]
+  update: [PermissionObjectType!]
+}
+
+type Plan {
+  """body of the plan"""
+  body: String!
+  created: DateTime
+
+  """Id of the plan"""
+  id: Float!
+
+  """Image of the plan"""
+  image: String
+
+  """Price of the plan"""
+  price: Float
+
+  """Sms of the plan"""
+  sms: Float
+
+  """Status of the plan"""
+  status: Boolean!
+
+  """title of the plan"""
+  title: String!
+  updated: DateTime
+
+  """Author of the plan"""
+  user: User
+}
+
+type PlanPaginate {
+  count: Float!
+  plans: [Plan!]
+}
+
+type Product {
+  """body of the product"""
+  body: String
+
+  """Category of the product"""
+  category: Category!
+  created: DateTime
+
+  """Is product featured"""
+  featured: Boolean!
+
+  """Enable comments of product"""
+  hascomment: Boolean!
+
+  """Id of the product"""
+  id: Float!
+
+  """Image of the product"""
+  image: [String!]
+
+  """Off Price of the product"""
+  offprice: Float
+
+  """Price of the product"""
+  price: Float
+
+  """Quantity of the product"""
+  quantity: Float
+
+  """Body SEO of the product"""
+  seobody: String
+
+  """Title SEO of the product"""
+  seotitle: String
+
+  """Slug of the product"""
+  slug: String!
+
+  """Status of product"""
+  status: Boolean!
+
+  """title of the product"""
+  title: String!
+  updated: DateTime
+  variations: [ProductVariationType!]
+}
+
+type ProductPaginate {
+  count: Float!
+  products: [Product!]
+}
+
+type ProductVariationType {
+  idx: Float
+  value: String
+  variation: VariationType
+}
+
+type Query {
+  blog(id: Int!): Blog!
+  blogApi(slug: String!): Event!
+  blogs(input: GetBlogsArgs!): BlogPaginate!
+  blogsApi(input: GetBlogsArgs!): BlogPaginate!
+  categories(input: GetCategoriesArgs!): CategoryPaginate!
+  categoriesApi(input: GetCategoriesArgs!): CategoryPaginate!
+  category(id: Int!): Category!
+  categoryApi(id: Int!): Category!
+  chat(id: Int!): Chat!
+  chatApi(id: Int!): Chat!
+  chats(input: GetChatsArgs!): ChatPaginate!
+  chatsApi(input: GetChatsArgs!): ChatPaginate!
+  comment(id: Int!): Comment!
+  comments(input: GetCommentsArgs!): CommentPaginate!
+  contact(id: Int!): Contact!
+  contacts(input: GetContactsArgs!): ContactPaginate!
+  coupon(id: Int!): Coupon!
+  coupons(input: GetCouponsArgs!): CouponPaginate!
+  department(id: Int!): Department!
+  departments(input: GetDepartmentsArgs!): DepartmentPaginate!
+  event(id: Int!): Event!
+  events(input: GetEventsArgs!): EventPaginate!
+  eventsApi(input: GetEventsArgs!): EventPaginate!
+  getSetting: Setting!
+  invoice(id: Int!, read: Boolean! = false): Invoice!
+  invoices(input: GetInvoicesArgs!): InvoicePaginate!
+  item(id: Int!): Item!
+  items: [Item!]!
+  message(id: Int!): Message!
+  messages: [Message!]!
+  order(id: Int!, read: Boolean! = false): Order!
+  orders(input: GetOrdersArgs!): OrderPaginate!
+  payment(id: Int!): Payment!
+  payments(input: GetPaymentsArgs!): PaymentPaginate!
+  plan(id: Int!): Plan!
+  plans(input: GetPlansArgs!): PlanPaginate!
+  plansApi(input: GetPlansArgs!): PlanPaginate!
+  product(id: Int!): Product!
+  productApi(slug: String!): Product!
+  products(input: GetProductsArgs!): ProductPaginate!
+  productsApi(input: GetProductsArgs!): ProductPaginate!
+  role(id: Int!): Role!
+  roles(input: GetRolesApiArgs!): RolePaginate!
+  service(id: Int!): Service!
+  services(input: GetServicesArgs!): ServicePaginate!
+  servicesApi(input: GetServicesArgs!): ServicePaginate!
+  settings: [Setting!]!
+  shipping(id: Int!): Shipping!
+  shippings(input: GetShippingsArgs!): ShippingPaginate!
+  site(id: Int!): Site!
+  sites(input: GetSitesArgs!): SitePaginate!
+  slider(id: Int!): Slider!
+  sliders(input: GetSlidersArgs!): SliderPaginate!
+  slidersApi(input: GetSlidersArgs!): SliderPaginate!
+  user(id: Int!): User!
+  users(input: GetUsersApiArgs!): UserPaginate!
+  workshop(id: Int!): Workshop!
+  workshops(input: GetWorkshopsArgs!): WorkshopPaginate!
+}
+
+type Role {
+  """last name of the role"""
+  body: String
+  created: DateTime
+
+  """id of the role"""
+  id: Float!
+  permissions: PermissionType
+
+  """status of the coupon"""
+  status: Boolean
+
+  """first name of the role"""
+  title: String!
+  updated: DateTime
+
+  """User of role"""
+  users: [User!]
+}
+
+type RolePaginate {
+  count: Float!
+  roles: [Role!]
+}
+
+type Service {
+  """body of the service"""
+  body: String!
+  created: DateTime
+
+  """Events of the service"""
+  events: [Event!]
+
+  """Id of the service"""
+  id: Float!
+
+  """Image of the service"""
+  image: String
+
+  """Price of the service"""
+  price: Float
+
+  """Status of the service"""
+  status: Boolean!
+
+  """title of the service"""
+  title: String!
+  updated: DateTime
+
+  """Author of the service"""
+  user: User
+}
+
+type ServicePaginate {
+  count: Float!
+  services: [Service!]
+}
+
+type Setting {
+  about: String
+  address: String
+  companyName: String
+  contact: String
+  copyright: String
+  created: DateTime
+  description: String
+  email: String
+  facebook: String
+  faq: String
+  favicon: String
+
+  """Id of the Setting"""
+  id: Float!
+  instagram: String
+  keywords: String
+  linkedin: String
+  logo: String
+  logo_second: String
+  maintenance: Boolean
+  phoneNumber: String
+  policy: String
+  seodescription: String
+  tax: Float
+  title: String
+  twitter: String
+  updated: DateTime
+  whatsapp: String
+  workinghours: String
+  youtube: String
+}
+
+type Shipping {
+  """Description of the shipping"""
+  body: String
+
+  """Cost of the shipping"""
+  cost: Float
+  created: DateTime
+
+  """Id of the order"""
+  id: Float!
+
+  """Status of the shipping"""
+  status: Boolean!
+
+  """Title of the shipping"""
+  title: String!
+  updated: DateTime
+}
+
+type ShippingPaginate {
+  count: Float!
+  shippings: [Shipping!]
+}
+
+type Site {
+  """Address of website"""
+  address: String
+
+  """Description of the Site"""
+  body: String
+
+  """Domain of the Site"""
+  cardnumber: String
+
+  """category of the Site"""
+  category: Category
+
+  """City of website"""
+  city: String
+
+  """Company name of the Site"""
+  company: String
+
+  """Country of website"""
+  country: String
+  created: DateTime
+
+  """Domain of the Site"""
+  domain: String
+
+  """Email of the Site"""
+  email: String
+
+  """id of the Site"""
+  id: Float!
+
+  """Language of website"""
+  language: String
+
+  """Logo of the course"""
+  logo: String
+
+  """Phonenumber of website"""
+  phonenumber: String
+
+  """category of the Site"""
+  plan: Plan
+
+  """Body SEO of the Site"""
+  seobody: String
+
+  """Title SEO of the Site"""
+  seotitle: String
+
+  """Domain of the Site"""
+  sheba: String
+
+  """Slug of the Site"""
+  slug: String!
+
+  """Status of the Site"""
+  status: Boolean
+
+  """Timezone of website"""
+  timezone: String
+
+  """Title of the Site"""
+  title: String!
+
+  """Type of the Site"""
+  type: String!
+  updated: DateTime
+
+  """User of the site"""
+  user: User
+
+  """Zipcode of website"""
+  zipcode: String
+}
+
+type SitePaginate {
+  count: Float!
+  sites: [Site!]
+}
+
+type Slider {
+  alt: String
+  body: String
+  created: DateTime
+
+  """Id of slider"""
+  id: Float!
+  image: String
+  link: String!
+  status: Boolean!
+  updated: DateTime
+}
+
+type SliderPaginate {
+  count: Float!
+  sliders: [Slider!]
+}
+
+input UpdateBlogInput {
+  """body of the blog"""
+  body: String
+
+  """Category of the blog"""
+  category: Float
+
+  """Featured of the blog"""
+  featured: Boolean
+  id: Int!
+
+  """Image of the blog"""
+  image: String
+
+  """Read time of the blog"""
+  readtime: Float
+
+  """Body SEO of the blog"""
+  seobody: String
+
+  """Title SEO of the blog"""
+  seotitle: String
+
+  """Slug of the blog"""
+  slug: String
+
+  """Status of the blog"""
+  status: Boolean
+
+  """title of the blog"""
+  title: String
+}
+
+input UpdateCategoryInput {
+  """Description of the Category"""
+  body: String
+  category: Float
+
+  """Is course featured"""
+  featured: Boolean
+  id: Int!
+
+  """Image of the Service"""
+  image: Upload
+
+  """Title of the Category"""
+  slug: String
+
+  """Status of the category"""
+  status: Boolean
+
+  """Title of the Category"""
+  title: String
+
+  """Type of the Category"""
+  type: String
+}
+
+input UpdateCommentInput {
+  """body of the Comment"""
+  body: String
+  id: Int!
+
+  """status of the Comment"""
+  status: Boolean
+
+  """User of the Comment"""
+  user: Float
+}
+
+input UpdateContactInput {
+  body: String
+  email: String
+  id: Int!
+  name: String
+  subject: String
+}
+
+input UpdateCouponInput {
+  """description of the coupon"""
+  body: String
+
+  """Code of the coupon"""
+  code: String
+
+  """expire date of the coupon"""
+  expiredate: DateTime
+  id: Int!
+
+  """limit of the coupon"""
+  limit: Float
+
+  """percent of the coupon"""
+  percent: Float
+
+  """start date of the coupon"""
+  startdate: DateTime
+
+  """status of the coupon"""
+  status: Boolean
+
+  """title of the coupon"""
+  title: String
+
+  """Type of the coupon"""
+  type: String
+}
+
+input UpdateDepartmentInput {
+  """Description of the Category"""
+  body: String
+  id: Int!
+
+  """Image of the course"""
+  image: String
+
+  """Status of the category"""
+  status: Boolean
+
+  """Title of the Category"""
+  title: String
+}
+
+input UpdateEventInput {
+  """body of the Event"""
+  body: String
+
+  """Site of the Event"""
+  category: Float
+
+  """Featured of the Event"""
+  featured: Boolean
+  id: Int!
+
+  """Image of the Event"""
+  image: Upload
+
+  """Body SEO of the Event"""
+  seobody: String
+
+  """Title SEO of the Event"""
+  seotitle: String
+
+  """Site of the Event"""
+  site: Float
+
+  """Slug of the Event"""
+  slug: String
+
+  """Status of the Event"""
+  status: Boolean
+
+  """title of the Event"""
+  title: String
+}
+
+input UpdateInvoiceInput {
+  """discount of invoice"""
+  coupon: Float
+
+  """Payment has been done of the invoice"""
+  donepayment: Boolean
+  duedate: DateTime
+  id: Int!
+
+  """Invoice number of the invoice"""
+  invoicenumber: Float
+  issuedate: DateTime
+  items: [JSONObject!]
+
+  """Title of the invoice"""
+  note: String
+  order: Float
+
+  """Payment of the invoice"""
+  payment: Float
+
+  """Payment type of the invoice"""
+  paymenttype: String
+
+  """Salesperson of the invoice"""
+  salesperson: String
+
+  """Shipping of invoice"""
+  shipping: Float
+
+  """Type of the invoice"""
+  type: String
+
+  """User of invoice"""
+  user: Float
+}
+
+input UpdateItemInput {
+  id: Int!
+
+  """Order of the item"""
+  order: Float
+
+  """Price of the items"""
+  price: Float
+
+  """Product of the item"""
+  product: Float
+
+  """number of the items"""
+  quantity: Float
+}
+
+input UpdateMessageInput {
+  """title of the Chat"""
+  body: String
+
+  """Chat of the message"""
+  chat: Float
+  id: Int!
+}
+
+input UpdateOrderInput {
+  """Coupon of the order"""
+  coupon: Float
+  id: Int!
+
+  """Payment of the order"""
+  payment: Float
+
+  """Shipping of the order"""
+  shipping: Float
+
+  """status of the order"""
+  status: Boolean = false
+
+  """Subtotal of the order"""
+  subtotal: Float
+
+  """Amount of the order"""
+  totalprice: Float
+
+  """User of the order"""
+  user: Float
+}
+
+input UpdatePaymentInput {
+  """Amount of the payment"""
+  amount: Float
+
+  """Authority of the payment"""
+  authority: String
+
+  """Course of the payment"""
+  course: Float
+  id: Int!
+
+  """Payment method of the payment"""
+  paymentmethod: String
+
+  """product of the payment"""
+  product: Float
+
+  """Refid of the payment"""
+  refid: String
+
+  """Status of the payment"""
+  statusCode: String
+
+  """User of the payment"""
+  user: Float
+}
+
+input UpdatePlanInput {
+  """body of the Plan"""
+  body: String
+  id: Int!
+
+  """Image of the Plan"""
+  image: Upload
+
+  """body of the Plan"""
+  price: Float
+
+  """Sms of the Plan"""
+  sms: Float
+
+  """Status of the Plan"""
+  status: Boolean
+
+  """title of the Plan"""
+  title: String
+}
+
+input UpdateProductInput {
+  """body of the product"""
+  body: String
+
+  """Category of the product"""
+  category: Float
+
+  """Is product featured"""
+  featured: Boolean
+
+  """Enable comments of product"""
+  hascomment: Boolean
+  id: Int!
+
+  """Image of the product"""
+  image: [String!]
+
+  """Off Price of the product"""
+  offprice: Float
+  prerequisite: [JSONObject!]
+
+  """Price of the product"""
+  price: Float
+
+  """Quantity of the product"""
+  quantity: Float
+
+  """Body SEO of the blog"""
+  seobody: String
+
+  """Title SEO of the blog"""
+  seotitle: String
+
+  """Slug of the Category"""
+  slug: String
+
+  """Status of product"""
+  status: Boolean
+
+  """title of the product"""
+  title: String
+  variations: [JSONObject!]
+}
+
+input UpdateRoleInput {
+  body: String
+  id: Int!
+  permissions: JSONObject
+
+  """Title field (placeholder)"""
+  title: String
+}
+
+input UpdateServiceInput {
+  """body of the Service"""
+  body: String
+
+  """Events of the services"""
+  events: [Float!]
+  id: Int!
+
+  """Image of the Service"""
+  image: Upload
+
+  """body of the Service"""
+  price: Float
+
+  """Status of the Service"""
+  status: Boolean
+
+  """title of the Service"""
+  title: String
+}
+
+input UpdateSettingInput {
+  about: String
+  address: String
+  companyName: String
+  contact: String
+  copyright: String
+  description: String
+  email: String
+  facebook: String
+  faq: String
+  favicon: String
+  instagram: String
+  keywords: String
+  linkedin: String
+  logo: String
+  logo_second: String
+  maintenance: Boolean = false
+  phoneNumber: String
+  policy: String
+  seodescription: String
+  tax: Float
+  title: String
+  twitter: String
+  whatsapp: String
+  workinghours: String
+  youtube: String
+}
+
+input UpdateShippingInput {
+  """Description of the shipping"""
+  body: String
+
+  """Cost of the shipping"""
+  cost: Float
+  id: Int!
+
+  """Status of the shipping"""
+  status: Boolean
+
+  """Title of the shipping"""
+  title: String
+}
+
+input UpdateSiteInput {
+  """Address of website"""
+  address: String
+
+  """Description of the Site"""
+  body: String
+
+  """Domain of the Site"""
+  cardnumber: String
+
+  """Category of the Site"""
+  category: Float
+
+  """City of website"""
+  city: String
+
+  """Company name of the Site"""
+  company: String
+
+  """Country of website"""
+  country: String
+
+  """Domain of the Site"""
+  domain: String
+
+  """Email of the Site"""
+  email: String
+  id: Int!
+
+  """Language of website"""
+  language: String
+
+  """Logo of the course"""
+  logo: String
+
+  """Phonenumber of website"""
+  phonenumber: String
+
+  """Plan of the Site"""
+  plan: Float
+
+  """Body SEO of the Site"""
+  seobody: String
+
+  """Title SEO of the Site"""
+  seotitle: String
+
+  """Domain of the Site"""
+  sheba: String
+
+  """Slug of the Site"""
+  slug: String
+
+  """Status of the Site"""
+  status: Boolean
+
+  """Timezone of website"""
+  timezone: String
+
+  """Title of the Site"""
+  title: String
+
+  """Type of the Site"""
+  type: String
+  user: Float
+
+  """Zipcode of website"""
+  zipcode: String
+}
+
+input UpdateSliderInput {
+  alt: String
+  body: String
+  id: Int!
+  image: String
+  link: String
+  status: Boolean
+}
+
+input UpdateUserInput {
+  """about of the user"""
+  about: String
+
+  """address of the user"""
+  address: String
+
+  """Image of the Event"""
+  avatar: Upload
+
+  """email of the user"""
+  email: String
+
+  """first name of the user"""
+  firstName: String
+  id: Int!
+
+  """last name of the user"""
+  lastName: String
+
+  """Level of the user"""
+  level: String
+
+  """mobilenumber of the user"""
+  mobilenumber: Float
+
+  """mobilenumber of the user"""
+  password: String
+
+  """mobilenumber of the user"""
+  phonenumber: Float
+
+  """Postalcode of the user"""
+  postalcode: String
+
+  """role of the user"""
+  role: Float
+
+  """Site of the user"""
+  site: Float
+
+  """status of the user"""
+  status: Boolean
+
+  """username of the user"""
+  username: String
+
+  """type of the user"""
+  usertype: String
+}
+
+input UpdateWorkshopInput {
+  """Description of the workshop"""
+  body: String
+
+  """Capacity of workshop"""
+  capacity: Float
+
+  """Event of the workshop"""
+  event: Float
+
+  """Is workshop featured"""
+  featured: Boolean
+  id: Int!
+
+  """Image of the Event"""
+  image: Upload
+
+  """User of the Workshop"""
+  lecturers: [Float!]
+
+  """Price of the workshop"""
+  price: Float
+
+  """Body SEO of the workshop"""
+  seobody: String
+
+  """Title SEO of the workshop"""
+  seotitle: String
+
+  """Slug of the workshop"""
+  slug: String
+
+  """Startdate of workshop"""
+  start_date: DateTime
+
+  """State of the workshop"""
+  state: String = "not_started"
+
+  """Status of the workshop"""
+  status: Boolean
+
+  """Title of the workshop"""
+  title: String
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+type User {
+  """About of the user"""
+  about: String
+
+  """Token of the user"""
+  accesstoken: String!
+
+  """Address of the user"""
+  address: String
+
+  """Avatar of the user"""
+  avatar: String
+  created: DateTime
+
+  """Email of the user"""
+  email: String!
+
+  """First name of the user"""
+  firstName: String!
+
+  """Id of the user"""
+  id: Float!
+
+  """Last name of the user"""
+  lastName: String!
+
+  """Level of the user"""
+  level: String
+
+  """Mobilenumber of the user"""
+  mobilenumber: Float!
+
+  """Password of the user"""
+  password: String!
+
+  """Phonenumber of the user"""
+  phonenumber: Float
+
+  """postalcode of the user"""
+  postalcode: String
+
+  """Role of the user"""
+  role: Role
+
+  """Site of the user"""
+  site: Site
+
+  """Status of the user"""
+  status: Boolean
+  updated: DateTime
+
+  """Username of the user"""
+  username: String
+
+  """Type of the user"""
+  usertype: String
+}
+
+type UserPaginate {
+  count: Float!
+  users: [User!]
+}
+
+type VariationType {
+  title: String
+  value: String
+}
+
+type Workshop {
+  """Description of the workshop"""
+  body: String
+
+  """Capacity of workshop"""
+  capacity: Float
+  created: DateTime
+
+  """Event of the workshop"""
+  event: Event
+
+  """Is workshop featured"""
+  featured: Boolean!
+
+  """id of the workshop"""
+  id: Float!
+
+  """Image of the workshop"""
+  image: String
+
+  """User of the Workshop"""
+  lecturers: [User!]
+
+  """Price of the workshop"""
+  price: Float
+
+  """Body SEO of the workshop"""
+  seobody: String
+
+  """Title SEO of the workshop"""
+  seotitle: String
+
+  """Slug of the workshop"""
+  slug: String!
+
+  """Startdate of workshop"""
+  start_date: DateTime
+
+  """State of the workshop"""
+  state: String!
+
+  """Status of the workshop"""
+  status: Boolean!
+
+  """Title of the workshop"""
+  title: String!
+  updated: DateTime
+
+  """User of the workshop"""
+  user: User
+}
+
+type WorkshopPaginate {
+  count: Float!
+  workshops: [Workshop!]
+}

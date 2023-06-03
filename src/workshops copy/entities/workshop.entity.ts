@@ -86,13 +86,6 @@ export class Workshop {
   })
   start_date: Date;
 
-  @Column({ nullable: true })
-  @Field(() => Date, {
-    description: 'End date of workshop',
-    nullable: true,
-  })
-  end_date: Date;
-
   @ManyToOne(() => Event, (event) => event.id, {
     nullable: true,
     onDelete: 'SET NULL',

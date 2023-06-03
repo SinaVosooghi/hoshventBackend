@@ -63,12 +63,6 @@ export class CreateWorkshopInput {
   })
   start_date: Date;
 
-  @Field(() => Date, {
-    description: 'Enddate of workshop',
-    nullable: true,
-  })
-  end_date: Date;
-
   @Field(() => Number, { description: 'Event of the workshop', nullable: true })
   event: Event;
 

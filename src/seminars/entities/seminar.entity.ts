@@ -16,79 +16,80 @@ import {
 
 @ObjectType()
 @Entity()
-export class Workshop {
+export class Seminar {
   @PrimaryGeneratedColumn({
     type: 'bigint',
   })
-  @Field(() => Number, { description: 'id of the workshop' })
+  @Field(() => Number, { description: 'id of the seminar' })
   id: number;
 
   @Column()
-  @Field(() => String, { description: 'Title of the workshop' })
+  @Field(() => String, { description: 'Title of the seminar' })
   title: string;
 
   @Column({ unique: true })
-  @Field(() => String, { description: 'Slug of the workshop' })
+  @Field(() => String, { description: 'Slug of the seminar' })
   slug: string;
 
   @Column({ nullable: true })
   @Field(() => String, {
-    description: 'Body SEO of the workshop',
+    description: 'Body SEO of the seminar',
     nullable: true,
   })
   seobody: string;
 
   @Column({ nullable: true })
   @Field(() => String, {
-    description: 'Title SEO of the workshop',
+    description: 'Title SEO of the seminar',
     nullable: true,
   })
   seotitle: string;
 
   @Column({ nullable: true })
   @Field(() => String, {
-    description: 'Description of the workshop',
+    description: 'Description of the seminar',
     nullable: true,
   })
   body: string;
 
   @Column({ nullable: true })
   @Field(() => Number, {
-    description: 'Price of the workshop',
+    description: 'Price of the seminar',
     nullable: true,
   })
   price: number;
 
   @ManyToMany(() => User)
   @JoinTable()
-  @Field(() => [User], { description: 'User of the Workshop', nullable: true })
+  @Field(() => [User], { description: 'User of the Seminar', nullable: true })
   lecturers: User[];
 
   @Column({ nullable: true })
-  @Field(() => String, { description: 'Image of the workshop', nullable: true })
+  @Field(() => String, { description: 'Image of the seminar', nullable: true })
   image: string;
 
   @Column({ default: false })
-  @Field(() => Boolean, { description: 'Is workshop featured' })
+  @Field(() => Boolean, { description: 'Is seminar featured' })
   featured: boolean;
 
-  @Column({ nullable: true })
+  @Column({ default: 0 })
   @Field(() => Number, {
     description: 'Capacity of workshop',
     nullable: true,
+    defaultValue: 0,
   })
   capacity: number;
 
   @Column({ nullable: true })
   @Field(() => Date, {
-    description: 'Startdate of workshop',
+    description: 'Startdate of event',
     nullable: true,
   })
   start_date: Date;
 
   @Column({ nullable: true })
   @Field(() => Date, {
-    description: 'End date of workshop',
+    description: 'End date of event',
     nullable: true,
   })
   end_date: Date;
@@ -98,22 +99,22 @@ export class Workshop {
     onDelete: 'SET NULL',
   })
   @JoinTable()
-  @Field(() => Event, { description: 'Event of the workshop', nullable: true })
+  @Field(() => Event, { description: 'Event of the seminar', nullable: true })
   event: Event;
 
   @ManyToOne(() => User, (user) => user.id, { nullable: true })
-  @Field(() => User, { description: 'User of the workshop', nullable: true })
+  @Field(() => User, { description: 'User of the seminar', nullable: true })
   user: User;
 
   @Column({ default: true })
   @Field(() => Boolean, {
-    description: 'Status of the workshop',
+    description: 'Status of the seminar',
   })
   status: boolean;
 
   @Column({ default: 'not_started' })
   @Field(() => String, {
-    description: 'State of the workshop',
+    description: 'State of the seminar',
   })
   state: 'not_started' | 'running' | 'ended' | 'canceled';
 

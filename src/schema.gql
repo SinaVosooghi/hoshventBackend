@@ -374,14 +374,23 @@ input CreateEventInput {
   """body of the Event"""
   body: String!
 
+  """Capacity of seminar"""
+  capacity: Float
+
   """Site of the Event"""
   category: Float!
+
+  """Enddate of workshop"""
+  end_date: DateTime
 
   """Featured of the Event"""
   featured: Boolean
 
   """Image of the Event"""
   image: Upload
+
+  """Price of the Event"""
+  price: Float
 
   """Body SEO of the Event"""
   seobody: String
@@ -394,6 +403,9 @@ input CreateEventInput {
 
   """Slug of the Event"""
   slug: String!
+
+  """Startdate of workshop"""
+  start_date: DateTime
 
   """Status of the Event"""
   status: Boolean!
@@ -580,6 +592,53 @@ input CreateRoleInput {
   title: String!
 }
 
+input CreateSeminarInput {
+  """Description of the seminar"""
+  body: String
+
+  """Capacity of Seminar"""
+  capacity: Float
+
+  """Enddate of Seminar"""
+  end_date: DateTime
+
+  """Event of the seminar"""
+  event: Float
+
+  """Is seminar featured"""
+  featured: Boolean!
+
+  """Image of the Seminar"""
+  image: Upload
+
+  """User of the Seminar"""
+  lecturers: [Float!]
+
+  """Price of the seminar"""
+  price: Float
+
+  """Body SEO of the seminar"""
+  seobody: String
+
+  """Title SEO of the seminar"""
+  seotitle: String
+
+  """Slug of the seminar"""
+  slug: String!
+
+  """Startdate of Seminar"""
+  start_date: DateTime
+
+  """State of the seminar"""
+  state: String = "not_started"
+
+  """Status of the seminar"""
+  status: Boolean
+
+  """Title of the seminar"""
+  title: String!
+}
+
 input CreateServiceInput {
   """body of the Service"""
   body: String!
@@ -729,6 +788,9 @@ input CreateUserInput {
   """Image of the Event"""
   avatar: Upload
 
+  """Category of the user"""
+  category: Float!
+
   """email of the user"""
   email: String!
 
@@ -775,6 +837,9 @@ input CreateWorkshopInput {
 
   """Capacity of workshop"""
   capacity: Float
+
+  """Enddate of workshop"""
+  end_date: DateTime
 
   """Event of the workshop"""
   event: Float
@@ -849,9 +914,15 @@ type Event {
   """body of the blog"""
   body: String!
 
+  """Capacity of seminar"""
+  capacity: Float
+
   """Author of the blog"""
   category: Category
   created: DateTime
+
+  """End date of event"""
+  end_date: DateTime
 
   """Featured of the blog"""
   featured: Boolean!
@@ -861,6 +932,9 @@ type Event {
 
   """Image of the blog"""
   image: String
+
+  """Price of the seminar"""
+  price: Float
 
   """Body SEO of the blog"""
   seobody: String
@@ -873,6 +947,9 @@ type Event {
 
   """Slug of the blog"""
   slug: String!
+
+  """Startdate of event"""
+  start_date: DateTime
 
   """Status of the blog"""
   status: Boolean!
@@ -1009,6 +1086,14 @@ input GetRolesApiArgs {
   limit: Float
   searchTerm: String
   skip: Float!
+}
+
+input GetSeminarsArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
 }
 
 input GetServicesArgs {
@@ -1167,6 +1252,7 @@ type Mutation {
   createPlan(input: CreatePlanInput!): Plan!
   createProduct(input: CreateProductInput!): Product!
   createRole(input: CreateRoleInput!): Role!
+  createSeminar(input: CreateSeminarInput!): Seminar!
   createService(input: CreateServiceInput!): Service!
   createSetting(input: CreateSettingInput!): Setting!
   createShipping(input: CreateShippingInput!): Shipping!
@@ -1192,6 +1278,7 @@ type Mutation {
   removePlan(id: Int!): Boolean!
   removeProduct(id: Int!): Boolean!
   removeRole(id: Int!): Boolean!
+  removeSeminar(id: Int!): Boolean!
   removeService(id: Int!): Boolean!
   removeSetting(id: Int!): Setting!
   removeShipping(id: Int!): Boolean!
@@ -1214,6 +1301,7 @@ type Mutation {
   updatePlan(input: UpdatePlanInput!): Plan!
   updateProduct(input: UpdateProductInput!): Product!
   updateRole(input: UpdateRoleInput!): Role!
+  updateSeminar(input: UpdateSeminarInput!): Seminar!
   updateService(input: UpdateServiceInput!): Service!
   updateSetting(input: UpdateSettingInput!): Setting!
   updateShipping(input: UpdateShippingInput!): Shipping!
@@ -1443,6 +1531,8 @@ type Query {
   productsApi(input: GetProductsArgs!): ProductPaginate!
   role(id: Int!): Role!
   roles(input: GetRolesApiArgs!): RolePaginate!
+  seminar(id: Int!): Seminar!
+  seminars(input: GetSeminarsArgs!): SeminarPaginate!
   service(id: Int!): Service!
   services(input: GetServicesArgs!): ServicePaginate!
   servicesApi(input: GetServicesArgs!): ServicePaginate!
@@ -1483,6 +1573,66 @@ type Role {
 type RolePaginate {
   count: Float!
   roles: [Role!]
+}
+
+type Seminar {
+  """Description of the seminar"""
+  body: String
+
+  """Capacity of workshop"""
+  capacity: Float
+  created: DateTime
+
+  """End date of event"""
+  end_date: DateTime
+
+  """Event of the seminar"""
+  event: Event
+
+  """Is seminar featured"""
+  featured: Boolean!
+
+  """id of the seminar"""
+  id: Float!
+
+  """Image of the seminar"""
+  image: String
+
+  """User of the Seminar"""
+  lecturers: [User!]
+
+  """Price of the seminar"""
+  price: Float
+
+  """Body SEO of the seminar"""
+  seobody: String
+
+  """Title SEO of the seminar"""
+  seotitle: String
+
+  """Slug of the seminar"""
+  slug: String!
+
+  """Startdate of event"""
+  start_date: DateTime
+
+  """State of the seminar"""
+  state: String!
+
+  """Status of the seminar"""
+  status: Boolean!
+
+  """Title of the seminar"""
+  title: String!
+  updated: DateTime
+
+  """User of the seminar"""
+  user: User
+}
+
+type SeminarPaginate {
+  count: Float!
+  seminars: [Seminar!]
 }
 
 type Service {
@@ -1801,8 +1951,14 @@ input UpdateEventInput {
   """body of the Event"""
   body: String
 
+  """Capacity of seminar"""
+  capacity: Float
+
   """Site of the Event"""
   category: Float
+
+  """Enddate of workshop"""
+  end_date: DateTime
 
   """Featured of the Event"""
   featured: Boolean
@@ -1810,6 +1966,9 @@ input UpdateEventInput {
 
   """Image of the Event"""
   image: Upload
+
+  """Price of the Event"""
+  price: Float
 
   """Body SEO of the Event"""
   seobody: String
@@ -1822,6 +1981,9 @@ input UpdateEventInput {
 
   """Slug of the Event"""
   slug: String
+
+  """Startdate of workshop"""
+  start_date: DateTime
 
   """Status of the Event"""
   status: Boolean
@@ -2017,6 +2179,54 @@ input UpdateRoleInput {
   title: String
 }
 
+input UpdateSeminarInput {
+  """Description of the seminar"""
+  body: String
+
+  """Capacity of Seminar"""
+  capacity: Float
+
+  """Enddate of Seminar"""
+  end_date: DateTime
+
+  """Event of the seminar"""
+  event: Float
+
+  """Is seminar featured"""
+  featured: Boolean
+  id: Int!
+
+  """Image of the Seminar"""
+  image: Upload
+
+  """User of the Seminar"""
+  lecturers: [Float!]
+
+  """Price of the seminar"""
+  price: Float
+
+  """Body SEO of the seminar"""
+  seobody: String
+
+  """Title SEO of the seminar"""
+  seotitle: String
+
+  """Slug of the seminar"""
+  slug: String
+
+  """Startdate of Seminar"""
+  start_date: DateTime
+
+  """State of the seminar"""
+  state: String = "not_started"
+
+  """Status of the seminar"""
+  status: Boolean
+
+  """Title of the seminar"""
+  title: String
+}
+
 input UpdateServiceInput {
   """body of the Service"""
   body: String
@@ -2170,6 +2380,9 @@ input UpdateUserInput {
   """Image of the Event"""
   avatar: Upload
 
+  """Category of the user"""
+  category: Float
+
   """email of the user"""
   email: String
 
@@ -2217,6 +2430,9 @@ input UpdateWorkshopInput {
 
   """Capacity of workshop"""
   capacity: Float
+
+  """Enddate of workshop"""
+  end_date: DateTime
 
   """Event of the workshop"""
   event: Float
@@ -2271,6 +2487,9 @@ type User {
 
   """Avatar of the user"""
   avatar: String
+
+  """Category of the user"""
+  category: Category
   created: DateTime
 
   """Email of the user"""
@@ -2334,6 +2553,9 @@ type Workshop {
   """Capacity of workshop"""
   capacity: Float
   created: DateTime
+
+  """End date of workshop"""
+  end_date: DateTime
 
   """Event of the workshop"""
   event: Event

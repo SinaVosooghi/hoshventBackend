@@ -1,5 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { GraphQLUpload } from 'graphql-upload';
+import { Category } from 'src/categories/entities/category.entity';
 import { Role } from 'src/roles/entities/role.entity';
 import { Site } from 'src/sites/entities/site.entity';
 import { Stream } from 'stream';
@@ -55,6 +56,9 @@ export class CreateUserInput {
   })
   phonenumber: number;
 
+  @Field(() => Number, { description: 'Category of the user' })
+  category?: Category;
+
   @Field(() => GraphQLUpload, {
     description: 'Image of the Event',
     nullable: true,
@@ -62,7 +66,7 @@ export class CreateUserInput {
   avatar?: Promise<FileUpload>;
 
   @Field(() => String, { description: 'type of the user' })
-  usertype: 'super' | 'merchant' | 'judge' | 'user' | 'lecturer';
+  usertype: 'super' | 'merchant' | 'instructor' | 'user' | 'lecturer';
 
   @Field(() => String, { description: 'Level of the user', nullable: true })
   level?: 'county' | 'city' | 'provice' | 'area' | 'all';

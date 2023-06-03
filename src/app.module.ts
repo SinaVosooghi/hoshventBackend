@@ -32,6 +32,7 @@ import { WorkshopsModule } from './workshops/workshops.module';
 import { EventsModule } from './events/events.module';
 import { ServicesModule } from './services/services.module';
 import { PlansModule } from './plans/plans.module';
+import { SeminarsModule } from './seminars/seminars.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { PlansModule } from './plans/plans.module';
     EventsModule,
     ServicesModule,
     PlansModule,
+    SeminarsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

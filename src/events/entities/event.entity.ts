@@ -51,6 +51,13 @@ export class Event {
   @Field(() => Site, { description: 'Author of the blog', nullable: true })
   site: Site;
 
+  @Column({ nullable: true })
+  @Field(() => Number, {
+    description: 'Price of the seminar',
+    nullable: true,
+  })
+  price: number;
+
   @ManyToOne(() => Category, (category) => category.id, {
     nullable: true,
     onDelete: 'SET NULL',
@@ -84,6 +91,27 @@ export class Event {
     nullable: true,
   })
   seotitle: string;
+
+  @Column({ nullable: true })
+  @Field(() => Date, {
+    description: 'Startdate of event',
+    nullable: true,
+  })
+  start_date: Date;
+
+  @Column({ nullable: true })
+  @Field(() => Date, {
+    description: 'End date of event',
+    nullable: true,
+  })
+  end_date: Date;
+
+  @Column({ nullable: true })
+  @Field(() => Number, {
+    description: 'Capacity of seminar',
+    nullable: true,
+  })
+  capacity: number;
 
   @CreateDateColumn({
     type: 'timestamp',

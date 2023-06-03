@@ -42,7 +42,7 @@ export class Category {
 
   @Column()
   @Field(() => String, { description: 'Type of the Category' })
-  type: 'site' | 'blog' | 'event';
+  type: 'site' | 'blog' | 'event' | 'user';
 
   @Column({ nullable: true })
   @Field(() => String, {

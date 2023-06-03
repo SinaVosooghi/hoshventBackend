@@ -40,6 +40,12 @@ export class CreateEventInput {
   })
   featured: boolean;
 
+  @Field(() => Number, {
+    description: 'Price of the Event',
+    nullable: true,
+  })
+  price: number;
+
   @Field(() => String, { description: 'Slug of the Event' })
   slug: string;
 
@@ -54,4 +60,22 @@ export class CreateEventInput {
     nullable: true,
   })
   seotitle: string;
+
+  @Field(() => Number, {
+    description: 'Capacity of seminar',
+    nullable: true,
+  })
+  capacity: number;
+
+  @Field(() => Date, {
+    description: 'Startdate of workshop',
+    nullable: true,
+  })
+  start_date: Date;
+
+  @Field(() => Date, {
+    description: 'Enddate of workshop',
+    nullable: true,
+  })
+  end_date: Date;
 }

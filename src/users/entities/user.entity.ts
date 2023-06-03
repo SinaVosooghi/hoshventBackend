@@ -11,6 +11,7 @@ import {
 import { ObjectType, Field } from '@nestjs/graphql';
 import { Role } from 'src/roles/entities/role.entity';
 import { Site } from 'src/sites/entities/site.entity';
+import { Category } from 'src/categories/entities/category.entity';
 
 @ObjectType()
 @Entity()
@@ -75,13 +76,23 @@ export class User {
   })
   postalcode: string;
 
+  @ManyToOne(() => Category, (category) => category.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Category, {
+    description: 'Category of the user',
+    nullable: true,
+  })
+  category: Category;
+
   @Column({ default: true })
   @Field(() => Boolean, { description: 'Status of the user', nullable: true })
   status: boolean;
 
   @Column({ default: 'user', nullable: true })
   @Field(() => String, { description: 'Type of the user', nullable: true })
-  usertype: 'super' | 'merchant' | 'judge' | 'user' | 'lecturer';
+  usertype: 'super' | 'merchant' | 'instructor' | 'user' | 'lecturer';
 
   @Column({ nullable: true })
   @Field(() => String, { description: 'Level of the user', nullable: true })

@@ -2,7 +2,7 @@ import { ArgsType, Field, InputType } from '@nestjs/graphql';
 
 @ArgsType()
 @InputType()
-export class GetUsersApiArgs {
+export class GetWorkshopsArgs {
   @Field({ nullable: true })
   limit: number;
 
@@ -10,14 +10,11 @@ export class GetUsersApiArgs {
   skip: number;
 
   @Field({ nullable: true })
+  status: boolean;
+
+  @Field({ nullable: true })
+  featured: boolean;
+
+  @Field({ nullable: true })
   searchTerm?: string;
-
-  @Field({ nullable: true })
-  role?: number;
-
-  @Field({ nullable: true })
-  usertype: 'super' | 'merchant' | 'instructor' | 'user' | 'lecturer';
-
-  @Field({ nullable: true })
-  status?: boolean;
 }

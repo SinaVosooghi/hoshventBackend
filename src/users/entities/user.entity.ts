@@ -63,7 +63,7 @@ export class User {
 
   @Column({ nullable: true })
   @Field(() => String, { description: 'Avatar of the user', nullable: true })
-  avatar: string;
+  avatar?: string;
 
   @Column({ nullable: true })
   @Field(() => String, { description: 'Address of the user', nullable: true })

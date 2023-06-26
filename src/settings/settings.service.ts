@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateSettingInput } from './dto/create-setting.input';
 import { UpdateSettingInput } from './dto/update-setting.input';
 import { Setting } from './entities/setting.entity';
+import { imageUploader } from 'src/utils/imageUploader';
 
 @Injectable()
 export class SettingsService {
@@ -13,7 +14,17 @@ export class SettingsService {
   ) {}
 
   async create(createSettingInput: CreateSettingInput): Promise<Setting> {
-    const item = await this.settingRepository.create(createSettingInput);
+    let logo = null;
+    if (createSettingInput.logo) {
+      const imageUpload = await imageUploader(createSettingInput.logo);
+      logo = imageUpload.image;
+    }
+
+    const item = await this.settingRepository.create({
+      ...createSettingInput,
+      logo,
+    });
+
     return await this.settingRepository.save(item);
   }
 
@@ -35,6 +46,12 @@ export class SettingsService {
   }
 
   async update(updateSettingInput: UpdateSettingInput): Promise<Setting> {
+    let logo = null;
+    if (updateSettingInput.logo) {
+      const imageUpload = await imageUploader(updateSettingInput.logo);
+      logo = imageUpload.image;
+    }
+
     const setting = await this.settingRepository.find({
       skip: 0,
       take: 1,
@@ -47,7 +64,7 @@ export class SettingsService {
 
     const settings = await this.settingRepository
       .createQueryBuilder('message')
-      .update(updateSettingInput)
+      .update({ ...updateSettingInput, ...(logo && { logo: logo }) })
       .where({ id: setting[0].id })
       .returning('*')
       .execute();

@@ -47,6 +47,33 @@ type BlogPaginate {
   count: Float!
 }
 
+type Brand {
+  """Description of the Brand"""
+  body: String
+  created: DateTime
+
+  """Is brand featured"""
+  featured: Boolean!
+
+  """id of the Brand"""
+  id: Float!
+
+  """Image of the course"""
+  image: String
+
+  """Status of the brand"""
+  status: Boolean
+
+  """Title of the Brand"""
+  title: String!
+  updated: DateTime
+}
+
+type BrandPaginate {
+  brands: [Brand!]
+  count: Float!
+}
+
 type Category {
   """Description of the Category"""
   body: String
@@ -250,6 +277,24 @@ input CreateBlogInput {
   title: String!
 }
 
+input CreateBrandInput {
+  """Description of the Brand"""
+  body: String
+  brand: Float
+
+  """Is course featured"""
+  featured: Boolean
+
+  """Image of the Service"""
+  image: Upload
+
+  """Status of the brand"""
+  status: Boolean
+
+  """Title of the Brand"""
+  title: String!
+}
+
 input CreateCategoryInput {
   """Description of the Category"""
   body: String
@@ -379,6 +424,9 @@ input CreateEventInput {
 
   """Site of the Event"""
   category: Float!
+
+  """Duration of the course"""
+  duration: String
 
   """Enddate of workshop"""
   end_date: DateTime
@@ -665,6 +713,7 @@ input CreateSettingInput {
   companyName: String
   contact: String
   copyright: String
+  currency: String
   description: String
   email: String
   facebook: String
@@ -673,7 +722,9 @@ input CreateSettingInput {
   instagram: String
   keywords: String
   linkedin: String
-  logo: String
+
+  """Image of the Service"""
+  logo: Upload
   logo_second: String
   maintenance: Boolean! = false
   phoneNumber: String
@@ -921,6 +972,9 @@ type Event {
   category: Category
   created: DateTime
 
+  """Duration of the course"""
+  duration: String
+
   """End date of event"""
   end_date: DateTime
 
@@ -974,6 +1028,14 @@ input GetBlogsArgs {
   searchTerm: String
   skip: Float!
   sort: String
+  status: Boolean
+}
+
+input GetBrandsArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  skip: Float!
   status: Boolean
 }
 
@@ -1236,6 +1298,7 @@ type Message {
 
 type Mutation {
   createBlog(input: CreateBlogInput!): Blog!
+  createBrand(input: CreateBrandInput!): Brand!
   createCategory(input: CreateCategoryInput!): Category!
   createChat(input: CreateChatInput!): Boolean!
   createComment(input: CreateCommentInput!): Comment!
@@ -1262,6 +1325,7 @@ type Mutation {
   createWorkshop(input: CreateWorkshopInput!): Workshop!
   login: User!
   removeBlog(id: Int!): Boolean!
+  removeBrand(id: Int!): Boolean!
   removeCategory(id: Int!): Boolean!
   removeChat(id: Int!): Chat!
   removeComment(id: Int!): Boolean!
@@ -1287,6 +1351,7 @@ type Mutation {
   removeUser(id: Int!): Boolean!
   removeWorkshop(id: Int!): Boolean!
   updateBlog(input: UpdateBlogInput!): Blog!
+  updateBrand(input: UpdateBrandInput!): Brand!
   updateCategory(input: UpdateCategoryInput!): Category!
   updateComment(input: UpdateCommentInput!): Comment!
   updateContact(input: UpdateContactInput!): Contact!
@@ -1492,6 +1557,10 @@ type Query {
   blogApi(slug: String!): Event!
   blogs(input: GetBlogsArgs!): BlogPaginate!
   blogsApi(input: GetBlogsArgs!): BlogPaginate!
+  brand(id: Int!): Brand!
+  brandApi(id: Int!): Brand!
+  brands(input: GetBrandsArgs!): BrandPaginate!
+  brandsApi(input: GetBrandsArgs!): BrandPaginate!
   categories(input: GetCategoriesArgs!): CategoryPaginate!
   categoriesApi(input: GetCategoriesArgs!): CategoryPaginate!
   category(id: Int!): Category!
@@ -1675,6 +1744,7 @@ type Setting {
   contact: String
   copyright: String
   created: DateTime
+  currency: String
   description: String
   email: String
   facebook: String
@@ -1857,6 +1927,25 @@ input UpdateBlogInput {
   title: String
 }
 
+input UpdateBrandInput {
+  """Description of the Brand"""
+  body: String
+  brand: Float
+
+  """Is course featured"""
+  featured: Boolean
+  id: Int!
+
+  """Image of the Service"""
+  image: Upload
+
+  """Status of the brand"""
+  status: Boolean
+
+  """Title of the Brand"""
+  title: String
+}
+
 input UpdateCategoryInput {
   """Description of the Category"""
   body: String
@@ -1956,6 +2045,9 @@ input UpdateEventInput {
 
   """Site of the Event"""
   category: Float
+
+  """Duration of the course"""
+  duration: String
 
   """Enddate of workshop"""
   end_date: DateTime
@@ -2254,6 +2346,7 @@ input UpdateSettingInput {
   companyName: String
   contact: String
   copyright: String
+  currency: String
   description: String
   email: String
   facebook: String
@@ -2262,7 +2355,9 @@ input UpdateSettingInput {
   instagram: String
   keywords: String
   linkedin: String
-  logo: String
+
+  """Image of the Service"""
+  logo: Upload
   logo_second: String
   maintenance: Boolean = false
   phoneNumber: String

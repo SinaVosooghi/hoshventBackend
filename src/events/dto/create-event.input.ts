@@ -25,6 +25,12 @@ export class CreateEventInput {
   })
   image: Promise<FileUpload>;
 
+  @Field(() => String, {
+    description: 'Duration of the course',
+    nullable: true,
+  })
+  duration?: string;
+
   @Field(() => Number, { description: 'Site of the Event' })
   site: Site;
 

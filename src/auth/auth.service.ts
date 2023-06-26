@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { jwtSecret } from './constants';
+import { use } from 'passport';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
@@ -20,13 +25,6 @@ export class AuthService {
     return isMatch ? user : null;
   }
 
-  async getUser(id: number): Promise<User> {
-    const foundUser = await this.userService.findOne(id);
-    if (!foundUser) return null;
-
-    return foundUser;
-  }
-
   async login(user: User): Promise<{
     access_token: string;
     type: string;
@@ -34,7 +32,6 @@ export class AuthService {
     lastName: string;
     uid: number;
     avatar: string;
-    email: string;
   }> {
     const payload = {
       email: user.email,
@@ -48,7 +45,6 @@ export class AuthService {
       type: user.usertype,
       firstName: user.firstName,
       lastName: user.lastName,
-      email: user.email,
       uid: user.id,
       access_token: AT,
       avatar: user.avatar,
@@ -61,6 +57,22 @@ export class AuthService {
     firstName: string;
     lastName: string;
   }> {
+    const userWithEmail = await this.userRepository.findOneBy({
+      email: user.email,
+    });
+
+    if (userWithEmail) {
+      throw new Error('Already exist, User with this email!');
+    }
+
+    const userWithMobile = await this.userRepository.findOneBy({
+      mobilenumber: user.mobilenumber,
+    });
+
+    if (userWithMobile) {
+      throw new Error('Already exist, User with this mobile!');
+    }
+
     const createdUser = await this.userService.create({
       firstName: user.firstName,
       lastName: user.lastName,

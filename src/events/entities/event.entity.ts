@@ -87,6 +87,13 @@ export class Event {
 
   @Column({ nullable: true })
   @Field(() => String, {
+    description: 'Duration of the course',
+    nullable: true,
+  })
+  duration: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, {
     description: 'Title SEO of the blog',
     nullable: true,
   })

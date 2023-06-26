@@ -101,7 +101,7 @@ export class BlogsService {
 
     const blog = await this.blogRepository
       .createQueryBuilder('blog')
-      .update({ ...image })
+      .update({ ...updateBlogInput, ...(image && { image: image }) })
       .where({ id: id })
       .returning('*')
       .execute();

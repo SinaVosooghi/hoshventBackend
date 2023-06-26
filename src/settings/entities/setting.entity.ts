@@ -68,6 +68,10 @@ export class Setting {
 
   @Column({ nullable: true })
   @Field({ nullable: true })
+  currency: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
   seodescription: string;
 
   @Column({ nullable: true })

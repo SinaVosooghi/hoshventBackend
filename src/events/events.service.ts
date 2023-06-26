@@ -108,7 +108,7 @@ export class EventsService {
 
     const event = await this.eventRepository
       .createQueryBuilder('event')
-      .update({ ...updateEventInput, image })
+      .update({ ...updateEventInput, ...(image && { image: image }) })
       .where({ id: id })
       .returning('*')
       .execute();

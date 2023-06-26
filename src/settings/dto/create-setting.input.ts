@@ -1,5 +1,13 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
+import { GraphQLUpload } from 'graphql-upload';
+import { Stream } from 'stream';
 
+export interface FileUpload {
+  filename: string;
+  mimetype: string;
+  encoding: string;
+  createReadStream: () => Stream;
+}
 @InputType()
 export class CreateSettingInput {
   @Field({ nullable: true })
@@ -20,8 +28,11 @@ export class CreateSettingInput {
   @Field({ nullable: true })
   email: string;
 
-  @Field({ nullable: true })
-  logo: string;
+  @Field(() => GraphQLUpload, {
+    description: 'Image of the Service',
+    nullable: true,
+  })
+  logo: Promise<FileUpload>;
 
   @Field({ nullable: true })
   logo_second: string;
@@ -76,4 +87,7 @@ export class CreateSettingInput {
 
   @Field({ nullable: true })
   instagram: string;
+
+  @Field({ nullable: true })
+  currency: string;
 }

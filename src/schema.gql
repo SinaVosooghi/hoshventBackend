@@ -437,6 +437,9 @@ input CreateEventInput {
   """Image of the Event"""
   image: Upload
 
+  """Offprice of seminar"""
+  offprice: Float
+
   """Price of the Event"""
   price: Float
 
@@ -460,6 +463,9 @@ input CreateEventInput {
 
   """title of the Event"""
   title: String!
+
+  """Video of the Event"""
+  video: String
 }
 
 input CreateInvoiceInput {
@@ -571,7 +577,7 @@ input CreatePaymentInput {
 
 input CreatePlanInput {
   """body of the Plan"""
-  body: String!
+  body: String
 
   """Image of the Plan"""
   image: Upload
@@ -579,11 +585,20 @@ input CreatePlanInput {
   """body of the Plan"""
   price: Float
 
+  """Service of the plans"""
+  services: [Float!]
+
+  """Slug of the plan"""
+  slug: String!
+
   """Sms of the Plan"""
   sms: Float
 
   """Status of the Plan"""
   status: Boolean!
+
+  """Subtitle of the plan"""
+  subtitle: String
 
   """title of the Plan"""
   title: String!
@@ -730,6 +745,7 @@ input CreateSettingInput {
   phoneNumber: String
   policy: String
   seodescription: String
+  support: String
   tax: Float
   title: String
   twitter: String
@@ -824,7 +840,10 @@ input CreateSiteInput {
 input CreateSliderInput {
   alt: String
   body: String
-  image: String
+  featured: Boolean!
+
+  """Image of the Service"""
+  image: Upload
   link: String!
   status: Boolean!
 }
@@ -987,6 +1006,9 @@ type Event {
   """Image of the blog"""
   image: String
 
+  """OFF Price of the seminar"""
+  offprice: Float
+
   """Price of the seminar"""
   price: Float
 
@@ -1014,6 +1036,9 @@ type Event {
 
   """Author of the blog"""
   user: User
+
+  """video of the seminar"""
+  video: String
 }
 
 type EventPaginate {
@@ -1463,7 +1488,7 @@ type PermissionType {
 
 type Plan {
   """body of the plan"""
-  body: String!
+  body: String
   created: DateTime
 
   """Id of the plan"""
@@ -1475,11 +1500,20 @@ type Plan {
   """Price of the plan"""
   price: Float
 
+  """Service of plan"""
+  services: [Service!]
+
+  """Slug of the plan"""
+  slug: String!
+
   """Sms of the plan"""
   sms: Float
 
   """Status of the plan"""
   status: Boolean!
+
+  """Subtitle of the plan"""
+  subtitle: String
 
   """title of the plan"""
   title: String!
@@ -1554,7 +1588,7 @@ type ProductVariationType {
 
 type Query {
   blog(id: Int!): Blog!
-  blogApi(slug: String!): Event!
+  blogApi(slug: String!): Blog!
   blogs(input: GetBlogsArgs!): BlogPaginate!
   blogsApi(input: GetBlogsArgs!): BlogPaginate!
   brand(id: Int!): Brand!
@@ -1578,6 +1612,7 @@ type Query {
   department(id: Int!): Department!
   departments(input: GetDepartmentsArgs!): DepartmentPaginate!
   event(id: Int!): Event!
+  eventApi(slug: String!): Event!
   events(input: GetEventsArgs!): EventPaginate!
   eventsApi(input: GetEventsArgs!): EventPaginate!
   getSetting: Setting!
@@ -1592,6 +1627,7 @@ type Query {
   payment(id: Int!): Payment!
   payments(input: GetPaymentsArgs!): PaymentPaginate!
   plan(id: Int!): Plan!
+  planApi(slug: String!): Plan!
   plans(input: GetPlansArgs!): PlanPaginate!
   plansApi(input: GetPlansArgs!): PlanPaginate!
   product(id: Int!): Product!
@@ -1762,6 +1798,7 @@ type Setting {
   phoneNumber: String
   policy: String
   seodescription: String
+  support: String
   tax: Float
   title: String
   twitter: String
@@ -1880,6 +1917,7 @@ type Slider {
   alt: String
   body: String
   created: DateTime
+  featured: Boolean!
 
   """Id of slider"""
   id: Float!
@@ -2059,6 +2097,9 @@ input UpdateEventInput {
   """Image of the Event"""
   image: Upload
 
+  """Offprice of seminar"""
+  offprice: Float
+
   """Price of the Event"""
   price: Float
 
@@ -2082,6 +2123,9 @@ input UpdateEventInput {
 
   """title of the Event"""
   title: String
+
+  """Video of the Event"""
+  video: String
 }
 
 input UpdateInvoiceInput {
@@ -2208,11 +2252,20 @@ input UpdatePlanInput {
   """body of the Plan"""
   price: Float
 
+  """Service of the plans"""
+  services: [Float!]
+
+  """Slug of the plan"""
+  slug: String
+
   """Sms of the Plan"""
   sms: Float
 
   """Status of the Plan"""
   status: Boolean
+
+  """Subtitle of the plan"""
+  subtitle: String
 
   """title of the Plan"""
   title: String
@@ -2363,6 +2416,7 @@ input UpdateSettingInput {
   phoneNumber: String
   policy: String
   seodescription: String
+  support: String
   tax: Float
   title: String
   twitter: String
@@ -2459,8 +2513,11 @@ input UpdateSiteInput {
 input UpdateSliderInput {
   alt: String
   body: String
+  featured: Boolean
   id: Int!
-  image: String
+
+  """Image of the Service"""
+  image: Upload
   link: String
   status: Boolean
 }

@@ -122,7 +122,7 @@ export class ServicesService {
     const service = await this.serviceRepository
       .createQueryBuilder()
       .update()
-      .set({ ...updateServiceInput, image })
+      .set({ ...updateServiceInput, ...(image && { image: image }) })
       .where({ id: id })
       .returning('*')
       .execute();

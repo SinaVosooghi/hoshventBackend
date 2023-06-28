@@ -67,11 +67,23 @@ export class CreateEventInput {
   })
   seotitle: string;
 
+  @Field(() => String, {
+    description: 'Video of the Event',
+    nullable: true,
+  })
+  video: string;
+
   @Field(() => Number, {
     description: 'Capacity of seminar',
     nullable: true,
   })
   capacity: number;
+
+  @Field(() => Number, {
+    description: 'Offprice of seminar',
+    nullable: true,
+  })
+  offprice: number;
 
   @Field(() => Date, {
     description: 'Startdate of workshop',

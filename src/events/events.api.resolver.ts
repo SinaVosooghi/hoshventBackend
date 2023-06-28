@@ -13,8 +13,9 @@ export class EventsApiResolver {
     return this.eventsService.findAll(getEventsArgs);
   }
 
-  @Query(() => Event, { name: 'blogApi' })
+  @Query(() => Event, { name: 'eventApi' })
   findOne(@Args('slug', { type: () => String }) slug: string) {
+    console.log(1231231);
     return this.eventsService.findOneApi(slug);
   }
 }

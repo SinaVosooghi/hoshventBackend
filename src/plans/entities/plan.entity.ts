@@ -1,4 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
+import { Service } from 'src/services/entities/services.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -10,7 +11,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Event } from 'src/events/entities/event.entity';
 
 @ObjectType()
 @Entity()
@@ -26,7 +26,15 @@ export class Plan {
   title: string;
 
   @Column({ nullable: true })
-  @Field(() => String, { description: 'body of the plan' })
+  @Field(() => String, { description: 'Subtitle of the plan', nullable: true })
+  subtitle: string;
+
+  @Column({ unique: true })
+  @Field(() => String, { description: 'Slug of the plan' })
+  slug: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, { description: 'body of the plan', nullable: true })
   body: string;
 
   @Column({ nullable: true })
@@ -48,6 +56,14 @@ export class Plan {
   @JoinTable()
   @Field(() => User, { description: 'Author of the plan', nullable: true })
   user: User;
+
+  @ManyToMany(() => Service)
+  @JoinTable()
+  @Field(() => [Service], {
+    description: 'Service of plan',
+    nullable: true,
+  })
+  services: Service[];
 
   @Column({ default: true })
   @Field(() => Boolean, { description: 'Status of the plan' })

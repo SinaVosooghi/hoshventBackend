@@ -58,6 +58,20 @@ export class Event {
   })
   price: number;
 
+  @Column({ nullable: true })
+  @Field(() => Number, {
+    description: 'OFF Price of the seminar',
+    nullable: true,
+  })
+  offprice: number;
+
+  @Column({ nullable: true })
+  @Field(() => String, {
+    description: 'video of the seminar',
+    nullable: true,
+  })
+  video: string;
+
   @ManyToOne(() => Category, (category) => category.id, {
     nullable: true,
     onDelete: 'SET NULL',

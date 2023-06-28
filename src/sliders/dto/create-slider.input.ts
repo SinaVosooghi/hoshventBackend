@@ -1,5 +1,5 @@
-import { InputType, Int, Field } from '@nestjs/graphql';
-
+import { InputType, Field } from '@nestjs/graphql';
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
 @InputType()
 export class CreateSliderInput {
   @Field(() => String, { nullable: true })
@@ -14,6 +14,12 @@ export class CreateSliderInput {
   @Field(() => Boolean)
   status: boolean;
 
-  @Field(() => String, { nullable: true })
-  image: string;
+  @Field(() => Boolean)
+  featured: boolean;
+
+  @Field(() => GraphQLUpload, {
+    description: 'Image of the Service',
+    nullable: true,
+  })
+  image: Promise<FileUpload>;
 }

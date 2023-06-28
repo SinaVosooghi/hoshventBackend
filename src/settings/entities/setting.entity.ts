@@ -88,6 +88,10 @@ export class Setting {
 
   @Column({ nullable: true })
   @Field({ nullable: true })
+  support: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
   faq: string;
 
   @Column({ nullable: true })

@@ -32,6 +32,10 @@ export class Slider {
   @Field(() => Boolean)
   status: boolean;
 
+  @Column({ default: false })
+  @Field(() => Boolean)
+  featured: boolean;
+
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })
   image: string;

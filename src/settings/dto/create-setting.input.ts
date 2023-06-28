@@ -90,4 +90,7 @@ export class CreateSettingInput {
 
   @Field({ nullable: true })
   currency: string;
+
+  @Field({ nullable: true })
+  support: string;
 }

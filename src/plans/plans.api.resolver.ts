@@ -12,4 +12,9 @@ export class PlansApiResolver {
   findAll(@Args('input') getPlansArgs: GetPlansArgs) {
     return this.plansService.findAll(getPlansArgs);
   }
+
+  @Query(() => Plan, { name: 'planApi' })
+  findOne(@Args('slug', { type: () => String }) slug: string) {
+    return this.plansService.findOneBySlug(slug);
+  }
 }

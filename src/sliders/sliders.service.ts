@@ -9,6 +9,7 @@ import { CreateSliderInput } from './dto/create-slider.input';
 import { GetSlidersArgs } from './dto/get-sliders.args';
 import { UpdateSliderInput } from './dto/update-slider.input';
 import { Slider } from './entities/slider.entity';
+import { imageUploader } from 'src/utils/imageUploader';
 
 @Injectable()
 export class SlidersService {
@@ -18,7 +19,16 @@ export class SlidersService {
   ) {}
 
   async create(createSlidersInput: CreateSliderInput): Promise<Slider> {
-    const item = await this.slidersRepository.create(createSlidersInput);
+    let image = null;
+    if (createSlidersInput.image) {
+      const imageUpload = await imageUploader(createSlidersInput.image);
+      image = imageUpload.image;
+    }
+
+    const item = await this.slidersRepository.create({
+      ...createSlidersInput,
+      image,
+    });
 
     try {
       return await this.slidersRepository.save(item);
@@ -29,11 +39,12 @@ export class SlidersService {
     }
   }
 
-  async findAll({ skip, limit, searchTerm, status }: GetSlidersArgs) {
+  async findAll({ skip, limit, searchTerm, status, featured }: GetSlidersArgs) {
     const [result, total] = await this.slidersRepository.findAndCount({
       where: {
         body: searchTerm ? Like(`%${searchTerm}%`) : null,
-        status: status ?? null,
+        ...(status && { status: status }),
+        ...(featured && { featured: featured }),
       },
       order: { id: 'DESC' },
       take: limit,
@@ -54,9 +65,15 @@ export class SlidersService {
     id: number,
     updateSlidersInput: UpdateSliderInput,
   ): Promise<Slider> {
+    let image = null;
+    if (updateSlidersInput.image) {
+      const imageUpload = await imageUploader(updateSlidersInput.image);
+      image = imageUpload.image;
+    }
+
     const sliders = await this.slidersRepository
       .createQueryBuilder('sliders')
-      .update(updateSlidersInput)
+      .update({ ...updateSlidersInput, ...(image && { image: image }) })
       .where({ id: id })
       .returning('*')
       .execute();

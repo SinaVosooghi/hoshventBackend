@@ -9,30 +9,39 @@ import { In, Like, Repository } from 'typeorm';
 import { imageUploader } from 'src/utils/imageUploader';
 import { GetPlansArgs } from './dto/get-items.args';
 import { UpdatePlanInput } from './dto/update-items.input';
-import { Event } from 'src/events/entities/event.entity';
 import { Plan } from './entities/plan.entity';
 import { CreatePlanInput } from './dto/create-service.input';
+import { Service } from 'src/services/entities/services.entity';
 
 @Injectable()
 export class PlansService {
   constructor(
     @InjectRepository(Plan)
     private readonly planRepository: Repository<Plan>,
-    @InjectRepository(Event)
-    private readonly eventsRepo: Repository<Event>,
+    @InjectRepository(Service)
+    private readonly serviceRepo: Repository<Service>,
   ) {}
 
   async create(createPlanInput: CreatePlanInput, user: User): Promise<Plan> {
     let image = null;
+    let services = [];
+
     if (createPlanInput.image) {
       const imageUpload = await imageUploader(createPlanInput.image);
       image = imageUpload.image;
+    }
+
+    if (createPlanInput.services.length) {
+      services = await this.serviceRepo.findBy({
+        id: In(createPlanInput.services),
+      });
     }
 
     const item = await this.planRepository.create({
       ...createPlanInput,
       image,
       user: user,
+      services,
     });
 
     try {
@@ -51,7 +60,7 @@ export class PlansService {
         ...(status && { status: true }),
         ...(status === false && { status: false }),
       },
-      relations: ['user'],
+      relations: ['services', 'user'],
       take: limit,
       skip: skip,
     });
@@ -62,7 +71,7 @@ export class PlansService {
   async findOne(id: number): Promise<Plan> {
     const plan = await this.planRepository.findOne({
       where: { id: id },
-      relations: ['user'],
+      relations: ['services', 'user'],
     });
 
     if (!plan) {
@@ -71,24 +80,61 @@ export class PlansService {
     return plan;
   }
 
+  async findOneBySlug(slug: string) {
+    const plan = await this.planRepository.findOne({
+      where: { slug: slug },
+      relations: ['services', 'user'],
+    });
+
+    if (!plan) {
+      throw new NotFoundException(`Plan #${slug} not found`);
+    }
+    return plan;
+  }
+
   async update(id: number, updatePlanInput: UpdatePlanInput): Promise<Plan> {
+    const planItem = await this.planRepository.findOne({
+      where: { id: id },
+      relations: ['services'],
+    });
+
     let image: any = updatePlanInput.image;
+    let items = [];
 
     if (typeof updatePlanInput.image !== 'string' && updatePlanInput.image) {
       const imageUpload = await imageUploader(updatePlanInput.image);
       image = imageUpload.image;
     }
 
+    items = await this.serviceRepo.findBy({
+      id: In(updatePlanInput.services),
+    });
+
+    console.log(updatePlanInput.services);
+
+    const actualRelationships = await this.planRepository
+      .createQueryBuilder()
+      .relation(Plan, 'services')
+      .of(planItem)
+      .loadMany();
+
+    await this.planRepository
+      .createQueryBuilder()
+      .relation(Plan, 'services')
+      .of(planItem)
+      .addAndRemove(items, actualRelationships);
+
+    delete updatePlanInput.services;
     const plan = await this.planRepository
       .createQueryBuilder()
       .update()
-      .set({ ...updatePlanInput, image })
+      .set({ ...updatePlanInput, ...(image && { image: image }) })
       .where({ id: id })
       .returning('*')
       .execute();
 
     if (!plan) {
-      throw new NotFoundException(`Workshop #${id} not found`);
+      throw new NotFoundException(`Plan #${id} not found`);
     }
     return plan.raw[0];
   }

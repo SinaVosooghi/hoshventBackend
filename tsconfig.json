@@ -6,8 +6,6 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "maxNodeModuleJsDepth": 10,
-    "allowJs": true,
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",

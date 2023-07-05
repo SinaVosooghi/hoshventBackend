@@ -859,7 +859,7 @@ input CreateUserInput {
   avatar: Upload
 
   """Category of the user"""
-  category: Float!
+  category: Float
 
   """email of the user"""
   email: String!

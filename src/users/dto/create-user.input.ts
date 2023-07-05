@@ -56,7 +56,7 @@ export class CreateUserInput {
   })
   phonenumber: number;
 
-  @Field(() => Number, { description: 'Category of the user' })
+  @Field(() => Number, { description: 'Category of the user', nullable: true })
   category?: Category;
 
   @Field(() => GraphQLUpload, {

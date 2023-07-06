@@ -20,6 +20,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/conf.d:/etc/nginx/conf.d
+      - /var/www/admin/dist:/var/www/admin
     environment:
       - NGINX_PORT=${NGINX_PORT}
       - BACKEND_PORT=${BACKEND_PORT}

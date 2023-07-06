@@ -19,7 +19,12 @@ async function bootstrap() {
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
   app.use(cookieParser());
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3030'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3030',
+      'https://hoshvent.com',
+      'https://admin.hoshvent.com',
+    ],
   });
 
   await app.listen(port);

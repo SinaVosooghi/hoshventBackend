@@ -1,6 +1,8 @@
 FROM node:18-alpine As production
 
-RUN mkdir /app/src/backend && chown node:node /app/src/backend
+RUN mkdir -p /app/src/backend  
+
+RUN chown node:node /app/src/backend
 
 WORKDIR /app/src/backend
 

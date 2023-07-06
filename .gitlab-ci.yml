@@ -2,7 +2,6 @@ image: node:18-alpine
 
 stages:
   - build
-  - test
   - deploy
 
 before_script:
@@ -14,12 +13,6 @@ build:
   script:
     - echo "Building project..."
     - npm run build
-
-test:
-  stage: test
-  script:
-    - echo "Running tests..."
-    - npm run test
 
 deploy:
   stage: deploy

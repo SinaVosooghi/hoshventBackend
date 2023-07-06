@@ -1,0 +1,31 @@
+image: node:18-alpine
+
+stages:
+  - build
+  - test
+  - deploy
+
+before_script:
+  - echo "Installing dependencies..."
+  - npm install
+
+build:
+  stage: build
+  script:
+    - echo "Building project..."
+    - npm run build
+
+test:
+  stage: test
+  script:
+    - echo "Running tests..."
+    - npm run test
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying project..."
+    - echo "Copying build artifacts to production..."
+    - cp -r dist/* /var/www/html
+    - echo "Starting Nginx..."
+    - service nginx start

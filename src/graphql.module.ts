@@ -5,7 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      autoSchemaFile: 'src/schema.gql',
+      autoSchemaFile: './src/schema.gql',
       driver: ApolloDriver,
       playground: true,
       sortSchema: true,

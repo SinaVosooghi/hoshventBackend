@@ -1,6 +1,10 @@
 FROM node:18-alpine As production
 
+RUN mkdir /app/src/backend && chown node:node /app/src/backend
+
 WORKDIR /app/src/backend
+
+USER node
 
 COPY --chown=node:node package*.json ./
 
@@ -10,11 +14,7 @@ COPY --chown=node:node . .
 
 RUN npm run build
 
-RUN chown -R node src/schema.gql
-
 ENV NODE_ENV production 
-
-USER node
 
 CMD [ "node", "dist/main.js" ]
 

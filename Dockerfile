@@ -10,6 +10,8 @@ COPY --chown=node:node . .
 
 RUN npm run build
 
+RUN chown -R node src/schema.gql
+
 ENV NODE_ENV production 
 
 USER node

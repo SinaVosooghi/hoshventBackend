@@ -43,8 +43,6 @@ services:
       - '9000:9000'
     depends_on:
       - postgres
-    volumes:
-      - .:/app/src/backend
     env_file:
       - .env
     networks:

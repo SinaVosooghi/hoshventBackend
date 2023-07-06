@@ -24,6 +24,10 @@ async function bootstrap() {
       'http://localhost:3030',
       'https://hoshvent.com',
       'https://admin.hoshvent.com',
+      'https://hoshvent.com/',
+      'https://admin.hoshvent.com/',
+      'http://hoshvent.com/',
+      'http://admin.hoshvent.com/',
     ],
   });
 

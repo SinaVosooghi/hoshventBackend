@@ -10,6 +10,7 @@ import { Site } from './entities/site.entity';
 import { Like, Repository } from 'typeorm';
 import { GetSitesArgs } from './dto/get-items';
 import { UsersService } from 'src/users/users.service';
+import { imageUploader } from 'src/utils/imageUploader';
 
 @Injectable()
 export class SitesService {
@@ -20,7 +21,13 @@ export class SitesService {
   ) {}
 
   async create(createSiteInput: CreateSiteInput): Promise<Site> {
-    const item = await this.siteRepository.create(createSiteInput);
+    let logo = null;
+    if (createSiteInput.logo) {
+      const imageUpload = await imageUploader(createSiteInput.logo);
+      logo = imageUpload.image;
+    }
+
+    const item = await this.siteRepository.create({ ...createSiteInput, logo });
 
     try {
       return await this.siteRepository.save(item);
@@ -59,9 +66,15 @@ export class SitesService {
   }
 
   async update(id: number, updateSiteInput: UpdateSiteInput): Promise<Site> {
+    let logo = null;
+    if (updateSiteInput.logo) {
+      const imageUpload = await imageUploader(updateSiteInput.logo);
+      logo = imageUpload.image;
+    }
+
     const site = await this.siteRepository
       .createQueryBuilder('site')
-      .update(updateSiteInput)
+      .update({ ...updateSiteInput, ...(logo && { logo: logo }) })
       .where({ id: id })
       .returning('*')
       .execute();

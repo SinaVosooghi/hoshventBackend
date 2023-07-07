@@ -799,8 +799,8 @@ input CreateSiteInput {
   """Language of website"""
   language: String
 
-  """Logo of the course"""
-  logo: String
+  """Logo of the site"""
+  logo: Upload
 
   """Phonenumber of website"""
   phonenumber: String
@@ -2472,8 +2472,8 @@ input UpdateSiteInput {
   """Language of website"""
   language: String
 
-  """Logo of the course"""
-  logo: String
+  """Logo of the site"""
+  logo: Upload
 
   """Phonenumber of website"""
   phonenumber: String

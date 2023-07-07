@@ -103,7 +103,7 @@ export class UsersService {
 
     const user = await this.userRepository
       .createQueryBuilder('user')
-      .update({ ...userObject, avatar })
+      .update({ ...userObject, ...(avatar && { avatar: avatar }) })
       .where({ id: id })
       .returning('*')
       .execute();

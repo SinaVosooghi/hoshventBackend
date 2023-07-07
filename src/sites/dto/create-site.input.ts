@@ -2,6 +2,7 @@ import { InputType, Field } from '@nestjs/graphql';
 import { Category } from 'src/categories/entities/category.entity';
 import { Plan } from 'src/plans/entities/plan.entity';
 import { User } from 'src/users/entities/user.entity';
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
 
 @InputType()
 export class CreateSiteInput {
@@ -89,8 +90,11 @@ export class CreateSiteInput {
   })
   body: string;
 
-  @Field(() => String, { description: 'Logo of the course', nullable: true })
-  logo: string;
+  @Field(() => GraphQLUpload, {
+    description: 'Logo of the site',
+    nullable: true,
+  })
+  logo: Promise<FileUpload>;
 
   @Field(() => Number, {
     description: 'Category of the Site',

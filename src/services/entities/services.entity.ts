@@ -38,6 +38,20 @@ export class Service {
   @Field(() => Number, { description: 'Price of the service', nullable: true })
   price: number;
 
+  @Column({ nullable: true })
+  @Field(() => Number, {
+    description: 'Quantity of the service',
+    nullable: true,
+  })
+  quantity: number;
+
+  @Column({ nullable: true })
+  @Field(() => Number, {
+    description: 'Per person of the service',
+    nullable: true,
+  })
+  perperson: number;
+
   @ManyToOne(() => User, (user) => user.id, {
     nullable: true,
     onDelete: 'SET NULL',
@@ -73,4 +87,18 @@ export class Service {
   })
   @Field(() => Date, { nullable: true })
   updated: Date;
+
+  @Column({ nullable: true })
+  @Field(() => Date, {
+    description: 'Startdate of service',
+    nullable: true,
+  })
+  start_date: Date;
+
+  @Column({ nullable: true })
+  @Field(() => Date, {
+    description: 'End date of service',
+    nullable: true,
+  })
+  end_date: Date;
 }

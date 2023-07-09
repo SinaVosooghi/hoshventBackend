@@ -25,6 +25,12 @@ export class CreateEventInput {
   })
   image: Promise<FileUpload>;
 
+  @Field(() => GraphQLUpload, {
+    description: 'PDF of the Event',
+    nullable: true,
+  })
+  pdf: Promise<FileUpload>;
+
   @Field(() => String, {
     description: 'Duration of the course',
     nullable: true,

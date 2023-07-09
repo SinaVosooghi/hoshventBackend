@@ -65,6 +65,9 @@ export class ServicesService {
       relations: ['events', 'events.site', 'user'],
       take: limit,
       skip: skip,
+      order: {
+        created: 'DESC',
+      },
     });
 
     return { services: result, count: total };

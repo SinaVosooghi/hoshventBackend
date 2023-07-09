@@ -32,8 +32,12 @@ export class Event {
   body: string;
 
   @Column({ nullable: true })
-  @Field(() => String, { description: 'Image of the blog', nullable: true })
+  @Field(() => String, { description: 'Image of the event', nullable: true })
   image: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, { description: 'Pdf of the event', nullable: true })
+  pdf: string;
 
   @ManyToOne(() => User, (user) => user.id, {
     nullable: true,

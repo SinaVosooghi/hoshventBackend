@@ -11,6 +11,7 @@ import { GetEventsArgs } from './dto/get-events.args';
 import { UpdateEventInput } from './dto/update-events.input';
 import { Event } from './entities/event.entity';
 import { imageUploader } from 'src/utils/imageUploader';
+import { fileUploader } from 'src/utils/fileUploader';
 
 @Injectable()
 export class EventsService {
@@ -26,10 +27,17 @@ export class EventsService {
       image = imageUpload.image;
     }
 
+    let pdf = null;
+    if (createEventInput.pdf) {
+      const fileUpload = await fileUploader(createEventInput.pdf);
+      pdf = fileUpload.image;
+    }
+
     const item = await this.eventRepository.create({
       ...createEventInput,
       image,
       user: user,
+      pdf,
     });
 
     try {
@@ -106,9 +114,20 @@ export class EventsService {
       image = imageUpload.image;
     }
 
+    let pdf: any = updateEventInput.pdf;
+
+    if (typeof pdf !== 'string' && typeof pdf !== 'undefined' && pdf) {
+      const fileUpload = await fileUploader(pdf);
+      pdf = fileUpload.image;
+    }
+
     const event = await this.eventRepository
       .createQueryBuilder('event')
-      .update({ ...updateEventInput, ...(image && { image: image }) })
+      .update({
+        ...updateEventInput,
+        ...(image && { image: image }),
+        ...(pdf && { pdf: pdf }),
+      })
       .where({ id: id })
       .returning('*')
       .execute();

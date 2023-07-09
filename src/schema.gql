@@ -440,6 +440,9 @@ input CreateEventInput {
   """Offprice of seminar"""
   offprice: Float
 
+  """PDF of the Event"""
+  pdf: Upload
+
   """Price of the Event"""
   price: Float
 
@@ -706,14 +709,26 @@ input CreateServiceInput {
   """body of the Service"""
   body: String!
 
-  """Events of the services"""
+  """Enddate of service"""
+  end_date: DateTime
+
+  """Events of the service"""
   events: [Float!]
 
-  """Image of the Service"""
+  """Image of the service"""
   image: Upload
+
+  """Per person of the service"""
+  perperson: Float
 
   """body of the Service"""
   price: Float
+
+  """Quantity of the Service"""
+  quantity: Float
+
+  """Startdate of service"""
+  start_date: DateTime
 
   """Status of the Service"""
   status: Boolean!
@@ -1003,11 +1018,14 @@ type Event {
   """Id of the blog"""
   id: Float!
 
-  """Image of the blog"""
+  """Image of the event"""
   image: String
 
   """OFF Price of the seminar"""
   offprice: Float
+
+  """Pdf of the event"""
+  pdf: String
 
   """Price of the seminar"""
   price: Float
@@ -1745,6 +1763,9 @@ type Service {
   body: String!
   created: DateTime
 
+  """End date of service"""
+  end_date: DateTime
+
   """Events of the service"""
   events: [Event!]
 
@@ -1754,8 +1775,17 @@ type Service {
   """Image of the service"""
   image: String
 
+  """Per person of the service"""
+  perperson: Float
+
   """Price of the service"""
   price: Float
+
+  """Quantity of the service"""
+  quantity: Float
+
+  """Startdate of service"""
+  start_date: DateTime
 
   """Status of the service"""
   status: Boolean!
@@ -2100,6 +2130,9 @@ input UpdateEventInput {
   """Offprice of seminar"""
   offprice: Float
 
+  """PDF of the Event"""
+  pdf: Upload
+
   """Price of the Event"""
   price: Float
 
@@ -2376,15 +2409,27 @@ input UpdateServiceInput {
   """body of the Service"""
   body: String
 
-  """Events of the services"""
+  """Enddate of service"""
+  end_date: DateTime
+
+  """Events of the service"""
   events: [Float!]
   id: Int!
 
-  """Image of the Service"""
+  """Image of the service"""
   image: Upload
+
+  """Per person of the service"""
+  perperson: Float
 
   """body of the Service"""
   price: Float
+
+  """Quantity of the Service"""
+  quantity: Float
+
+  """Startdate of service"""
+  start_date: DateTime
 
   """Status of the Service"""
   status: Boolean

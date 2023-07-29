@@ -1,7 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { GraphQLUpload } from 'graphql-upload';
-import { FileUpload } from 'src/events/dto/create-event.input';
-import { Event } from 'src/events/entities/event.entity';
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
+import { Hall } from 'src/halls/entities/hall.entity';
 import { User } from 'src/users/entities/user.entity';
 
 @InputType()
@@ -43,7 +42,7 @@ export class CreateWorkshopInput {
   lecturers: [User];
 
   @Field(() => GraphQLUpload, {
-    description: 'Image of the Event',
+    description: 'Image of the Hall',
     nullable: true,
   })
   image: Promise<FileUpload>;
@@ -69,8 +68,8 @@ export class CreateWorkshopInput {
   })
   end_date: Date;
 
-  @Field(() => Number, { description: 'Event of the workshop', nullable: true })
-  event: Event;
+  @Field(() => Number, { description: 'Hall of the workshop', nullable: true })
+  hall: Hall;
 
   @Field(() => Boolean, {
     description: 'Status of the workshop',

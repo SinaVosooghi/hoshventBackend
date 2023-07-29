@@ -35,10 +35,12 @@
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
+    "exceljs": "^4.3.0",
     "graphql": "^16.6.0",
     "graphql-tools": "^8.3.20",
     "graphql-type-json": "^0.3.2",
     "graphql-upload": "^13.0.0",
+    "papaparse": "^5.4.1",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
@@ -46,7 +48,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "slugify": "^1.6.6",
-    "typeorm": "^0.3.15"
+    "typeorm": "^0.3.15",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

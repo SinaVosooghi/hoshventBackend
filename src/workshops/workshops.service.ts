@@ -66,7 +66,7 @@ export class WorkshopsService {
         status: status,
         ...(featured && { featured: featured }),
       },
-      relations: ['user', 'event', 'event.site', 'lecturers'],
+      relations: ['user', 'hall', 'hall.event', 'lecturers'],
       order: { id: 'DESC' },
       take: limit,
       skip: skip,
@@ -78,7 +78,7 @@ export class WorkshopsService {
   async findOne(id: number): Promise<Workshop> {
     const workshop = await this.workshopRepository.findOne({
       where: { id: id },
-      relations: ['user', 'event', 'event.site', 'lecturers'],
+      relations: ['user', 'hall', 'hall.event', 'lecturers'],
     });
     if (!workshop) {
       throw new NotFoundException(`Workshop #${id} not found`);

@@ -14,12 +14,20 @@ import { User } from './entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { GetUsersApiArgs } from './dto/get-users.args';
 import { imageUploader } from 'src/utils/imageUploader';
+import * as XLSX from 'xlsx';
+import { parse } from 'papaparse';
+import { UploadUsersPdfInput } from './dto/upload-pdf.input';
+import { csvUploader } from 'src/utils/csvUploader';
+import { readFileSync } from 'fs';
+import { Category } from 'src/categories/entities/category.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Category)
+    private readonly categoryModel: Repository<Category>,
   ) {}
 
   async create(input: CreateUserInput): Promise<User> {
@@ -170,5 +178,96 @@ export class UsersService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     return user;
+  }
+
+  async getPdf({
+    skip,
+    limit,
+    searchTerm,
+    role,
+    status,
+    usertype,
+  }: GetUsersApiArgs) {
+    const path = './files';
+    const [result] = await this.userRepository.findAndCount({
+      where: {
+        firstName: searchTerm ? Like(`%${searchTerm}%`) : null,
+        role: {
+          id: role,
+        },
+        status,
+        usertype,
+      },
+      order: { id: 'DESC' },
+      select: [
+        'id',
+        'username',
+        'email',
+        'firstName',
+        'lastName',
+        'mobilenumber',
+        'usertype',
+      ],
+      take: limit,
+      skip: skip,
+    });
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(result);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+    XLSX.writeFile(workbook, `${path}/users.xlsx`);
+    return `/users.xlsx`;
+  }
+
+  async uploadUsersCsv({ csv }: UploadUsersPdfInput) {
+    let file = null;
+    const imageUpload = await csvUploader(csv);
+    file = imageUpload.csv;
+
+    const csvFile = readFileSync(`./files/csv/${file}`);
+    const csvData = csvFile.toString();
+
+    const parsedCSV = parse(csvData, {
+      config: {
+        newline: '',
+        delimiter: '',
+      },
+      header: true,
+      skipEmptyLines: true,
+      transformHeader: (header) => header.toLowerCase().replace('#', '').trim(),
+      complete: (results) => results.data,
+    });
+
+    if (parsedCSV.data.length > 0) {
+      parsedCSV.data?.map(async (item) => {
+        if (item.mobilenumber && item.usertype) {
+          let user = null;
+          if (item.mobilenumber) {
+            user = await this.userRepository.findOneBy({
+              mobilenumber: item.mobilenumber,
+            });
+            if (!user) {
+              const saltOrRounds = 10;
+              const hash = await bcrypt.hash(item.mobilenumber, saltOrRounds);
+
+              const newUser = await this.userRepository.create({
+                lastName: item.lastname,
+                firstName: item.firstname,
+                email: item.username,
+                mobilenumber: item.mobilenumber,
+                username: item.username,
+                usertype: item.usertype,
+                password: hash,
+              });
+              await this.userRepository.save(newUser);
+            }
+          }
+        } else {
+          throw new Error('اطلاعات صحبح نیست');
+        }
+      });
+    }
+
+    return true;
   }
 }

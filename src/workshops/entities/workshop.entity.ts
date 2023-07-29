@@ -1,5 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Event } from 'src/events/entities/event.entity';
+import { Hall } from 'src/halls/entities/hall.entity';
 import slugify from 'slugify';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -93,13 +93,13 @@ export class Workshop {
   })
   end_date: Date;
 
-  @ManyToOne(() => Event, (event) => event.id, {
+  @ManyToOne(() => Hall, (hall) => hall.id, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinTable()
-  @Field(() => Event, { description: 'Event of the workshop', nullable: true })
-  event: Event;
+  @Field(() => Hall, { description: 'Hall of the workshop', nullable: true })
+  hall: Hall;
 
   @ManyToOne(() => User, (user) => user.id, { nullable: true })
   @Field(() => User, { description: 'User of the workshop', nullable: true })
@@ -114,6 +114,8 @@ export class Workshop {
   @Column({ default: 'not_started' })
   @Field(() => String, {
     description: 'State of the workshop',
+    defaultValue: 'not_started',
+    nullable: true,
   })
   state: 'not_started' | 'running' | 'ended' | 'canceled';
 

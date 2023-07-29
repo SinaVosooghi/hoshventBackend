@@ -34,6 +34,7 @@ import { ServicesModule } from './services/services.module';
 import { PlansModule } from './plans/plans.module';
 import { SeminarsModule } from './seminars/seminars.module';
 import { BrandsModule } from './brands/brands.module';
+import { HallsModule } from './halls/halls.module';
 
 @Module({
   imports: [
@@ -80,6 +81,7 @@ import { BrandsModule } from './brands/brands.module';
     PlansModule,
     SeminarsModule,
     BrandsModule,
+    HallsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

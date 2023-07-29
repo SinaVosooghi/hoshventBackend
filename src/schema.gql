@@ -471,6 +471,29 @@ input CreateEventInput {
   video: String
 }
 
+input CreateHallInput {
+  """Description of the hall"""
+  body: String
+
+  """Event of the hall"""
+  event: Float
+
+  """Is hall featured"""
+  featured: Boolean!
+
+  """Image of the Hall"""
+  image: Upload
+
+  """State of the hall"""
+  state: String = "not_started"
+
+  """Status of the hall"""
+  status: Boolean
+
+  """Title of the hall"""
+  title: String!
+}
+
 input CreateInvoiceInput {
   """discount of invoice"""
   coupon: Float
@@ -668,11 +691,11 @@ input CreateSeminarInput {
   """Enddate of Seminar"""
   end_date: DateTime
 
-  """Event of the seminar"""
-  event: Float
-
   """Is seminar featured"""
   featured: Boolean!
+
+  """Hall of the seminar"""
+  hall: Float
 
   """Image of the Seminar"""
   image: Upload
@@ -926,13 +949,13 @@ input CreateWorkshopInput {
   """Enddate of workshop"""
   end_date: DateTime
 
-  """Event of the workshop"""
-  event: Float
-
   """Is workshop featured"""
   featured: Boolean!
 
-  """Image of the Event"""
+  """Hall of the workshop"""
+  hall: Float
+
+  """Image of the Hall"""
   image: Upload
 
   """User of the Workshop"""
@@ -1143,6 +1166,14 @@ input GetEventsArgs {
   status: Boolean
 }
 
+input GetHallsArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  skip: Float!
+  status: Boolean
+}
+
 input GetInvoicesArgs {
   limit: Float
   searchTerm: String
@@ -1254,6 +1285,39 @@ input GetWorkshopsArgs {
   status: Boolean
 }
 
+type Hall {
+  """Description of the hall"""
+  body: String
+  created: DateTime
+
+  """Event of the hall"""
+  event: Event
+
+  """Is hall featured"""
+  featured: Boolean!
+
+  """id of the hall"""
+  id: Float!
+
+  """Image of the hall"""
+  image: String
+
+  """Status of the hall"""
+  status: Boolean!
+
+  """Title of the hall"""
+  title: String!
+  updated: DateTime
+
+  """User of the hall"""
+  user: User
+}
+
+type HallPaginate {
+  count: Float!
+  halls: [Hall!]
+}
+
 type Invoice {
   created: DateTime
 
@@ -1349,6 +1413,7 @@ type Mutation {
   createCoupon(input: CreateCouponInput!): Coupon!
   createDepartment(input: CreateDepartmentInput!): Department!
   createEvent(input: CreateEventInput!): Event!
+  createHall(input: CreateHallInput!): Hall!
   createInvoice(input: CreateInvoiceInput!): Invoice!
   createInvoiceChat(input: CreateChatInput!): Boolean!
   createItem(createItemInput: CreateItemInput!): Item!
@@ -1376,6 +1441,7 @@ type Mutation {
   removeCoupon(id: Int!): Boolean!
   removeDepartment(id: Int!): Boolean!
   removeEvent(id: Int!): Boolean!
+  removeHall(id: Int!): Boolean!
   removeImage(id: Int!): Boolean!
   removeInvoice(id: Int!): Boolean!
   removeItem(id: Int!): Boolean!
@@ -1401,6 +1467,7 @@ type Mutation {
   updateCoupon(input: UpdateCouponInput!): Coupon!
   updateDepartment(input: UpdateDepartmentInput!): Department!
   updateEvent(input: UpdateEventInput!): Event!
+  updateHall(input: UpdateHallInput!): Hall!
   updateInvoice(input: UpdateInvoiceInput!): Invoice!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   updateMessage(input: UpdateMessageInput!): Message!
@@ -1417,6 +1484,7 @@ type Mutation {
   updateSlider(input: UpdateSliderInput!): Slider!
   updateUser(input: UpdateUserInput!): User!
   updateWorkshop(input: UpdateWorkshopInput!): Workshop!
+  uploadUsersCsv(input: UploadUsersPdfInput!): Boolean!
 }
 
 type Order {
@@ -1634,6 +1702,8 @@ type Query {
   events(input: GetEventsArgs!): EventPaginate!
   eventsApi(input: GetEventsArgs!): EventPaginate!
   getSetting: Setting!
+  hall(id: Int!): Hall!
+  halls(input: GetHallsArgs!): HallPaginate!
   invoice(id: Int!, read: Boolean! = false): Invoice!
   invoices(input: GetInvoicesArgs!): InvoicePaginate!
   item(id: Int!): Item!
@@ -1669,6 +1739,7 @@ type Query {
   slidersApi(input: GetSlidersArgs!): SliderPaginate!
   user(id: Int!): User!
   users(input: GetUsersApiArgs!): UserPaginate!
+  usersPdf(input: GetUsersApiArgs!): String!
   workshop(id: Int!): Workshop!
   workshops(input: GetWorkshopsArgs!): WorkshopPaginate!
 }
@@ -1699,57 +1770,57 @@ type RolePaginate {
 }
 
 type Seminar {
-  """Description of the seminar"""
+  """Description of the workshop"""
   body: String
 
   """Capacity of workshop"""
   capacity: Float
   created: DateTime
 
-  """End date of event"""
+  """End date of workshop"""
   end_date: DateTime
 
-  """Event of the seminar"""
-  event: Event
-
-  """Is seminar featured"""
+  """Is workshop featured"""
   featured: Boolean!
 
-  """id of the seminar"""
+  """Hall of the workshop"""
+  hall: Hall
+
+  """id of the workshop"""
   id: Float!
 
-  """Image of the seminar"""
+  """Image of the workshop"""
   image: String
 
-  """User of the Seminar"""
+  """User of the Workshop"""
   lecturers: [User!]
 
-  """Price of the seminar"""
+  """Price of the workshop"""
   price: Float
 
-  """Body SEO of the seminar"""
+  """Body SEO of the workshop"""
   seobody: String
 
-  """Title SEO of the seminar"""
+  """Title SEO of the workshop"""
   seotitle: String
 
-  """Slug of the seminar"""
+  """Slug of the workshop"""
   slug: String!
 
-  """Startdate of event"""
+  """Startdate of workshop"""
   start_date: DateTime
 
-  """State of the seminar"""
-  state: String!
+  """State of the workshop"""
+  state: String
 
-  """Status of the seminar"""
+  """Status of the workshop"""
   status: Boolean!
 
-  """Title of the seminar"""
+  """Title of the workshop"""
   title: String!
   updated: DateTime
 
-  """User of the seminar"""
+  """User of the workshop"""
   user: User
 }
 
@@ -2161,6 +2232,30 @@ input UpdateEventInput {
   video: String
 }
 
+input UpdateHallInput {
+  """Description of the hall"""
+  body: String
+
+  """Event of the hall"""
+  event: Float
+
+  """Is hall featured"""
+  featured: Boolean
+  id: Int!
+
+  """Image of the Hall"""
+  image: Upload
+
+  """State of the hall"""
+  state: String = "not_started"
+
+  """Status of the hall"""
+  status: Boolean
+
+  """Title of the hall"""
+  title: String
+}
+
 input UpdateInvoiceInput {
   """discount of invoice"""
   coupon: Float
@@ -2367,11 +2462,11 @@ input UpdateSeminarInput {
   """Enddate of Seminar"""
   end_date: DateTime
 
-  """Event of the seminar"""
-  event: Float
-
   """Is seminar featured"""
   featured: Boolean
+
+  """Hall of the seminar"""
+  hall: Float
   id: Int!
 
   """Image of the Seminar"""
@@ -2631,14 +2726,14 @@ input UpdateWorkshopInput {
   """Enddate of workshop"""
   end_date: DateTime
 
-  """Event of the workshop"""
-  event: Float
-
   """Is workshop featured"""
   featured: Boolean
+
+  """Hall of the workshop"""
+  hall: Float
   id: Int!
 
-  """Image of the Event"""
+  """Image of the Hall"""
   image: Upload
 
   """User of the Workshop"""
@@ -2671,6 +2766,11 @@ input UpdateWorkshopInput {
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
+
+input UploadUsersPdfInput {
+  """CSV of the users"""
+  csv: Upload
+}
 
 type User {
   """About of the user"""
@@ -2735,6 +2835,7 @@ type User {
 
 type UserPaginate {
   count: Float!
+  pdf: String
   users: [User!]
 }
 
@@ -2754,11 +2855,11 @@ type Workshop {
   """End date of workshop"""
   end_date: DateTime
 
-  """Event of the workshop"""
-  event: Event
-
   """Is workshop featured"""
   featured: Boolean!
+
+  """Hall of the workshop"""
+  hall: Hall
 
   """id of the workshop"""
   id: Float!
@@ -2785,7 +2886,7 @@ type Workshop {
   start_date: DateTime
 
   """State of the workshop"""
-  state: String!
+  state: String
 
   """Status of the workshop"""
   status: Boolean!

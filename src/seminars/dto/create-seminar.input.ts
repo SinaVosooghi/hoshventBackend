@@ -1,7 +1,7 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { GraphQLUpload } from 'graphql-upload';
-import { FileUpload } from 'src/events/dto/create-event.input';
-import { Event } from 'src/events/entities/event.entity';
+import { FileUpload } from 'src/halls/dto/create-hall.input';
+import { Hall } from 'src/halls/entities/hall.entity';
 import { User } from 'src/users/entities/user.entity';
 
 @InputType()
@@ -69,8 +69,8 @@ export class CreateSeminarInput {
   })
   end_date: Date;
 
-  @Field(() => Number, { description: 'Event of the seminar', nullable: true })
-  event: Event;
+  @Field(() => Number, { description: 'Hall of the seminar', nullable: true })
+  hall: Hall;
 
   @Field(() => Boolean, {
     description: 'Status of the seminar',

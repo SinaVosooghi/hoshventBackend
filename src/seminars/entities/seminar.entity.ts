@@ -1,5 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Event } from 'src/events/entities/event.entity';
+import { Hall } from 'src/halls/entities/hall.entity';
 import slugify from 'slugify';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -20,101 +20,102 @@ export class Seminar {
   @PrimaryGeneratedColumn({
     type: 'bigint',
   })
-  @Field(() => Number, { description: 'id of the seminar' })
+  @Field(() => Number, { description: 'id of the workshop' })
   id: number;
 
   @Column()
-  @Field(() => String, { description: 'Title of the seminar' })
+  @Field(() => String, { description: 'Title of the workshop' })
   title: string;
 
   @Column({ unique: true })
-  @Field(() => String, { description: 'Slug of the seminar' })
+  @Field(() => String, { description: 'Slug of the workshop' })
   slug: string;
 
   @Column({ nullable: true })
   @Field(() => String, {
-    description: 'Body SEO of the seminar',
+    description: 'Body SEO of the workshop',
     nullable: true,
   })
   seobody: string;
 
   @Column({ nullable: true })
   @Field(() => String, {
-    description: 'Title SEO of the seminar',
+    description: 'Title SEO of the workshop',
     nullable: true,
   })
   seotitle: string;
 
   @Column({ nullable: true })
   @Field(() => String, {
-    description: 'Description of the seminar',
+    description: 'Description of the workshop',
     nullable: true,
   })
   body: string;
 
   @Column({ nullable: true })
   @Field(() => Number, {
-    description: 'Price of the seminar',
+    description: 'Price of the workshop',
     nullable: true,
   })
   price: number;
 
   @ManyToMany(() => User)
   @JoinTable()
-  @Field(() => [User], { description: 'User of the Seminar', nullable: true })
+  @Field(() => [User], { description: 'User of the Workshop', nullable: true })
   lecturers: User[];
 
   @Column({ nullable: true })
-  @Field(() => String, { description: 'Image of the seminar', nullable: true })
+  @Field(() => String, { description: 'Image of the workshop', nullable: true })
   image: string;
 
   @Column({ default: false })
-  @Field(() => Boolean, { description: 'Is seminar featured' })
+  @Field(() => Boolean, { description: 'Is workshop featured' })
   featured: boolean;
 
-  @Column({ default: 0 })
+  @Column({ nullable: true })
   @Field(() => Number, {
     description: 'Capacity of workshop',
     nullable: true,
-    defaultValue: 0,
   })
   capacity: number;
 
   @Column({ nullable: true })
   @Field(() => Date, {
-    description: 'Startdate of event',
+    description: 'Startdate of workshop',
     nullable: true,
   })
   start_date: Date;
 
   @Column({ nullable: true })
   @Field(() => Date, {
-    description: 'End date of event',
+    description: 'End date of workshop',
     nullable: true,
   })
   end_date: Date;
 
-  @ManyToOne(() => Event, (event) => event.id, {
+  @ManyToOne(() => Hall, (hall) => hall.id, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinTable()
-  @Field(() => Event, { description: 'Event of the seminar', nullable: true })
-  event: Event;
+  @Field(() => Hall, { description: 'Hall of the workshop', nullable: true })
+  hall: Hall;
 
   @ManyToOne(() => User, (user) => user.id, { nullable: true })
-  @Field(() => User, { description: 'User of the seminar', nullable: true })
+  @Field(() => User, { description: 'User of the workshop', nullable: true })
   user: User;
 
   @Column({ default: true })
   @Field(() => Boolean, {
-    description: 'Status of the seminar',
+    description: 'Status of the workshop',
   })
   status: boolean;
 
   @Column({ default: 'not_started' })
   @Field(() => String, {
-    description: 'State of the seminar',
+    description: 'State of the workshop',
+    defaultValue: 'not_started',
+    nullable: true,
   })
   state: 'not_started' | 'running' | 'ended' | 'canceled';
 

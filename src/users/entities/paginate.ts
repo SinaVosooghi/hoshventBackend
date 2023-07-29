@@ -8,4 +8,7 @@ export class UserPaginate {
 
   @Field(() => Number)
   count: number;
+
+  @Field(() => String, { nullable: true })
+  pdf?: string;
 }

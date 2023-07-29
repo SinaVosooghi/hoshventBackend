@@ -8,10 +8,17 @@ import { GetUsersApiArgs } from './dto/get-users.args';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { CurrentUser } from 'src/auth/current-user.decorator';
+import { UploadUsersPdfInput } from './dto/upload-pdf.input';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly userService: UsersService) {}
+
+  @Mutation(() => Boolean)
+  // @UseGuards(GqlAuthGuard)
+  uploadUsersCsv(@Args('input') uploadUsersPdfInput: UploadUsersPdfInput) {
+    return this.userService.uploadUsersCsv(uploadUsersPdfInput);
+  }
 
   @Mutation(() => User)
   // @UseGuards(GqlAuthGuard)
@@ -44,5 +51,11 @@ export class UsersResolver {
   @UseGuards(GqlAuthGuard)
   removeUser(@Args('id', { type: () => Int }) id: number) {
     return this.userService.remove(id);
+  }
+
+  @Query(() => String, { name: 'usersPdf' })
+  @UseGuards(GqlAuthGuard)
+  usersPdf(@Args('input') getUsersApiArgs: GetUsersApiArgs) {
+    return this.userService.getPdf(getUsersApiArgs);
   }
 }

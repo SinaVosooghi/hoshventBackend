@@ -66,7 +66,7 @@ export class SeminarsService {
         status: status,
         ...(featured && { featured: featured }),
       },
-      relations: ['user', 'event', 'event.site', 'lecturers'],
+      relations: ['user', 'hall', 'hall.event', 'lecturers'],
       order: { id: 'DESC' },
       take: limit,
       skip: skip,
@@ -78,7 +78,7 @@ export class SeminarsService {
   async findOne(id: number): Promise<Seminar> {
     const seminar = await this.seminarRepository.findOne({
       where: { id: id },
-      relations: ['user', 'event', 'event.site', 'lecturers'],
+      relations: ['user', 'hall', 'hall.event', 'lecturers'],
     });
     if (!seminar) {
       throw new NotFoundException(`Seminar #${id} not found`);

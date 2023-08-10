@@ -9,6 +9,7 @@ import { CreateDepartmentInput } from './dto/create-department.input';
 import { GetDepartmentsArgs } from './dto/get-departments.args';
 import { UpdateDepartmentInput } from './dto/update-department.input';
 import { Department } from './entities/department.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class DepartmentsService {
@@ -19,8 +20,12 @@ export class DepartmentsService {
 
   async create(
     createDepartmentInput: CreateDepartmentInput,
+    user: User,
   ): Promise<Department> {
-    const item = await this.departmentRepository.create(createDepartmentInput);
+    const item = await this.departmentRepository.create({
+      ...createDepartmentInput,
+      ...(user && { site: { id: user.site[0]?.id } }),
+    });
 
     try {
       return await this.departmentRepository.save(item);
@@ -31,11 +36,15 @@ export class DepartmentsService {
     }
   }
 
-  async findAll({ skip, limit, searchTerm, status }: GetDepartmentsArgs) {
+  async findAll(
+    { skip, limit, searchTerm, status }: GetDepartmentsArgs,
+    user: User,
+  ) {
     const [result, total] = await this.departmentRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
         status: status ?? null,
+        ...(user && { site: { id: user.site[0]?.id } }),
       },
       order: { id: 'DESC' },
       take: limit,

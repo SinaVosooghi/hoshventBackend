@@ -7,6 +7,8 @@ import { GetSeminarsArgs } from './dto/get-items.args';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { Seminar } from './entities/seminar.entity';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Resolver(() => Seminar)
 export class SeminarsResolver {
@@ -14,14 +16,20 @@ export class SeminarsResolver {
 
   @Mutation(() => Seminar)
   @UseGuards(GqlAuthGuard)
-  createSeminar(@Args('input') createSeminarInput: CreateSeminarInput) {
-    return this.seminarsService.create(createSeminarInput);
+  createSeminar(
+    @Args('input') createSeminarInput: CreateSeminarInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.seminarsService.create(createSeminarInput, user);
   }
 
   @Query(() => SeminarPaginate, { name: 'seminars' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getSeminarsArgs: GetSeminarsArgs) {
-    return this.seminarsService.findAll(getSeminarsArgs);
+  findAll(
+    @Args('input') getSeminarsArgs: GetSeminarsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.seminarsService.findAll(getSeminarsArgs, user);
   }
 
   @Query(() => Seminar, { name: 'seminar' })

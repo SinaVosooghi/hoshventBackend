@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CouponsService } from 'src/coupons/coupons.service';
 import { Item } from 'src/items/entities/item.entity';
 import { ItemsService } from 'src/items/items.service';
 import { Order } from 'src/orders/entities/order.entity';
@@ -20,6 +19,8 @@ import { GetInoivceArgs } from './dto/get-invoice';
 import { GetInvoicesArgs } from './dto/get-invoices.args';
 import { UpdateInvoiceInput } from './dto/update-invoice.input';
 import { Invoice } from './entities/invoice.entity';
+import { CouponsService } from 'src/coupons/coupons.service';
+import { EventsService } from 'src/events/events.service';
 
 @Injectable()
 export class InvoicesService {
@@ -33,17 +34,25 @@ export class InvoicesService {
     @InjectRepository(Product)
     private readonly settingService: SettingsService,
     private readonly couponService: CouponsService,
+    private readonly eventsService: EventsService,
     private readonly shippingService: ShippingsService,
     private readonly itemService: ItemsService,
     private readonly orderService: OrdersService,
   ) {}
 
   async create(createInvoiceInput: CreateInvoiceInput): Promise<Invoice> {
-    const setting = await this.settingService.findOne();
-    const coupon = await this.couponService.findOne(createInvoiceInput.coupon);
-    const shipping = await this.shippingService.findOne(
-      createInvoiceInput.shipping,
-    );
+    const setting = await this.settingRepository.find({
+      skip: 0,
+      take: 1,
+      order: { created: 'DESC' },
+    });
+
+    const coupon = createInvoiceInput.coupon
+      ? await this.couponService.findOne(createInvoiceInput.coupon)
+      : null;
+    const shipping = createInvoiceInput.shipping
+      ? await this.shippingService.findOne(createInvoiceInput.shipping)
+      : null;
 
     const items = createInvoiceInput.items;
     let subtotal = 0;
@@ -69,7 +78,8 @@ export class InvoicesService {
     }
     total = subtotal;
     if (coupon) total = total - (total * coupon.percent) / 100;
-    const tax = (total * setting?.tax) / 100;
+
+    const tax = (total * setting[0]?.tax) / 100;
     total = total + tax;
     if (shipping) total = total + shipping.cost;
 
@@ -86,26 +96,15 @@ export class InvoicesService {
 
     if (items.length > 0) {
       items.map(async (item) => {
-        if (createInvoiceInput.type === 'shop') {
-          await this.itemService.create({
-            // @ts-ignore
-            product: item.product,
-            // @ts-ignore
-            quantity: item.quantity,
-            // @ts-ignore
-            price: item.price,
-            order: order,
-          });
-        } else {
-          await this.itemService.create({
-            product: null,
-            // @ts-ignore
-            quantity: item.quantity,
-            // @ts-ignore
-            price: item.price,
-            order: order,
-          });
-        }
+        await this.itemService.create({
+          // @ts-ignore
+          event: item.product,
+          // @ts-ignore
+          quantity: item.quantity,
+          // @ts-ignore
+          price: item.price,
+          order: order,
+        });
       });
     }
 
@@ -114,12 +113,12 @@ export class InvoicesService {
       total,
       user: createInvoiceInput.user,
       order: order,
+      coupon,
     });
 
     try {
       return await this.invoiceRepository.save(item);
     } catch (err) {
-      console.log(err);
       if (err.code === '23505') {
         throw new ConflictException('Duplicate error');
       }
@@ -260,7 +259,7 @@ export class InvoicesService {
             // @ts-ignore
             await this.itemService.update(item.id, {
               // @ts-ignore
-              product: null,
+              event: item.product?.value ?? item.product,
               // @ts-ignore
               quantity: item.quantity,
               // @ts-ignore
@@ -269,7 +268,8 @@ export class InvoicesService {
             });
           } else {
             await this.itemService.create({
-              product: null,
+              // @ts-ignore
+              event: item.product?.value ?? item.product,
               // @ts-ignore
               quantity: item.quantity,
               // @ts-ignore

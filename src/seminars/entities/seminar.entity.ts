@@ -13,6 +13,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Site } from 'src/sites/entities/site.entity';
 
 @ObjectType()
 @Entity()
@@ -118,6 +119,16 @@ export class Seminar {
     nullable: true,
   })
   state: 'not_started' | 'running' | 'ended' | 'canceled';
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 
   @CreateDateColumn({
     type: 'timestamp',

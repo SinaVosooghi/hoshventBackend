@@ -16,7 +16,7 @@ export class GetUsersApiArgs {
   role?: number;
 
   @Field({ nullable: true })
-  usertype: 'super' | 'merchant' | 'instructor' | 'user' | 'lecturer';
+  usertype: 'super' | 'tenant' | 'instructor' | 'user' | 'lecturer' | 'guest';
 
   @Field({ nullable: true })
   status?: boolean;

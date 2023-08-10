@@ -17,4 +17,7 @@ export class GetBrandsArgs {
 
   @Field({ nullable: true })
   searchTerm?: string;
+
+  @Field({ nullable: true })
+  siteid?: number;
 }

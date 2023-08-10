@@ -7,6 +7,8 @@ import { BrandPaginate } from './entities/paginate';
 import { GetBrandsArgs } from './dto/get-items.args';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Resolver(() => Brand)
 export class BrandsResolver {
@@ -14,14 +16,20 @@ export class BrandsResolver {
 
   @Mutation(() => Brand)
   @UseGuards(GqlAuthGuard)
-  createBrand(@Args('input') createBrandInput: CreateBrandInput) {
-    return this.brandsService.create(createBrandInput);
+  createBrand(
+    @Args('input') createBrandInput: CreateBrandInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.brandsService.create(createBrandInput, user);
   }
 
   @Query(() => BrandPaginate, { name: 'brands' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getBrandsArgs: GetBrandsArgs) {
-    return this.brandsService.findAll(getBrandsArgs);
+  findAll(
+    @Args('input') getBrandsArgs: GetBrandsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.brandsService.findAll(getBrandsArgs, user);
   }
 
   @Query(() => Brand, { name: 'brand' })

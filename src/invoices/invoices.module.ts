@@ -6,14 +6,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from 'src/orders/entities/order.entity';
 import { OrdersModule } from 'src/orders/orders.module';
 import { Product } from 'src/product/entities/product.entity';
-import { Coupon } from 'src/coupons/entities/coupon.entity';
 import { Setting } from 'src/settings/entities/setting.entity';
 import { SettingsModule } from 'src/settings/settings.module';
-import { CouponsModule } from 'src/coupons/coupons.module';
 import { ShippingsModule } from 'src/shippings/shippings.module';
 import { ItemsModule } from 'src/items/items.module';
-import { UsersModule } from 'src/users/users.module';
 import { User } from 'src/users/entities/user.entity';
+import { Coupon } from 'src/coupons/entities/coupon.entity';
+import { CouponsModule } from 'src/coupons/coupons.module';
+import { UsersModule } from 'src/users/users.module';
+import { EventsModule } from 'src/events/events.module';
 
 @Module({
   imports: [
@@ -24,7 +25,9 @@ import { User } from 'src/users/entities/user.entity';
     ShippingsModule,
     UsersModule,
     ItemsModule,
+    EventsModule,
   ],
   providers: [InvoicesResolver, InvoicesService],
+  exports: [InvoicesService],
 })
 export class InvoicesModule {}

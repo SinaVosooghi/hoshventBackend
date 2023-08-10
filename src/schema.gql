@@ -2,6 +2,29 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Attendee {
+  created: DateTime
+  event: Event
+
+  """id of the attendee"""
+  id: Float
+
+  """Site of the item"""
+  site: Site
+
+  """Status of the attendee"""
+  status: Boolean!
+  updated: DateTime
+
+  """Organizer of the attendee"""
+  user: User
+}
+
+type AttendeePaginate {
+  attends: [Attendee!]
+  count: Float!
+}
+
 type Blog {
   """Author of the blog"""
   author: User
@@ -30,6 +53,9 @@ type Blog {
 
   """Title SEO of the blog"""
   seotitle: String
+
+  """Site of the item"""
+  site: Site
 
   """Slug of the blog"""
   slug: String!
@@ -60,6 +86,9 @@ type Brand {
 
   """Image of the course"""
   image: String
+
+  """Site of the item"""
+  site: Site
 
   """Status of the brand"""
   status: Boolean
@@ -96,6 +125,9 @@ type Category {
 
   """Title SEO of the Category"""
   seotitle: String
+
+  """Site of the item"""
+  site: Site
 
   """Slug of the Category"""
   slug: String!
@@ -143,6 +175,9 @@ type Chat {
   """Can reply of the Chat"""
   repliable: Boolean
 
+  """Site of the item"""
+  site: Site
+
   """starred of the Chat"""
   starred: Boolean
 
@@ -177,6 +212,9 @@ type Comment {
   """Id of the Comment"""
   id: Float!
 
+  """Site of the item"""
+  site: Site
+
   """status of the Comment"""
   status: Boolean!
   updated: DateTime
@@ -198,6 +236,9 @@ type Contact {
   """Id of the blog"""
   id: Float!
   name: String
+
+  """Site of the item"""
+  site: Site
   subject: String!
 }
 
@@ -226,6 +267,9 @@ type Coupon {
   """percent of the coupon"""
   percent: Float
 
+  """Site of the item"""
+  site: Site
+
   """start date of the coupon"""
   startdate: DateTime
 
@@ -243,6 +287,20 @@ type Coupon {
 type CouponPaginate {
   count: Float!
   coupons: [Coupon!]
+}
+
+input CreateAtendeeInput {
+  """Event of the attendee"""
+  event: Float!
+
+  """Site of the Event"""
+  site: Float
+
+  """Status of the attendee"""
+  status: Boolean! = true
+
+  """User of the attendee"""
+  user: Float!
 }
 
 input CreateBlogInput {
@@ -484,9 +542,6 @@ input CreateHallInput {
   """Image of the Hall"""
   image: Upload
 
-  """State of the hall"""
-  state: String = "not_started"
-
   """Status of the hall"""
   status: Boolean
 
@@ -523,6 +578,9 @@ input CreateInvoiceInput {
   """Shipping of invoice"""
   shipping: Float
 
+  """Site of the Event"""
+  site: Float
+
   """Type of the invoice"""
   type: String!
 
@@ -531,17 +589,24 @@ input CreateInvoiceInput {
 }
 
 input CreateItemInput {
+  """Event of the item"""
+  event: Float
+
   """Order of the item"""
   order: Float!
 
   """Price of the items"""
   price: Float!
 
-  """Product of the item"""
-  product: Float
-
   """number of the items"""
   quantity: Float!
+}
+
+input CreateMenuInput {
+  link: String!
+  order: Float!
+  status: Boolean
+  title: String!
 }
 
 input CreateMessageInput {
@@ -580,25 +645,35 @@ input CreatePaymentInput {
   amount: Float!
 
   """Authority of the payment"""
-  authority: String!
+  authority: String
 
-  """Course of the payment"""
-  course: Float!
+  """Coupon method id of the payment"""
+  coupon: Float
+
+  """Event of the payment"""
+  event: Float
+
+  """Payment method id of the payment"""
+  payment: Float
+
+  """Payment method id of the payment"""
+  paymentMethodId: String
 
   """Payment method of the payment"""
-  paymentmethod: String!
-
-  """product of the payment"""
-  product: Float!
+  paymentmethod: String
+  products: [JSONObject!]
 
   """Refid of the payment"""
-  refid: String!
+  refid: String
+
+  """Site of the Event"""
+  site: Float
 
   """Status of the payment"""
-  statusCode: String!
+  statusCode: String
 
-  """User of the payment"""
-  user: Float!
+  """Type of the payment"""
+  type: String
 }
 
 input CreatePlanInput {
@@ -860,6 +935,7 @@ input CreateSiteInput {
 
   """Status of the Site"""
   status: Boolean
+  tax: Float
 
   """Timezone of website"""
   timezone: String
@@ -884,6 +960,11 @@ input CreateSliderInput {
   image: Upload
   link: String!
   status: Boolean!
+}
+
+input CreateTimelineInput {
+  """Example field (placeholder)"""
+  url: String!
 }
 
 input CreateUserInput {
@@ -1005,6 +1086,9 @@ type Department {
   """Image of the course"""
   image: String
 
+  """Site of the item"""
+  site: Site
+
   """Status of the category"""
   status: Boolean
 
@@ -1037,6 +1121,7 @@ type Event {
 
   """Featured of the blog"""
   featured: Boolean!
+  halls: [Hall!]
 
   """Id of the blog"""
   id: Float!
@@ -1087,6 +1172,15 @@ type EventPaginate {
   events: [Event!]
 }
 
+input GetAttendeesArgs {
+  event: Float
+  limit: Float
+  searchTerm: String
+  siteid: Float
+  skip: Float!
+  status: Boolean
+}
+
 input GetBlogsArgs {
   category: String
   featured: Boolean
@@ -1101,6 +1195,7 @@ input GetBrandsArgs {
   featured: Boolean
   limit: Float
   searchTerm: String
+  siteid: Float
   skip: Float!
   status: Boolean
 }
@@ -1109,6 +1204,7 @@ input GetCategoriesArgs {
   featured: Boolean
   limit: Float
   searchTerm: String
+  siteid: Float
   skip: Float!
   status: Boolean
   type: String
@@ -1157,10 +1253,14 @@ input GetDepartmentsArgs {
 }
 
 input GetEventsArgs {
+  category: String
   featured: Boolean
+  isDeleted: Boolean
   limit: Float
+  price: String
   searchTerm: String
   site: String
+  siteid: Float
   skip: Float!
   sort: String
   status: Boolean
@@ -1180,6 +1280,14 @@ input GetInvoicesArgs {
   skip: Float!
   status: Boolean
   type: String
+}
+
+input GetMenusArgs {
+  limit: Float
+  searchTerm: String
+  siteid: Float
+  skip: Float!
+  status: Boolean
 }
 
 input GetOrdersArgs {
@@ -1225,10 +1333,16 @@ input GetRolesApiArgs {
 }
 
 input GetSeminarsArgs {
+  category: String
   featured: Boolean
+  isDeleted: Boolean
   limit: Float
+  price: String
   searchTerm: String
+  site: String
+  siteid: Float
   skip: Float!
+  sort: String
   status: Boolean
 }
 
@@ -1237,6 +1351,7 @@ input GetServicesArgs {
   limit: Float
   searchTerm: String
   site: String
+  siteid: Float
   skip: Float!
   sort: String
   status: Boolean
@@ -1263,9 +1378,21 @@ input GetSlidersArgs {
   featured: Boolean
   limit: Float
   searchTerm: String
+  site: Float
   skip: Float!
   status: Boolean
   type: String
+}
+
+input GetTimelinsArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  site: Float
+  skip: Float!
+  status: Boolean
+  type: String
+  user: Float
 }
 
 input GetUsersApiArgs {
@@ -1278,10 +1405,16 @@ input GetUsersApiArgs {
 }
 
 input GetWorkshopsArgs {
+  category: String
   featured: Boolean
+  isDeleted: Boolean
   limit: Float
+  price: String
   searchTerm: String
+  site: String
+  siteid: Float
   skip: Float!
+  sort: String
   status: Boolean
 }
 
@@ -1301,6 +1434,10 @@ type Hall {
 
   """Image of the hall"""
   image: String
+  seminars: [Seminar!]
+
+  """Site of the item"""
+  site: Site
 
   """Status of the hall"""
   status: Boolean!
@@ -1311,6 +1448,7 @@ type Hall {
 
   """User of the hall"""
   user: User
+  workshops: [Workshop!]
 }
 
 type HallPaginate {
@@ -1319,6 +1457,8 @@ type HallPaginate {
 }
 
 type Invoice {
+  """Coupon of the payment"""
+  coupon: Float
   created: DateTime
 
   """Done payment"""
@@ -1338,6 +1478,9 @@ type Invoice {
   """Order of invoice"""
   order: Order!
 
+  """User of the payment"""
+  payment: Payment!
+
   """Payment type of the invoice"""
   paymenttype: String
   readat: DateTime
@@ -1345,8 +1488,11 @@ type Invoice {
   """Salesperson of the invoice"""
   salesperson: String
 
+  """Site of the item"""
+  site: Site
+
   """Total of the invoice"""
-  total: Float!
+  total: Float
 
   """Type of the invoice"""
   type: String!
@@ -1386,6 +1532,32 @@ The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](
 """
 scalar JSONObject
 
+type Menu {
+  created: DateTime
+
+  """id of the menu"""
+  id: Float!
+
+  """Link of the menu"""
+  link: String
+  order: Float!
+
+  """Site of the menu"""
+  site: Site
+
+  """Status of the menu"""
+  status: Boolean
+
+  """Title of the menu"""
+  title: String!
+  updated: DateTime
+}
+
+type MenuPaginate {
+  count: Float!
+  menus: [Menu!]
+}
+
 type Message {
   """title of the Chat"""
   body: String!
@@ -1397,6 +1569,9 @@ type Message {
   """Id of the message"""
   id: Float!
   read: DateTime
+
+  """Site of the item"""
+  site: Site
   updated: DateTime
 
   """ User of the chat"""
@@ -1404,6 +1579,9 @@ type Message {
 }
 
 type Mutation {
+  checkin(aid: Int!, id: Int!, type: String!): Boolean!
+  checkout(aid: Int!, id: Int!, type: String!): Boolean!
+  createAttendee(input: CreateAtendeeInput!): Attendee!
   createBlog(input: CreateBlogInput!): Blog!
   createBrand(input: CreateBrandInput!): Brand!
   createCategory(input: CreateCategoryInput!): Category!
@@ -1417,9 +1595,10 @@ type Mutation {
   createInvoice(input: CreateInvoiceInput!): Invoice!
   createInvoiceChat(input: CreateChatInput!): Boolean!
   createItem(createItemInput: CreateItemInput!): Item!
+  createMenu(input: CreateMenuInput!): Menu!
   createMessage(input: CreateMessageInput!): Message!
   createOrder(input: CreateOrderInput!): Order!
-  createPayment(input: CreatePaymentInput!): Payment!
+  createPayment(input: CreatePaymentInput!): Boolean!
   createPlan(input: CreatePlanInput!): Plan!
   createProduct(input: CreateProductInput!): Product!
   createRole(input: CreateRoleInput!): Role!
@@ -1429,9 +1608,11 @@ type Mutation {
   createShipping(input: CreateShippingInput!): Shipping!
   createSite(input: CreateSiteInput!): Site!
   createSlider(input: CreateSliderInput!): Slider!
+  createTimeline(input: CreateTimelineInput!): Timeline!
   createUser(input: CreateUserInput!): User!
   createWorkshop(input: CreateWorkshopInput!): Workshop!
   login: User!
+  removeAttendee(id: Int!): Boolean!
   removeBlog(id: Int!): Boolean!
   removeBrand(id: Int!): Boolean!
   removeCategory(id: Int!): Boolean!
@@ -1445,6 +1626,7 @@ type Mutation {
   removeImage(id: Int!): Boolean!
   removeInvoice(id: Int!): Boolean!
   removeItem(id: Int!): Boolean!
+  removeMenu(id: Int!): Boolean!
   removeMessage(id: Int!): Message!
   removeOrder(id: Int!): Boolean!
   removePayment(id: Int!): Boolean!
@@ -1457,8 +1639,10 @@ type Mutation {
   removeShipping(id: Int!): Boolean!
   removeSite(id: Int!): Boolean!
   removeSlider(id: Int!): Boolean!
+  removeTimeline(id: Int!): Timeline!
   removeUser(id: Int!): Boolean!
   removeWorkshop(id: Int!): Boolean!
+  updateAttendee(input: UpdateAttendeeInput!): Attendee!
   updateBlog(input: UpdateBlogInput!): Blog!
   updateBrand(input: UpdateBrandInput!): Brand!
   updateCategory(input: UpdateCategoryInput!): Category!
@@ -1470,6 +1654,7 @@ type Mutation {
   updateHall(input: UpdateHallInput!): Hall!
   updateInvoice(input: UpdateInvoiceInput!): Invoice!
   updateItem(updateItemInput: UpdateItemInput!): Item!
+  updateMenu(input: UpdateMenuInput!): Menu!
   updateMessage(input: UpdateMessageInput!): Message!
   updateOrder(input: UpdateOrderInput!): Order!
   updatePayment(input: UpdatePaymentInput!): Payment!
@@ -1482,6 +1667,7 @@ type Mutation {
   updateShipping(input: UpdateShippingInput!): Shipping!
   updateSite(input: UpdateSiteInput!): Site!
   updateSlider(input: UpdateSliderInput!): Slider!
+  updateTimeline(updateTimelineInput: UpdateTimelineInput!): Timeline!
   updateUser(input: UpdateUserInput!): User!
   updateWorkshop(input: UpdateWorkshopInput!): Workshop!
   uploadUsersCsv(input: UploadUsersPdfInput!): Boolean!
@@ -1508,6 +1694,9 @@ type Order {
   """Shipping of the order"""
   shipping: Shipping!
 
+  """Site of the item"""
+  site: Site
+
   """status of the order"""
   status: Boolean!
 
@@ -1529,30 +1718,46 @@ type OrderPaginate {
 
 type Payment {
   """Amount of the payment"""
-  amount: Float!
+  amount: Float
 
   """Authority of the payment"""
-  authority: String!
+  authority: String
   created: DateTime
+
+  """Event of the payment"""
+  event: Event
 
   """Id of the payment"""
   id: Float!
 
-  """Payment method of the payment"""
-  paymentmethod: String!
+  """paymentId of the payment"""
+  paymentId: Float
 
-  """Product of the payment"""
-  product: Float!
+  """Payment method of the payment"""
+  paymentMethodId: String
+
+  """Payment method of the payment"""
+  paymentmethod: String
+  products: [productOptions!]
 
   """Refid of the payment"""
-  refid: String!
+  refid: String
+
+  """Site of the item"""
+  site: Site
+
+  """status of the payment"""
+  status: String
 
   """Status of the payment"""
-  statusCode: String!
+  statusCode: String
+
+  """Amount of the payment"""
+  type: String
   updated: DateTime
 
   """User of the payment"""
-  user: Float!
+  user: User!
 }
 
 type PaymentPaginate {
@@ -1588,6 +1793,9 @@ type Plan {
 
   """Service of plan"""
   services: [Service!]
+
+  """Site of the item"""
+  site: Site
 
   """Slug of the plan"""
   slug: String!
@@ -1649,6 +1857,9 @@ type Product {
   """Title SEO of the product"""
   seotitle: String
 
+  """Site of the item"""
+  site: Site
+
   """Slug of the product"""
   slug: String!
 
@@ -1673,6 +1884,9 @@ type ProductVariationType {
 }
 
 type Query {
+  Attendee(id: Int!): Attendee!
+  attendees(input: GetAttendeesArgs!): AttendeePaginate!
+  attendeesApi(input: GetAttendeesArgs!): AttendeePaginate!
   blog(id: Int!): Blog!
   blogApi(slug: String!): Blog!
   blogs(input: GetBlogsArgs!): BlogPaginate!
@@ -1702,18 +1916,24 @@ type Query {
   events(input: GetEventsArgs!): EventPaginate!
   eventsApi(input: GetEventsArgs!): EventPaginate!
   getSetting: Setting!
+  getSite(id: Int!): Site!
   hall(id: Int!): Hall!
   halls(input: GetHallsArgs!): HallPaginate!
   invoice(id: Int!, read: Boolean! = false): Invoice!
   invoices(input: GetInvoicesArgs!): InvoicePaginate!
   item(id: Int!): Item!
   items: [Item!]!
+  menu(id: Int!): Menu!
+  menuApi(id: Int!): Menu!
+  menus(input: GetMenusArgs!): MenuPaginate!
+  menusApi(input: GetMenusArgs!): MenuPaginate!
   message(id: Int!): Message!
   messages: [Message!]!
   order(id: Int!, read: Boolean! = false): Order!
   orders(input: GetOrdersArgs!): OrderPaginate!
   payment(id: Int!): Payment!
   payments(input: GetPaymentsArgs!): PaymentPaginate!
+  paymentsApi(input: GetPaymentsArgs!): PaymentPaginate!
   plan(id: Int!): Plan!
   planApi(slug: String!): Plan!
   plans(input: GetPlansArgs!): PlanPaginate!
@@ -1725,7 +1945,9 @@ type Query {
   role(id: Int!): Role!
   roles(input: GetRolesApiArgs!): RolePaginate!
   seminar(id: Int!): Seminar!
+  seminarApi(slug: String!): Seminar!
   seminars(input: GetSeminarsArgs!): SeminarPaginate!
+  seminarsApi(input: GetSeminarsArgs!): SeminarPaginate!
   service(id: Int!): Service!
   services(input: GetServicesArgs!): ServicePaginate!
   servicesApi(input: GetServicesArgs!): ServicePaginate!
@@ -1737,11 +1959,18 @@ type Query {
   slider(id: Int!): Slider!
   sliders(input: GetSlidersArgs!): SliderPaginate!
   slidersApi(input: GetSlidersArgs!): SliderPaginate!
+  teacherPaymentsApi(input: GetPaymentsArgs!): PaymentPaginate!
+  timeline(url: String!): Attendee!
+  timelines: [Timeline!]!
   user(id: Int!): User!
+  userEventsApi(input: GetEventsArgs!): AttendeePaginate!
+  userTimelines(input: GetTimelinsArgs!): TimelinePaginate!
   users(input: GetUsersApiArgs!): UserPaginate!
   usersPdf(input: GetUsersApiArgs!): String!
   workshop(id: Int!): Workshop!
+  workshopApi(slug: String!): Workshop!
   workshops(input: GetWorkshopsArgs!): WorkshopPaginate!
+  workshopsApi(input: GetWorkshopsArgs!): WorkshopPaginate!
 }
 
 type Role {
@@ -1752,6 +1981,9 @@ type Role {
   """id of the role"""
   id: Float!
   permissions: PermissionType
+
+  """Site of the item"""
+  site: Site
 
   """status of the coupon"""
   status: Boolean
@@ -1804,6 +2036,9 @@ type Seminar {
   """Title SEO of the workshop"""
   seotitle: String
 
+  """Site of the item"""
+  site: Site
+
   """Slug of the workshop"""
   slug: String!
 
@@ -1854,6 +2089,9 @@ type Service {
 
   """Quantity of the service"""
   quantity: Float
+
+  """Site of the item"""
+  site: Site
 
   """Startdate of service"""
   start_date: DateTime
@@ -1991,6 +2229,7 @@ type Site {
 
   """Status of the Site"""
   status: Boolean
+  tax: Float
 
   """Timezone of website"""
   timezone: String
@@ -2024,6 +2263,9 @@ type Slider {
   id: Float!
   image: String
   link: String!
+
+  """Site of the item"""
+  site: Site
   status: Boolean!
   updated: DateTime
 }
@@ -2031,6 +2273,55 @@ type Slider {
 type SliderPaginate {
   count: Float!
   sliders: [Slider!]
+}
+
+type Timeline {
+  checkin: DateTime
+  checkout: DateTime
+  created: DateTime
+
+  """Site of the item"""
+  event: Event
+
+  """Id of slider"""
+  id: Float!
+
+  """Author of the blog"""
+  scannedby: User
+
+  """Site of the item"""
+  seminar: Seminar
+
+  """Site of the item"""
+  site: Site
+  updated: DateTime
+
+  """Author of the blog"""
+  user: User
+
+  """Site of the item"""
+  workshop: Workshop
+}
+
+type TimelinePaginate {
+  count: Float!
+  timelines: [Timeline!]
+  total: Float!
+}
+
+input UpdateAttendeeInput {
+  """Event of the attendee"""
+  event: Float
+  id: Int!
+
+  """Site of the Event"""
+  site: Float
+
+  """Status of the attendee"""
+  status: Boolean = true
+
+  """User of the attendee"""
+  user: Float
 }
 
 input UpdateBlogInput {
@@ -2246,9 +2537,6 @@ input UpdateHallInput {
   """Image of the Hall"""
   image: Upload
 
-  """State of the hall"""
-  state: String = "not_started"
-
   """Status of the hall"""
   status: Boolean
 
@@ -2286,6 +2574,9 @@ input UpdateInvoiceInput {
   """Shipping of invoice"""
   shipping: Float
 
+  """Site of the Event"""
+  site: Float
+
   """Type of the invoice"""
   type: String
 
@@ -2294,6 +2585,8 @@ input UpdateInvoiceInput {
 }
 
 input UpdateItemInput {
+  """Event of the item"""
+  event: Float
   id: Int!
 
   """Order of the item"""
@@ -2302,11 +2595,16 @@ input UpdateItemInput {
   """Price of the items"""
   price: Float
 
-  """Product of the item"""
-  product: Float
-
   """number of the items"""
   quantity: Float
+}
+
+input UpdateMenuInput {
+  id: Int!
+  link: String
+  order: Float
+  status: Boolean
+  title: String
 }
 
 input UpdateMessageInput {
@@ -2349,24 +2647,34 @@ input UpdatePaymentInput {
   """Authority of the payment"""
   authority: String
 
-  """Course of the payment"""
-  course: Float
+  """Coupon method id of the payment"""
+  coupon: Float
+
+  """Event of the payment"""
+  event: Float
   id: Int!
+
+  """Payment method id of the payment"""
+  payment: Float
+
+  """Payment method id of the payment"""
+  paymentMethodId: String
 
   """Payment method of the payment"""
   paymentmethod: String
-
-  """product of the payment"""
-  product: Float
+  products: [JSONObject!]
 
   """Refid of the payment"""
   refid: String
 
+  """Site of the Event"""
+  site: Float
+
   """Status of the payment"""
   statusCode: String
 
-  """User of the payment"""
-  user: Float
+  """Type of the payment"""
+  type: String
 }
 
 input UpdatePlanInput {
@@ -2635,6 +2943,7 @@ input UpdateSiteInput {
 
   """Status of the Site"""
   status: Boolean
+  tax: Float
 
   """Timezone of website"""
   timezone: String
@@ -2660,6 +2969,13 @@ input UpdateSliderInput {
   image: Upload
   link: String
   status: Boolean
+}
+
+input UpdateTimelineInput {
+  id: Int!
+
+  """Example field (placeholder)"""
+  url: String
 }
 
 input UpdateUserInput {
@@ -2820,7 +3136,10 @@ type User {
   role: Role
 
   """Site of the user"""
-  site: Site
+  site: [Site!]
+
+  """Site of the menu"""
+  siteid: Site
 
   """Status of the user"""
   status: Boolean
@@ -2879,6 +3198,9 @@ type Workshop {
   """Title SEO of the workshop"""
   seotitle: String
 
+  """Site of the item"""
+  site: Site
+
   """Slug of the workshop"""
   slug: String!
 
@@ -2902,4 +3224,10 @@ type Workshop {
 type WorkshopPaginate {
   count: Float!
   workshops: [Workshop!]
+}
+
+type productOptions {
+  id: Float
+  qty: Float
+  title: String
 }

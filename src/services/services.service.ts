@@ -44,6 +44,7 @@ export class ServicesService {
       image,
       user: user,
       events,
+      ...(user && { site: { id: user.site[0]?.id } }),
     });
 
     try {
@@ -55,12 +56,17 @@ export class ServicesService {
     }
   }
 
-  async findAll({ skip, limit, searchTerm, status }: GetServicesArgs) {
+  async findAll(
+    { skip, limit, searchTerm, status, siteid }: GetServicesArgs,
+    user?: User,
+  ) {
     const [result, total] = await this.serviceRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
         ...(status && { status: true }),
         ...(status === false && { status: false }),
+        ...(user && { site: { id: user.site[0]?.id } }),
+        ...(siteid && { site: { id: siteid } }),
       },
       relations: ['events', 'events.site', 'user'],
       take: limit,

@@ -1,6 +1,7 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { GraphQLJSONObject } from 'graphql-type-json';
-import { Payment } from 'src/payments/entities/payment.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
+import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
 
 @InputType()
@@ -30,7 +31,7 @@ export class CreateInvoiceInput {
     description: 'Shipping of invoice',
     nullable: true,
   })
-  shipping: number;
+  shipping?: number;
 
   @Field(() => Number, {
     description: 'discount of invoice',
@@ -42,7 +43,7 @@ export class CreateInvoiceInput {
     description: 'Payment of the invoice',
     nullable: true,
   })
-  payment: Payment;
+  payment?: Payment;
 
   @Field(() => Date, { nullable: true })
   issuedate: Date;
@@ -54,11 +55,14 @@ export class CreateInvoiceInput {
     description: 'Salesperson of the invoice',
     nullable: true,
   })
-  salesperson: string;
+  salesperson?: string;
 
   @Field(() => [GraphQLJSONObject], { nullable: true })
   items: object[];
 
   @Field(() => Number, { nullable: true })
-  order: number;
+  order?: number;
+
+  @Field(() => Number, { description: 'Site of the Event', nullable: true })
+  site: Site;
 }

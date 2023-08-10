@@ -33,8 +33,11 @@ export class ChatsResolver {
 
   @Query(() => ChatPaginate, { name: 'chats' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getChatsArgs: GetChatsArgs) {
-    return this.chatsService.findAll(getChatsArgs);
+  findAll(
+    @Args('input') getChatsArgs: GetChatsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.chatsService.findAll(getChatsArgs, user);
   }
 
   @Query(() => Chat, { name: 'chat' })

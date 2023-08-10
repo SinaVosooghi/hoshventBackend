@@ -10,6 +10,7 @@ import { GetBrandsArgs } from './dto/get-items.args';
 import { UpdateBrandInput } from './dto/update-brand.input';
 import { Brand } from './entities/brand.entity';
 import { imageUploader } from 'src/utils/imageUploader';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class BrandsService {
@@ -18,7 +19,7 @@ export class BrandsService {
     private readonly brandRepository: Repository<Brand>,
   ) {}
 
-  async create(createBrandInput: CreateBrandInput): Promise<Brand> {
+  async create(createBrandInput: CreateBrandInput, user: User): Promise<Brand> {
     let image = null;
     if (createBrandInput.image) {
       const imageUpload = await imageUploader(createBrandInput.image);
@@ -28,6 +29,7 @@ export class BrandsService {
     const item = await this.brandRepository.create({
       ...createBrandInput,
       image,
+      ...(user && { site: { id: user.site[0]?.id } }),
     });
 
     try {
@@ -39,12 +41,17 @@ export class BrandsService {
     }
   }
 
-  async findAll({ skip, limit, searchTerm, status, featured }: GetBrandsArgs) {
+  async findAll(
+    { skip, limit, searchTerm, status, featured, siteid }: GetBrandsArgs,
+    user: User,
+  ) {
     const [result, total] = await this.brandRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
         ...(status && { status: status }),
         ...(featured && { featured: featured }),
+        ...(user && { site: { id: user.site[0]?.id } }),
+        ...(siteid && { site: { id: siteid } }),
       },
       order: { id: 'DESC' },
       take: limit,

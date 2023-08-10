@@ -10,9 +10,13 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Site } from 'src/sites/entities/site.entity';
+import { Seminar } from 'src/seminars/entities/seminar.entity';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
 
 @ObjectType()
 @Entity()
@@ -75,4 +79,22 @@ export class Hall {
   })
   @Field(() => Date, { nullable: true })
   updated: Date;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
+
+  @OneToMany(() => Seminar, (seminar) => seminar.hall, { nullable: true })
+  @Field(() => [Seminar], { nullable: true })
+  seminars: Seminar[];
+
+  @OneToMany(() => Workshop, (workshop) => workshop.hall, { nullable: true })
+  @Field(() => [Workshop], { nullable: true })
+  workshops: Workshop[];
 }

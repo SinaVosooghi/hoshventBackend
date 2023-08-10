@@ -4,14 +4,19 @@ import { Category } from './entities/category.entity';
 
 import { CategoryPaginate } from './entities/paginate';
 import { GetCategoriesArgs } from './dto/get-categories.args';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Resolver(() => Category)
 export class CategoriesApiResolver {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Query(() => CategoryPaginate, { name: 'categoriesApi' })
-  findAll(@Args('input') getCategoriesArgs: GetCategoriesArgs) {
-    return this.categoriesService.findAll(getCategoriesArgs);
+  findAll(
+    @Args('input') getCategoriesArgs: GetCategoriesArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.categoriesService.findAll(getCategoriesArgs, user);
   }
 
   @Query(() => Category, { name: 'categoryApi' })

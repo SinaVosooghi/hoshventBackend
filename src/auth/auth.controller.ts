@@ -17,6 +17,14 @@ export class AuthController {
     return await this.authService.login(req.user as User);
   }
 
+  @UseGuards(LocalAuthGuard)
+  @Post('tenant')
+  async tenant(@Req() req: Request): Promise<{ access_token: string }> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return await this.authService.tenant(req.user as User);
+  }
+
   @Post('getMe')
   async getMe(@Req() req: Request): Promise<{ access_token: string }> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

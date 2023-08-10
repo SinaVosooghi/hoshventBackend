@@ -25,8 +25,11 @@ export class BlogsResolver {
 
   @Query(() => BlogPaginate, { name: 'blogs' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getBlogsArgs: GetBlogsArgs) {
-    return this.blogsService.findAll(getBlogsArgs);
+  findAll(
+    @Args('input') getBlogsArgs: GetBlogsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.blogsService.findAll(getBlogsArgs, user);
   }
 
   @Query(() => Blog, { name: 'blog' })

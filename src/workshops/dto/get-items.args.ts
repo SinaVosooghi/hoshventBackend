@@ -13,8 +13,26 @@ export class GetWorkshopsArgs {
   status: boolean;
 
   @Field({ nullable: true })
+  sort: 'highest' | 'lowest' | 'latest' | 'oldest' | 'lastupdate';
+
+  @Field({ nullable: true })
+  price: 'free' | 'cash';
+
+  @Field({ nullable: true })
+  category: string;
+
+  @Field({ nullable: true })
   featured: boolean;
 
   @Field({ nullable: true })
+  isDeleted: boolean;
+
+  @Field({ nullable: true })
   searchTerm?: string;
+
+  @Field({ nullable: true })
+  site: string;
+
+  @Field({ nullable: true })
+  siteid?: number;
 }

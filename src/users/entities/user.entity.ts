@@ -92,7 +92,7 @@ export class User {
 
   @Column({ default: 'user', nullable: true })
   @Field(() => String, { description: 'Type of the user', nullable: true })
-  usertype: 'super' | 'merchant' | 'instructor' | 'user' | 'lecturer';
+  usertype: 'super' | 'tenant' | 'instructor' | 'user' | 'lecturer' | 'guest';
 
   @Column({ nullable: true })
   @Field(() => String, { description: 'Level of the user', nullable: true })
@@ -111,11 +111,21 @@ export class User {
     onDelete: 'SET NULL',
   })
   @JoinColumn()
-  @Field(() => Site, {
+  @Field(() => [Site], {
     description: 'Site of the user',
     nullable: true,
   })
   site: Site;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the menu',
+    nullable: true,
+  })
+  siteid: Site;
 
   @CreateDateColumn({
     type: 'timestamp',

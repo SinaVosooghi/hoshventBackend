@@ -7,6 +7,8 @@ import { CategoryPaginate } from './entities/paginate';
 import { GetCategoriesArgs } from './dto/get-categories.args';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Resolver(() => Category)
 export class CategoriesResolver {
@@ -14,14 +16,20 @@ export class CategoriesResolver {
 
   @Mutation(() => Category)
   @UseGuards(GqlAuthGuard)
-  createCategory(@Args('input') createCategoryInput: CreateCategoryInput) {
-    return this.categoriesService.create(createCategoryInput);
+  createCategory(
+    @Args('input') createCategoryInput: CreateCategoryInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.categoriesService.create(createCategoryInput, user);
   }
 
   @Query(() => CategoryPaginate, { name: 'categories' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getCategoriesArgs: GetCategoriesArgs) {
-    return this.categoriesService.findAll(getCategoriesArgs);
+  findAll(
+    @Args('input') getCategoriesArgs: GetCategoriesArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.categoriesService.findAll(getCategoriesArgs, user);
   }
 
   @Query(() => Category, { name: 'category' })

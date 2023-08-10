@@ -10,6 +10,7 @@ import { GetSlidersArgs } from './dto/get-sliders.args';
 import { UpdateSliderInput } from './dto/update-slider.input';
 import { Slider } from './entities/slider.entity';
 import { imageUploader } from 'src/utils/imageUploader';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class SlidersService {
@@ -18,7 +19,10 @@ export class SlidersService {
     private readonly slidersRepository: Repository<Slider>,
   ) {}
 
-  async create(createSlidersInput: CreateSliderInput): Promise<Slider> {
+  async create(
+    createSlidersInput: CreateSliderInput,
+    user: User,
+  ): Promise<Slider> {
     let image = null;
     if (createSlidersInput.image) {
       const imageUpload = await imageUploader(createSlidersInput.image);
@@ -28,6 +32,7 @@ export class SlidersService {
     const item = await this.slidersRepository.create({
       ...createSlidersInput,
       image,
+      ...(user && { site: { id: user.site[0]?.id } }),
     });
 
     try {
@@ -39,12 +44,16 @@ export class SlidersService {
     }
   }
 
-  async findAll({ skip, limit, searchTerm, status, featured }: GetSlidersArgs) {
+  async findAll(
+    { skip, limit, searchTerm, status, featured }: GetSlidersArgs,
+    user: User,
+  ) {
     const [result, total] = await this.slidersRepository.findAndCount({
       where: {
         body: searchTerm ? Like(`%${searchTerm}%`) : null,
         ...(status && { status: status }),
         ...(featured && { featured: featured }),
+        ...(user && { site: { id: user.site[0]?.id } }),
       },
       order: { id: 'DESC' },
       take: limit,
@@ -53,6 +62,30 @@ export class SlidersService {
 
     return { sliders: result, count: total };
   }
+
+  async findAllApi({
+    skip,
+    limit,
+    searchTerm,
+    status,
+    featured,
+    site,
+  }: GetSlidersArgs) {
+    const [result, total] = await this.slidersRepository.findAndCount({
+      where: {
+        body: searchTerm ? Like(`%${searchTerm}%`) : null,
+        ...(status && { status: status }),
+        ...(featured && { featured: featured }),
+        ...(site && { site: { id: site } }),
+      },
+      order: { id: 'DESC' },
+      take: limit,
+      skip: skip,
+    });
+
+    return { sliders: result, count: total };
+  }
+
   async findOne(id: number): Promise<Slider> {
     const sliders = await this.slidersRepository.findOneBy({ id: id });
     if (!sliders) {

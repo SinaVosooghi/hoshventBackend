@@ -23,4 +23,7 @@ export class GetServicesArgs {
 
   @Field({ nullable: true })
   site: string;
+
+  @Field({ nullable: true })
+  siteid?: number;
 }

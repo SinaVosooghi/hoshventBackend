@@ -10,6 +10,7 @@ import { GetCategoriesArgs } from './dto/get-categories.args';
 import { UpdateCategoryInput } from './dto/update-category.input';
 import { Category } from './entities/category.entity';
 import { imageUploader } from 'src/utils/imageUploader';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class CategoriesService {
@@ -18,7 +19,10 @@ export class CategoriesService {
     private readonly categoryRepository: Repository<Category>,
   ) {}
 
-  async create(createCategoryInput: CreateCategoryInput): Promise<Category> {
+  async create(
+    createCategoryInput: CreateCategoryInput,
+    user: User,
+  ): Promise<Category> {
     let image = null;
     if (createCategoryInput.image) {
       const imageUpload = await imageUploader(createCategoryInput.image);
@@ -27,6 +31,8 @@ export class CategoriesService {
 
     const item = await this.categoryRepository.create({
       ...createCategoryInput,
+      ...(user && { slug: `${user.site[0].slug}-${createCategoryInput.slug}` }),
+      ...(user && { site: { id: user.site[0]?.id } }),
       image,
     });
 
@@ -39,20 +45,26 @@ export class CategoriesService {
     }
   }
 
-  async findAll({
-    skip,
-    limit,
-    searchTerm,
-    type,
-    status,
-    featured,
-  }: GetCategoriesArgs) {
+  async findAll(
+    {
+      skip,
+      limit,
+      searchTerm,
+      type,
+      status,
+      featured,
+      siteid,
+    }: GetCategoriesArgs,
+    user: User,
+  ) {
     const [result, total] = await this.categoryRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
         ...(type && { type: type }),
         ...(status && { status: status }),
         ...(featured && { featured: featured }),
+        ...(user && { site: { id: user.site[0]?.id } }),
+        ...(siteid && { site: { id: siteid } }),
       },
       relations: ['category'],
       order: { id: 'DESC' },

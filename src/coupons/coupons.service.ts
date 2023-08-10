@@ -9,6 +9,7 @@ import { CreateCouponInput } from './dto/create-coupon.input';
 import { GetCouponsArgs } from './dto/get-coupons.args';
 import { UpdateCouponInput } from './dto/update-coupon.input';
 import { Coupon } from './entities/coupon.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class CouponsService {
@@ -17,8 +18,14 @@ export class CouponsService {
     private readonly couponRepository: Repository<Coupon>,
   ) {}
 
-  async create(createCouponInput: CreateCouponInput): Promise<Coupon> {
-    const item = await this.couponRepository.create(createCouponInput);
+  async create(
+    createCouponInput: CreateCouponInput,
+    user: User,
+  ): Promise<Coupon> {
+    const item = await this.couponRepository.create({
+      ...createCouponInput,
+      ...(user && { site: { id: user.site[0]?.id } }),
+    });
 
     try {
       return await this.couponRepository.save(item);
@@ -29,11 +36,15 @@ export class CouponsService {
     }
   }
 
-  async findAll({ skip, limit, searchTerm, status }: GetCouponsArgs) {
+  async findAll(
+    { skip, limit, searchTerm, status }: GetCouponsArgs,
+    user: User,
+  ) {
     const [result, total] = await this.couponRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
         status: status ?? null,
+        ...(user && { site: { id: user.site[0]?.id } }),
       },
       order: { id: 'DESC' },
       take: limit,

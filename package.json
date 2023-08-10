@@ -40,6 +40,7 @@
     "graphql-tools": "^8.3.20",
     "graphql-type-json": "^0.3.2",
     "graphql-upload": "^13.0.0",
+    "moment": "^2.29.4",
     "papaparse": "^5.4.1",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",

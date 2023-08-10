@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -9,6 +10,7 @@ import {
 import { ObjectType, Field } from '@nestjs/graphql';
 import { RolesProperties } from './roles.interface';
 import { User } from 'src/users/entities/user.entity';
+import { Site } from 'src/sites/entities/site.entity';
 
 @ObjectType()
 export class PermissionObjectType {
@@ -54,6 +56,16 @@ export class Role {
   @Column({ default: true })
   @Field(() => Boolean, { description: 'status of the coupon', nullable: true })
   status: boolean;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 
   @CreateDateColumn({
     type: 'timestamp',

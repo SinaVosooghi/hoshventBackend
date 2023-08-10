@@ -110,8 +110,6 @@ export class PlansService {
       id: In(updatePlanInput.services),
     });
 
-    console.log(updatePlanInput.services);
-
     const actualRelationships = await this.planRepository
       .createQueryBuilder()
       .relation(Plan, 'services')

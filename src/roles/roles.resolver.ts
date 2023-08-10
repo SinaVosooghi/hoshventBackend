@@ -7,21 +7,29 @@ import { GetRolesApiArgs } from './dto/get-roles.args';
 import { RolePaginate } from './entities/rolePaginate';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Resolver(() => Role)
 export class RolesResolver {
   constructor(private readonly roleService: RolesService) {}
 
   @Mutation(() => Role)
-  // @UseGuards(GqlAuthGuard)
-  createRole(@Args('input') createRoleInput: CreateRoleInput) {
-    return this.roleService.create(createRoleInput);
+  @UseGuards(GqlAuthGuard)
+  createRole(
+    @Args('input') createRoleInput: CreateRoleInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.roleService.create(createRoleInput, user);
   }
 
   @Query(() => RolePaginate, { name: 'roles' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getRolesApiArgs: GetRolesApiArgs) {
-    return this.roleService.findAll(getRolesApiArgs);
+  findAll(
+    @Args('input') getRolesApiArgs: GetRolesApiArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.roleService.findAll(getRolesApiArgs, user);
   }
 
   @Query(() => Role, { name: 'role' })

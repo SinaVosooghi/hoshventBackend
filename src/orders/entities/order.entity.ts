@@ -2,8 +2,9 @@ import { ObjectType, Field } from '@nestjs/graphql';
 import { Coupon } from 'src/coupons/entities/coupon.entity';
 import { Invoice } from 'src/invoices/entities/invoice.entity';
 import { Item } from 'src/items/entities/item.entity';
-import { Payment } from 'src/payments/entities/payment.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
 import { Shipping } from 'src/shippings/entities/shipping.entity';
+import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -88,4 +89,14 @@ export class Order {
   })
   @Field(() => Date, { nullable: true })
   readat: Date;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 }

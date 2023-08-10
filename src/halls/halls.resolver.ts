@@ -7,6 +7,8 @@ import { GetHallsArgs } from './dto/get-items.args';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { Hall } from './entities/hall.entity';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Resolver(() => Hall)
 export class HallsResolver {
@@ -14,14 +16,20 @@ export class HallsResolver {
 
   @Mutation(() => Hall)
   @UseGuards(GqlAuthGuard)
-  createHall(@Args('input') createHallInput: CreateHallInput) {
-    return this.hallsService.create(createHallInput);
+  createHall(
+    @Args('input') createHallInput: CreateHallInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.hallsService.create(createHallInput, user);
   }
 
   @Query(() => HallPaginate, { name: 'halls' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getHallsArgs: GetHallsArgs) {
-    return this.hallsService.findAll(getHallsArgs);
+  findAll(
+    @Args('input') getHallsArgs: GetHallsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.hallsService.findAll(getHallsArgs, user);
   }
 
   @Query(() => Hall, { name: 'hall' })

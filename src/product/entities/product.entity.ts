@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import slugify from 'slugify';
+import { Site } from 'src/sites/entities/site.entity';
 
 @ObjectType()
 export class VariationType {
@@ -133,6 +134,16 @@ export class Product {
   })
   @Field(() => Date, { nullable: true })
   updated: Date;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 
   @BeforeInsert()
   generateSlug() {

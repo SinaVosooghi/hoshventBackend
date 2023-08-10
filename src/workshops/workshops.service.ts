@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Like, Repository } from 'typeorm';
+import { In, IsNull, Like, Not, Repository } from 'typeorm';
 import { CreateWorkshopInput } from './dto/create-workshop.input';
 import { GetWorkshopsArgs } from './dto/get-items.args';
 import { UpdateWorkshopInput } from './dto/update-workshop.input';
@@ -21,7 +21,10 @@ export class WorkshopsService {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  async create(createWorkshopInput: CreateWorkshopInput): Promise<Workshop> {
+  async create(
+    createWorkshopInput: CreateWorkshopInput,
+    user: User,
+  ): Promise<Workshop> {
     let image = null;
 
     let lecturers = [];
@@ -41,6 +44,8 @@ export class WorkshopsService {
       ...createWorkshopInput,
       image,
       lecturers,
+      ...(user && { slug: `${user.site[0].slug}-${createWorkshopInput.slug}` }),
+      ...(user && { site: { id: user.site[0]?.id } }),
     });
 
     try {
@@ -53,18 +58,30 @@ export class WorkshopsService {
     }
   }
 
-  async findAll({
-    skip,
-    limit,
-    searchTerm,
-    status,
-    featured,
-  }: GetWorkshopsArgs) {
+  async findAll(
+    {
+      skip,
+      limit,
+      searchTerm,
+      status,
+      featured,
+      site,
+      price,
+      siteid,
+    }: GetWorkshopsArgs,
+    user: User,
+  ) {
     const [result, total] = await this.workshopRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
         status: status,
-        ...(featured && { featured: featured }),
+        ...(price === 'free' && { price: IsNull() }),
+        ...(price === 'cash' && { price: Not(IsNull()) }),
+        ...(site !== 'all' && { site: { slug: site } }),
+        ...(featured && { featured: true }),
+        ...(featured === false && { featured: false }),
+        ...(siteid && { site: { id: siteid } }),
+        ...(user && { site: { id: user.site[0]?.id } }),
       },
       relations: ['user', 'hall', 'hall.event', 'lecturers'],
       order: { id: 'DESC' },
@@ -80,8 +97,21 @@ export class WorkshopsService {
       where: { id: id },
       relations: ['user', 'hall', 'hall.event', 'lecturers'],
     });
+
     if (!workshop) {
       throw new NotFoundException(`Workshop #${id} not found`);
+    }
+    return workshop;
+  }
+
+  async findOneBySlug(slug: string): Promise<Workshop> {
+    const workshop = await this.workshopRepository.findOne({
+      where: { slug: slug },
+      relations: ['user', 'hall', 'hall.event', 'lecturers'],
+    });
+
+    if (!workshop) {
+      throw new NotFoundException(`Workshop #${slug} not found`);
     }
     return workshop;
   }
@@ -94,12 +124,12 @@ export class WorkshopsService {
       where: { id: id },
       relations: ['lecturers'],
     });
-    let image = null;
 
     let lecturers = [];
+    let image: any = updateWorkshopInput.image;
 
-    if (updateWorkshopInput.image) {
-      const imageUpload = await imageUploader(updateWorkshopInput.image);
+    if (typeof image !== 'string' && typeof image !== 'undefined' && image) {
+      const imageUpload = await imageUploader(image);
       image = imageUpload.image;
     }
 
@@ -122,8 +152,10 @@ export class WorkshopsService {
     delete updateWorkshopInput.lecturers;
     const workshop = await this.workshopRepository
       .createQueryBuilder()
-      .update()
-      .set({ ...updateWorkshopInput, image })
+      .update({
+        ...updateWorkshopInput,
+        ...(image && { image: image }),
+      })
       .where({ id: id })
       .returning('*')
       .execute();

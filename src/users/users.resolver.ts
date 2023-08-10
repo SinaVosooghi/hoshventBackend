@@ -21,9 +21,12 @@ export class UsersResolver {
   }
 
   @Mutation(() => User)
-  // @UseGuards(GqlAuthGuard)
-  createUser(@Args('input') createUserInput: CreateUserInput) {
-    return this.userService.create(createUserInput);
+  @UseGuards(GqlAuthGuard)
+  createUser(
+    @Args('input') createUserInput: CreateUserInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.userService.create(createUserInput, user);
   }
 
   @Query(() => UserPaginate, { name: 'users' })
@@ -32,7 +35,7 @@ export class UsersResolver {
     @CurrentUser() user: User,
     @Args('input') getUsersApiArgs: GetUsersApiArgs,
   ) {
-    return this.userService.findAll(getUsersApiArgs);
+    return this.userService.findAll(getUsersApiArgs, user);
   }
 
   @Query(() => User, { name: 'user' })

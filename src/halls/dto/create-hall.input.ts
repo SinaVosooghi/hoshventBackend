@@ -32,12 +32,5 @@ export class CreateHallInput {
     nullable: true,
   })
   status: boolean;
-
-  @Field(() => String, {
-    description: 'State of the hall',
-    nullable: true,
-    defaultValue: 'not_started',
-  })
-  state: 'not_started' | 'running' | 'ended' | 'canceled';
 }
 export { FileUpload };

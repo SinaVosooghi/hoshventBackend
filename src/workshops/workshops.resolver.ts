@@ -7,6 +7,8 @@ import { WorkshopPaginate } from './entities/paginate';
 import { GetWorkshopsArgs } from './dto/get-items.args';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Resolver(() => Workshop)
 export class WorkshopsResolver {
@@ -14,14 +16,20 @@ export class WorkshopsResolver {
 
   @Mutation(() => Workshop)
   @UseGuards(GqlAuthGuard)
-  createWorkshop(@Args('input') createWorkshopInput: CreateWorkshopInput) {
-    return this.workshopsService.create(createWorkshopInput);
+  createWorkshop(
+    @Args('input') createWorkshopInput: CreateWorkshopInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.workshopsService.create(createWorkshopInput, user);
   }
 
   @Query(() => WorkshopPaginate, { name: 'workshops' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getWorkshopsArgs: GetWorkshopsArgs) {
-    return this.workshopsService.findAll(getWorkshopsArgs);
+  findAll(
+    @Args('input') getWorkshopsArgs: GetWorkshopsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.workshopsService.findAll(getWorkshopsArgs, user);
   }
 
   @Query(() => Workshop, { name: 'workshop' })

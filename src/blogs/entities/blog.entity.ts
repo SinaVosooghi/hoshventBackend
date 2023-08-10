@@ -12,6 +12,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import slugify from 'slugify';
+import { Site } from 'src/sites/entities/site.entity';
 
 @ObjectType()
 @Entity()
@@ -47,6 +48,16 @@ export class Blog {
     nullable: true,
   })
   category: Category;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 
   @ManyToOne(() => User, (user) => user.id, {
     nullable: true,

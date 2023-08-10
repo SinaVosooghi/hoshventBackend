@@ -20,4 +20,7 @@ export class GetSlidersArgs {
 
   @Field({ nullable: true })
   searchTerm?: string;
+
+  @Field({ nullable: true })
+  site?: number;
 }

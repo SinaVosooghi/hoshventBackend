@@ -65,6 +65,16 @@ export class SitesService {
     return site;
   }
 
+  async getSite(id: number): Promise<Site> {
+    const site = await this.siteRepository.findOne({
+      where: { id: id },
+    });
+    if (!site) {
+      throw new NotFoundException(`Site #${id} not found`);
+    }
+    return site;
+  }
+
   async update(id: number, updateSiteInput: UpdateSiteInput): Promise<Site> {
     let logo = null;
     if (updateSiteInput.logo) {

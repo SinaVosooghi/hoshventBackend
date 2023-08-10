@@ -1,6 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { Coupon } from 'src/coupons/entities/coupon.entity';
-import { Payment } from 'src/payments/entities/payment.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
 import { Shipping } from 'src/shippings/entities/shipping.entity';
 import { User } from 'src/users/entities/user.entity';
 

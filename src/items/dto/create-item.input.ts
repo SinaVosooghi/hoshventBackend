@@ -4,8 +4,8 @@ import { Product } from 'src/product/entities/product.entity';
 
 @InputType()
 export class CreateItemInput {
-  @Field(() => Number, { description: 'Product of the item', nullable: true })
-  product: Product;
+  @Field(() => Number, { description: 'Event of the item', nullable: true })
+  event: Event;
 
   @Field(() => Number, { description: 'number of the items' })
   quantity: number;

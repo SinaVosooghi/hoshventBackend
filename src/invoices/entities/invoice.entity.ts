@@ -1,11 +1,17 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field, Float } from '@nestjs/graphql';
+import { Coupon } from 'src/coupons/entities/coupon.entity';
 import { Order } from 'src/orders/entities/order.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
+import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
+  Double,
   Entity,
+  JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -30,6 +36,13 @@ export class Invoice {
   })
   salesperson: string;
 
+  @ManyToOne(() => Coupon, (coupon) => coupon.id, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @Field(() => Number, { description: 'Coupon of the payment', nullable: true })
+  coupon: Coupon;
+
   @Column()
   @Field(() => String, { description: 'Type of the invoice' })
   type: 'shop' | 'course';
@@ -45,6 +58,10 @@ export class Invoice {
   @Field(() => Number, { description: 'Invoice number of the invoice' })
   invoicenumber: number;
 
+  @ManyToOne(() => Payment, (user) => user.id, { nullable: true })
+  @Field(() => Payment, { description: 'User of the payment' })
+  payment: Payment;
+
   @ManyToOne(() => User, (user) => user.id, {
     nullable: true,
     onDelete: 'SET NULL',
@@ -59,8 +76,14 @@ export class Invoice {
   @Field(() => Order, { description: 'Order of invoice' })
   order: Order;
 
-  @Column()
-  @Field(() => Number, { description: 'Total of the invoice' })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 0,
+    default: null,
+    nullable: true,
+  })
+  @Field(() => Float, { description: 'Total of the invoice', nullable: true })
   total: number;
 
   @Column({
@@ -103,4 +126,14 @@ export class Invoice {
   })
   @Field(() => Date, { nullable: true })
   readat: Date;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 }

@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { Contact } from './entities/contact.entity';
 import { GetContactsArgs } from './dto/get-contacts.args';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class ContactsService {
@@ -17,8 +18,14 @@ export class ContactsService {
     private readonly contactRepository: Repository<Contact>,
   ) {}
 
-  async create(createContactInput: CreateContactInput): Promise<Contact> {
-    const item = await this.contactRepository.create(createContactInput);
+  async create(
+    createContactInput: CreateContactInput,
+    user: User,
+  ): Promise<Contact> {
+    const item = await this.contactRepository.create({
+      ...createContactInput,
+      ...(user && { site: { id: user.site[0]?.id } }),
+    });
 
     try {
       return await this.contactRepository.save(item);
@@ -29,10 +36,11 @@ export class ContactsService {
     }
   }
 
-  async findAll({ skip, limit, searchTerm }: GetContactsArgs) {
+  async findAll({ skip, limit, searchTerm }: GetContactsArgs, user: User) {
     const [result, total] = await this.contactRepository.findAndCount({
       where: {
         subject: searchTerm ? Like(`%${searchTerm}%`) : null,
+        ...(user && { site: { id: user.site[0]?.id } }),
       },
       order: { id: 'DESC' },
       take: limit,

@@ -21,7 +21,7 @@ export class HallsService {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  async create(createHallInput: CreateHallInput): Promise<Hall> {
+  async create(createHallInput: CreateHallInput, user: User): Promise<Hall> {
     let image = null;
 
     if (createHallInput.image) {
@@ -31,6 +31,7 @@ export class HallsService {
 
     const item = await this.hallRepository.create({
       ...createHallInput,
+      ...(user && { site: { id: user.site[0]?.id } }),
       image,
     });
 
@@ -44,12 +45,16 @@ export class HallsService {
     }
   }
 
-  async findAll({ skip, limit, searchTerm, status, featured }: GetHallsArgs) {
+  async findAll(
+    { skip, limit, searchTerm, status, featured }: GetHallsArgs,
+    user: User,
+  ) {
     const [result, total] = await this.hallRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
         status: status,
         ...(featured && { featured: featured }),
+        ...(user && { site: { id: user.site[0]?.id } }),
       },
       relations: ['user', 'event', 'event.site'],
       order: { id: 'DESC' },

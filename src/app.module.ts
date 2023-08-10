@@ -24,7 +24,6 @@ import { MessagesModule } from './messages/messages.module';
 import { SlidersModule } from './sliders/sliders.module';
 import { ProductModule } from './product/product.module';
 import { InvoicesModule } from './invoices/invoices.module';
-import { PaymentsModule } from './payments/payments.module';
 import { OrdersModule } from './orders/orders.module';
 import { ShippingsModule } from './shippings/shippings.module';
 import { ItemsModule } from './items/items.module';
@@ -35,6 +34,10 @@ import { PlansModule } from './plans/plans.module';
 import { SeminarsModule } from './seminars/seminars.module';
 import { BrandsModule } from './brands/brands.module';
 import { HallsModule } from './halls/halls.module';
+import { MenusModule } from './menus/menus.module';
+import { AttendeesModule } from './atendees/atendees.module';
+import { PaymentModule } from './payment/payment.module';
+import { TimelinesModule } from './timelines/timelines.module';
 
 @Module({
   imports: [
@@ -56,6 +59,7 @@ import { HallsModule } from './halls/halls.module';
     GraphqlConfigModule,
     DatabaseModule,
     UsersModule,
+    AttendeesModule,
     RolesModule,
     CategoriesModule,
     SitesModule,
@@ -71,7 +75,7 @@ import { HallsModule } from './halls/halls.module';
     MessagesModule,
     SlidersModule,
     ProductModule,
-    PaymentsModule,
+    PaymentModule,
     OrdersModule,
     ShippingsModule,
     ItemsModule,
@@ -82,6 +86,8 @@ import { HallsModule } from './halls/halls.module';
     SeminarsModule,
     BrandsModule,
     HallsModule,
+    MenusModule,
+    TimelinesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

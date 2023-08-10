@@ -20,4 +20,7 @@ export class GetCategoriesArgs {
 
   @Field({ nullable: true })
   searchTerm?: string;
+
+  @Field({ nullable: true })
+  siteid?: number;
 }

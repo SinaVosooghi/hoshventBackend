@@ -7,12 +7,14 @@ import {
   Entity,
   JoinTable,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import slugify from 'slugify';
 import { Site } from 'src/sites/entities/site.entity';
 import { Category } from 'src/categories/entities/category.entity';
+import { Hall } from 'src/halls/entities/hall.entity';
 
 @ObjectType()
 @Entity()
@@ -83,6 +85,10 @@ export class Event {
   @JoinTable()
   @Field(() => Category, { description: 'Author of the blog', nullable: true })
   category: Category;
+
+  @OneToMany(() => Hall, (hall) => hall.event, { nullable: true })
+  @Field(() => [Hall], { nullable: true })
+  halls: Hall[];
 
   @Column({ default: true })
   @Field(() => Boolean, { description: 'Status of the blog' })

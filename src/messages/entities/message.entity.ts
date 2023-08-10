@@ -1,5 +1,6 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { Chat } from 'src/chats/entities/chat.entity';
+import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -50,4 +51,14 @@ export class Message {
   @Column({ type: 'timestamp', nullable: true })
   @Field(() => Date, { nullable: true })
   read: Date;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 }

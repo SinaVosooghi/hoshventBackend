@@ -7,6 +7,8 @@ import { CouponPaginate } from './entities/paginate';
 import { GetCouponsArgs } from './dto/get-coupons.args';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Resolver(() => Coupon)
 export class CouponsResolver {
@@ -14,14 +16,20 @@ export class CouponsResolver {
 
   @Mutation(() => Coupon)
   @UseGuards(GqlAuthGuard)
-  createCoupon(@Args('input') createCouponInput: CreateCouponInput) {
-    return this.couponService.create(createCouponInput);
+  createCoupon(
+    @Args('input') createCouponInput: CreateCouponInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.couponService.create(createCouponInput, user);
   }
 
   @Query(() => CouponPaginate, { name: 'coupons' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getCouponsArgs: GetCouponsArgs) {
-    return this.couponService.findAll(getCouponsArgs);
+  findAll(
+    @Args('input') getCouponsArgs: GetCouponsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.couponService.findAll(getCouponsArgs, user);
   }
 
   @Query(() => Coupon, { name: 'coupon' })

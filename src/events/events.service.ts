@@ -5,19 +5,22 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { Like, Repository } from 'typeorm';
+import { IsNull, Like, Not, Repository } from 'typeorm';
 import { CreateEventInput } from './dto/create-event.input';
 import { GetEventsArgs } from './dto/get-events.args';
 import { UpdateEventInput } from './dto/update-events.input';
 import { Event } from './entities/event.entity';
 import { imageUploader } from 'src/utils/imageUploader';
 import { fileUploader } from 'src/utils/fileUploader';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Attendee)
+    private readonly attendeeRepository: Repository<Attendee>,
   ) {}
 
   async create(createEventInput: CreateEventInput, user: User): Promise<Event> {
@@ -37,6 +40,8 @@ export class EventsService {
       ...createEventInput,
       image,
       user: user,
+      ...(user && { slug: `${user.site[0].slug}-${createEventInput.slug}` }),
+      ...(user && { site: { id: user.site[0]?.id } }),
       pdf,
     });
 
@@ -49,22 +54,33 @@ export class EventsService {
     }
   }
 
-  async findAll({
-    skip,
-    limit,
-    searchTerm,
-    status,
-    sort,
-    featured,
-    site,
-  }: GetEventsArgs) {
+  async findAll(
+    {
+      skip,
+      limit,
+      searchTerm,
+      status,
+      sort,
+      featured,
+      site,
+      siteid,
+      price,
+      category,
+    }: GetEventsArgs,
+    user: User,
+  ) {
     const [result, total] = await this.eventRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
         status: status ?? null,
+        ...(price === 'free' && { price: IsNull() }),
+        ...(price === 'cash' && { price: Not(IsNull()) }),
+        ...(category !== 'all' && { category: { slug: category } }),
         ...(site !== 'all' && { site: { slug: site } }),
         ...(featured && { featured: true }),
         ...(featured === false && { featured: false }),
+        ...(siteid && { site: { id: siteid } }),
+        ...(user && { site: { id: user.site[0]?.id } }),
       },
       relations: ['site', 'user', 'category'],
       order: {
@@ -85,7 +101,14 @@ export class EventsService {
   async findOne(id: number): Promise<Event> {
     const event = await this.eventRepository.findOne({
       where: { id: id },
-      relations: ['site', 'user', 'category'],
+      relations: [
+        'site',
+        'user',
+        'category',
+        'halls',
+        'halls.seminars',
+        'halls.workshops',
+      ],
     });
 
     if (!event) {
@@ -97,12 +120,20 @@ export class EventsService {
   async findOneApi(slug: string): Promise<Event> {
     const event = await this.eventRepository.findOne({
       where: { slug: slug },
-      relations: ['site', 'user', 'category'],
+      relations: [
+        'site',
+        'user',
+        'category',
+        'halls',
+        'halls.seminars',
+        'halls.workshops',
+      ],
     });
 
     if (!event) {
       throw new NotFoundException(`Event #${slug} not found`);
     }
+
     return event;
   }
 
@@ -143,5 +174,17 @@ export class EventsService {
 
     await this.eventRepository.remove(event);
     return true;
+  }
+
+  async findUserEvents({ skip, limit }: GetEventsArgs, user?: User) {
+    const [result, total] = await this.attendeeRepository.findAndCount({
+      where: { user: { id: user.id } },
+      relations: ['event', 'event.category', 'event.user', 'user'],
+      order: { id: 'ASC' },
+      take: limit,
+      skip: skip,
+    });
+
+    return { attends: result, count: total };
   }
 }

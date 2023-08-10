@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { jwtSecret } from './constants';
@@ -51,6 +51,40 @@ export class AuthService {
     };
   }
 
+  async tenant(user: User): Promise<{
+    access_token: string;
+    type: string;
+    firstName: string;
+    lastName: string;
+    uid: number;
+    avatar: string;
+    site: any;
+  }> {
+    if (user.usertype !== 'tenant') {
+      throw new HttpException(
+        'You do not have access to this page!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    const payload = {
+      email: user.email,
+      sub: user.id,
+    };
+    const AT = this.jwtService.sign(payload);
+
+    await this.userService.updateUserToken(user.id, AT);
+
+    return {
+      type: user.usertype,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      uid: user.id,
+      access_token: AT,
+      avatar: user.avatar,
+      site: user.site,
+    };
+  }
+
   async register(user: User): Promise<{
     access_token: string;
     type: string;
@@ -87,6 +121,7 @@ export class AuthService {
       about: '',
       status: true,
       phonenumber: 0,
+      site: user.siteid,
     });
 
     const payload = {

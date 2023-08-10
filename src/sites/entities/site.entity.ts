@@ -170,6 +170,11 @@ export class Site {
   })
   status: boolean;
 
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  tax: number;
+
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',

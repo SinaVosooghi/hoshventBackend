@@ -25,8 +25,11 @@ export class EventsResolver {
 
   @Query(() => EventPaginate, { name: 'events' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getEventsArgs: GetEventsArgs) {
-    return this.eventsService.findAll(getEventsArgs);
+  findAll(
+    @Args('input') getEventsArgs: GetEventsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.eventsService.findAll(getEventsArgs, user);
   }
 
   @Query(() => Event, { name: 'event' })

@@ -2,6 +2,7 @@ import { ObjectType, Field } from '@nestjs/graphql';
 import { Department } from 'src/departments/entities/department.entity';
 import { Invoice } from 'src/invoices/entities/invoice.entity';
 import { Message } from 'src/messages/entities/message.entity';
+import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -33,6 +34,16 @@ export class Chat {
   @ManyToOne(() => User, (user) => user.id, { nullable: true })
   @Field(() => User, { description: 'From user of the chat' })
   from: User;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 
   @ManyToOne(() => Invoice, (invoice) => invoice.id, { nullable: true })
   @Field(() => Invoice, {

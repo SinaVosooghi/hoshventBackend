@@ -30,7 +30,7 @@ export class UsersService {
     private readonly categoryModel: Repository<Category>,
   ) {}
 
-  async create(input: CreateUserInput): Promise<User> {
+  async create(input: CreateUserInput, user?: User): Promise<User> {
     const userObject = input;
     let avatar = null;
 
@@ -45,10 +45,14 @@ export class UsersService {
       userObject.password = hash;
     }
 
-    const user = this.userRepository.create({ ...userObject, avatar });
+    const userItem = this.userRepository.create({
+      ...userObject,
+      avatar,
+      ...(user && { siteid: { id: user.site[0]?.id } }),
+    });
 
     try {
-      return await this.userRepository.save(user);
+      return await this.userRepository.save(userItem);
     } catch (err) {
       if (err.code === '23505') {
         throw new ConflictException('Duplicate error');
@@ -56,14 +60,10 @@ export class UsersService {
     }
   }
 
-  async findAll({
-    skip,
-    limit,
-    searchTerm,
-    role,
-    status,
-    usertype,
-  }: GetUsersApiArgs) {
+  async findAll(
+    { skip, limit, searchTerm, role, status, usertype }: GetUsersApiArgs,
+    user: User,
+  ) {
     const [result, total] = await this.userRepository.findAndCount({
       where: {
         firstName: searchTerm ? Like(`%${searchTerm}%`) : null,
@@ -72,6 +72,7 @@ export class UsersService {
         },
         status,
         usertype,
+        ...(user && { siteid: { id: user.site[0]?.id } }),
       },
       relations: ['role'],
       order: { id: 'DESC' },
@@ -85,7 +86,7 @@ export class UsersService {
   async findOne(id: number): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: id },
-      relations: ['role'],
+      relations: ['role', 'site'],
     });
 
     if (!user) {
@@ -155,6 +156,7 @@ export class UsersService {
   async getByEmail(email: string) {
     const user = await this.userRepository.findOne({
       where: { email: email },
+      relations: ['site'],
     });
 
     if (user) {

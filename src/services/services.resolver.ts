@@ -25,7 +25,10 @@ export class ServicesResolver {
 
   @Query(() => ServicePaginate, { name: 'services' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getServicesArgs: GetServicesArgs) {
+  findAll(
+    @Args('input') getServicesArgs: GetServicesArgs,
+    @CurrentUser() user: User,
+  ) {
     return this.servicesService.findAll(getServicesArgs);
   }
 

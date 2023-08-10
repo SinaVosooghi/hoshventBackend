@@ -1,4 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
+import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -29,6 +30,16 @@ export class Comment {
   // @JoinColumn()
   // @Field(() => Review, { description: 'Review of the Comment', nullable: true })
   // review: Review;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 
   @Column()
   @Field(() => String, { description: 'title of the Comment' })

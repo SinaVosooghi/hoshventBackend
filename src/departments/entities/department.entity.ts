@@ -1,9 +1,11 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 import { Chat } from 'src/chats/entities/chat.entity';
+import { Site } from 'src/sites/entities/site.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -48,6 +50,16 @@ export class Department {
     nullable: true,
   })
   chats: Chat[];
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 
   @CreateDateColumn({
     type: 'timestamp',

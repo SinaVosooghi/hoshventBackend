@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Like, Repository } from 'typeorm';
+import { In, IsNull, Like, Not, Repository } from 'typeorm';
 import { CreateSeminarInput } from './dto/create-seminar.input';
 import { GetSeminarsArgs } from './dto/get-items.args';
 import { UpdateSeminarInput } from './dto/update-seminar.input';
@@ -21,7 +21,10 @@ export class SeminarsService {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  async create(createSeminarInput: CreateSeminarInput): Promise<Seminar> {
+  async create(
+    createSeminarInput: CreateSeminarInput,
+    user: User,
+  ): Promise<Seminar> {
     let image = null;
 
     let lecturers = [];
@@ -41,6 +44,8 @@ export class SeminarsService {
       ...createSeminarInput,
       image,
       lecturers,
+      ...(user && { slug: `${user.site[0].slug}-${createSeminarInput.slug}` }),
+      ...(user && { site: { id: user.site[0]?.id } }),
     });
 
     try {
@@ -53,18 +58,29 @@ export class SeminarsService {
     }
   }
 
-  async findAll({
-    skip,
-    limit,
-    searchTerm,
-    status,
-    featured,
-  }: GetSeminarsArgs) {
+  async findAll(
+    {
+      skip,
+      limit,
+      searchTerm,
+      status,
+      featured,
+      price,
+      site,
+      siteid,
+    }: GetSeminarsArgs,
+    user?: User,
+  ) {
     const [result, total] = await this.seminarRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
         status: status,
-        ...(featured && { featured: featured }),
+        ...(price === 'free' && { price: IsNull() }),
+        ...(price === 'cash' && { price: Not(IsNull()) }),
+        ...(site !== 'all' && { site: { slug: site } }),
+        ...(featured === false && { featured: false }),
+        ...(siteid && { site: { id: siteid } }),
+        ...(user && { site: { id: user.site[0]?.id } }),
       },
       relations: ['user', 'hall', 'hall.event', 'lecturers'],
       order: { id: 'DESC' },
@@ -84,6 +100,18 @@ export class SeminarsService {
       throw new NotFoundException(`Seminar #${id} not found`);
     }
     return seminar;
+  }
+
+  async findOneBySlug(slug: string): Promise<Seminar> {
+    const workshop = await this.seminarRepository.findOne({
+      where: { slug: slug },
+      relations: ['user', 'hall', 'hall.event', 'lecturers'],
+    });
+
+    if (!workshop) {
+      throw new NotFoundException(`Seminar #${slug} not found`);
+    }
+    return workshop;
   }
 
   async update(
@@ -123,7 +151,7 @@ export class SeminarsService {
     const seminar = await this.seminarRepository
       .createQueryBuilder()
       .update()
-      .set({ ...updateSeminarInput, image })
+      .set({ ...updateSeminarInput, ...(image && { image: image }) })
       .where({ id: id })
       .returning('*')
       .execute();

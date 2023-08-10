@@ -46,8 +46,8 @@ export class FilesController {
   )
   async uploadedFile(@UploadedFile() file) {
     const response = {
-      originalname: file.originalname,
-      filename: file.filename,
+      originalname: file?.originalname,
+      filename: file?.filename,
     };
     return response;
   }
@@ -70,8 +70,8 @@ export class FilesController {
     const response = [];
     files.forEach((file) => {
       const fileReponse = {
-        originalname: file.originalname,
-        filename: file.filename,
+        originalname: file?.originalname,
+        filename: file?.filename,
       };
       response.push(fileReponse);
     });
@@ -93,8 +93,8 @@ export class FilesController {
     const response = [];
     files.forEach((file) => {
       const fileReponse = {
-        originalname: file.originalname,
-        filename: file.filename,
+        originalname: file?.originalname,
+        filename: file?.filename,
       };
       response.push(fileReponse);
     });
@@ -116,8 +116,8 @@ export class FilesController {
     const response = [];
     files.forEach((file) => {
       const fileReponse = {
-        originalname: file.originalname,
-        filename: file.filename,
+        originalname: file?.originalname,
+        filename: file?.filename,
       };
       response.push(fileReponse);
     });
@@ -138,7 +138,7 @@ export class FilesController {
     @UploadedFile() file,
     @Body('exhibition') exhibition: string,
   ) {
-    const csvFile = readFileSync(file.path);
+    const csvFile = readFileSync(file?.path);
 
     const csvData = csvFile.toString();
 

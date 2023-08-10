@@ -1,9 +1,11 @@
 import { ObjectType, Field } from '@nestjs/graphql';
+import { Site } from 'src/sites/entities/site.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -92,4 +94,14 @@ export class Category {
   })
   @Field(() => Date, { nullable: true })
   updated: Date;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 }

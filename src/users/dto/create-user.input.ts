@@ -66,7 +66,7 @@ export class CreateUserInput {
   avatar?: Promise<FileUpload>;
 
   @Field(() => String, { description: 'type of the user' })
-  usertype: 'super' | 'merchant' | 'instructor' | 'user' | 'lecturer';
+  usertype: 'super' | 'tenant' | 'instructor' | 'user' | 'lecturer' | 'guest';
 
   @Field(() => String, { description: 'Level of the user', nullable: true })
   level?: 'county' | 'city' | 'provice' | 'area' | 'all';

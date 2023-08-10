@@ -27,6 +27,7 @@ export class ChatsService {
           ...createChatInput,
           to: userItem,
           from: user,
+          ...(user && { site: { id: user.site[0]?.id } }),
         });
         const chat = await this.chatRepository.save(item);
 
@@ -61,6 +62,7 @@ export class ChatsService {
           from: currentUser,
           to: userItem,
           invoice: createChatInput.invoice,
+          ...(currentUser && { site: { id: currentUser.site[0].id } }),
         });
         const chat = await this.chatRepository.save(item);
 
@@ -82,15 +84,18 @@ export class ChatsService {
     }
   }
 
-  async findAll({
-    skip,
-    limit,
-    searchTerm,
-    type,
-    status,
-    priority,
-    department,
-  }: GetChatsArgs) {
+  async findAll(
+    {
+      skip,
+      limit,
+      searchTerm,
+      type,
+      status,
+      priority,
+      department,
+    }: GetChatsArgs,
+    user: User,
+  ) {
     const [result, total] = await this.chatRepository.findAndCount({
       where: {
         subject: searchTerm ? Like(`%${searchTerm}%`) : null,
@@ -98,6 +103,7 @@ export class ChatsService {
         status: status ?? null,
         priority: priority ?? null,
         department: department ? { id: department } : null,
+        ...(user && { site: { id: user.site[0]?.id } }),
       },
       relations: ['messages', 'from', 'messages.user', 'invoice', 'department'],
       order: { id: 'DESC' },
@@ -109,12 +115,13 @@ export class ChatsService {
 
   async findAllApi(
     { skip, limit, searchTerm, type, status, priority }: GetChatsArgs,
-    user,
+    user: User,
   ) {
     const [result, total] = await this.chatRepository.findAndCount({
       where: [
         {
           subject: searchTerm ? Like(`%${searchTerm}%`) : null,
+          ...(user && { site: { id: user.site[0]?.id } }),
         },
         { type: type ?? null },
         { status: status ?? null },

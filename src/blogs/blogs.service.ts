@@ -23,6 +23,7 @@ export class BlogsService {
     const item = await this.blogRepository.create({
       ...createBlogInput,
       author: user,
+      ...(user && { site: { id: user.site[0]?.id } }),
     });
 
     try {
@@ -34,15 +35,10 @@ export class BlogsService {
     }
   }
 
-  async findAll({
-    skip,
-    limit,
-    searchTerm,
-    status,
-    sort,
-    featured,
-    category,
-  }: GetBlogsArgs) {
+  async findAll(
+    { skip, limit, searchTerm, status, sort, featured, category }: GetBlogsArgs,
+    user: User,
+  ) {
     const [result, total] = await this.blogRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
@@ -50,6 +46,7 @@ export class BlogsService {
         ...(category !== 'all' && { category: { slug: category } }),
         ...(featured && { featured: true }),
         ...(featured === false && { featured: false }),
+        ...(user && { site: { id: user.site[0]?.id } }),
       },
       relations: ['category', 'author'],
       order: {

@@ -1,10 +1,12 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { Site } from 'src/sites/entities/site.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   CreateDateColumn,
   Column,
+  ManyToOne,
 } from 'typeorm';
 
 @ObjectType()
@@ -39,6 +41,16 @@ export class Slider {
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })
   image: string;
+
+  @ManyToOne(() => Site, (site) => site.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Site, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  site: Site;
 
   @CreateDateColumn({
     type: 'timestamp',

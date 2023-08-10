@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
 import { GetRolesApiArgs } from './dto/get-roles.args';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class RolesService {
@@ -17,8 +18,11 @@ export class RolesService {
     private readonly roleRepository: Repository<Role>,
   ) {}
 
-  async create(createRoleInput: CreateRoleInput): Promise<Role> {
-    const item = await this.roleRepository.create(createRoleInput);
+  async create(createRoleInput: CreateRoleInput, user: User): Promise<Role> {
+    const item = await this.roleRepository.create({
+      ...createRoleInput,
+      ...(user && { site: { id: user.site[0]?.id } }),
+    });
 
     try {
       return await this.roleRepository.save(item);
@@ -29,9 +33,12 @@ export class RolesService {
     }
   }
 
-  async findAll({ skip, limit, searchTerm }: GetRolesApiArgs) {
+  async findAll({ skip, limit, searchTerm }: GetRolesApiArgs, user: User) {
     const [result, total] = await this.roleRepository.findAndCount({
-      where: { title: searchTerm ? Like(`%${searchTerm}%`) : null },
+      where: {
+        title: searchTerm ? Like(`%${searchTerm}%`) : null,
+        ...(user && { site: { id: user.site[0]?.id } }),
+      },
       relations: ['users'],
       order: { id: 'DESC' },
       take: limit,

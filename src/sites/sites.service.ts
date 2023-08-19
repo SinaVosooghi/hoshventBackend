@@ -91,6 +91,8 @@ export class SitesService {
       },
     );
 
+    await exec(`cd ${dist} && yarn run build`);
+
     try {
       await exec(`docker-compose up -d`);
       return await this.siteRepository.save(item);

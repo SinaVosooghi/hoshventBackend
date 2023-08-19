@@ -25,5 +25,14 @@ export class GetTimelinsArgs {
   site?: number;
 
   @Field({ nullable: true })
+  seminar?: number;
+
+  @Field({ nullable: true })
+  workshop?: number;
+
+  @Field({ nullable: true })
   user?: number;
+
+  @Field({ nullable: true })
+  scannedby?: number;
 }

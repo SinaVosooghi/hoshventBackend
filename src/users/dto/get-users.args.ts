@@ -16,6 +16,9 @@ export class GetUsersApiArgs {
   role?: number;
 
   @Field({ nullable: true })
+  category?: number;
+
+  @Field({ nullable: true })
   usertype: 'super' | 'tenant' | 'instructor' | 'user' | 'lecturer' | 'guest';
 
   @Field({ nullable: true })

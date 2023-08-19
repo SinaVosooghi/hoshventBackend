@@ -10,6 +10,7 @@ import { User } from 'src/users/entities/user.entity';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
 import { GetTimelinsArgs } from './dto/get-items.args';
 import { TimelinePaginate } from './entities/timelinePagintate';
+import { Bulkaction } from './dto/bulk-action';
 
 @Resolver(() => Timeline)
 export class TimelinesResolver {
@@ -24,9 +25,9 @@ export class TimelinesResolver {
     return this.timelinesService.create(createTimelineInput, user);
   }
 
-  @Query(() => [Timeline], { name: 'timelines' })
-  findAll() {
-    return this.timelinesService.findAll();
+  @Query(() => TimelinePaginate, { name: 'timelines' })
+  findAll(@Args('input') getTimelinsArgs: GetTimelinsArgs) {
+    return this.timelinesService.findAll(getTimelinsArgs);
   }
 
   @Query(() => TimelinePaginate, { name: 'userTimelines' })
@@ -40,12 +41,8 @@ export class TimelinesResolver {
   }
 
   @Query(() => Attendee, { name: 'timeline' })
-  @UseGuards(GqlAuthGuard)
-  findOne(
-    @Args('url', { type: () => String }) url: string,
-    @CurrentUser() user: User,
-  ) {
-    return this.timelinesService.findOne(url, user);
+  findOne(@Args('url', { type: () => String }) url: string) {
+    return this.timelinesService.findOne(url);
   }
 
   @Mutation(() => Boolean, { name: 'checkin' })
@@ -78,6 +75,22 @@ export class TimelinesResolver {
       updateTimelineInput.id,
       updateTimelineInput,
     );
+  }
+
+  @Mutation(() => Boolean, { name: 'bulkcheckin' })
+  bulkcheckin(
+    @Args('input') Bulkaction: Bulkaction,
+    @CurrentUser() user: User,
+  ) {
+    return this.timelinesService.bulkCheckin(Bulkaction, user);
+  }
+
+  @Mutation(() => Boolean, { name: 'bulkcheckout' })
+  bulkcheckout(
+    @Args('input') Bulkaction: Bulkaction,
+    @CurrentUser() user: User,
+  ) {
+    return this.timelinesService.bulkcheckout(Bulkaction, user);
   }
 
   @Mutation(() => Timeline)

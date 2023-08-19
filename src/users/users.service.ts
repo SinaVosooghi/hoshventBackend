@@ -61,7 +61,15 @@ export class UsersService {
   }
 
   async findAll(
-    { skip, limit, searchTerm, role, status, usertype }: GetUsersApiArgs,
+    {
+      skip,
+      limit,
+      searchTerm,
+      role,
+      status,
+      usertype,
+      category,
+    }: GetUsersApiArgs,
     user: User,
   ) {
     const [result, total] = await this.userRepository.findAndCount({
@@ -72,6 +80,7 @@ export class UsersService {
         },
         status,
         usertype,
+        ...(category && { category: { id: category } }),
         ...(user && { siteid: { id: user.site[0]?.id } }),
       },
       relations: ['role'],
@@ -86,7 +95,7 @@ export class UsersService {
   async findOne(id: number): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: id },
-      relations: ['role', 'site'],
+      relations: ['role', 'site', 'category'],
     });
 
     if (!user) {

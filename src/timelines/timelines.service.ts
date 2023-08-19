@@ -15,6 +15,7 @@ import { UsersService } from 'src/users/users.service';
 import { time } from 'console';
 import { GetTimelinsArgs } from './dto/get-items.args';
 import * as moment from 'moment';
+import { Bulkaction } from './dto/bulk-action';
 
 @Injectable()
 export class TimelinesService {
@@ -43,18 +44,20 @@ export class TimelinesService {
     }
   }
 
-  findAll() {
-    return `This action returns all timelines`;
-  }
-
-  async userTimelines(
-    { skip, limit, user: attendeeUser }: GetTimelinsArgs,
-    user: User,
-  ) {
+  async findAll({
+    skip,
+    limit,
+    user: attendeeUser,
+    scannedby,
+    seminar,
+    workshop,
+  }: GetTimelinsArgs) {
     const [result, total] = await this.timelimeRepository.findAndCount({
       where: {
-        ...(user && { site: { id: user.site[0]?.id } }),
         ...(attendeeUser && { user: { id: attendeeUser } }),
+        ...(scannedby && { scannedby: { id: scannedby } }),
+        ...(seminar && { seminar: { id: seminar } }),
+        ...(workshop && { workshop: { id: workshop } }),
       },
       order: { id: 'DESC' },
       relations: [
@@ -87,12 +90,61 @@ export class TimelinesService {
     return { timelines: result, count: total, total: totalTime };
   }
 
-  async findOne(url: string, user: User) {
+  async userTimelines(
+    {
+      skip,
+      limit,
+      user: attendeeUser,
+      scannedby,
+      seminar,
+      workshop,
+    }: GetTimelinsArgs,
+    user: User,
+  ) {
+    const [result, total] = await this.timelimeRepository.findAndCount({
+      where: {
+        ...(user && { site: { id: user.site[0]?.id } }),
+        ...(attendeeUser && { user: { id: attendeeUser } }),
+        ...(scannedby && { scannedby: { id: scannedby } }),
+        ...(seminar && { seminar: { id: seminar } }),
+        ...(workshop && { workshop: { id: workshop } }),
+      },
+      order: { id: 'DESC' },
+      relations: [
+        'user',
+        'event',
+        'seminar',
+        'seminar.hall',
+        'seminar.hall.event',
+        'workshop',
+      ],
+      take: limit,
+      skip: skip,
+    });
+
+    let totalTime = 0;
+    result.map((timeline) => {
+      if (timeline.checkin && timeline.checkout) {
+        const checkin = moment(timeline.checkin);
+        const checkout = moment(timeline.checkout);
+
+        const duration = moment
+          .duration(checkout.diff(checkin))
+          .asMinutes()
+          .toFixed(0);
+        // @ts-ignore
+        totalTime += parseInt(duration);
+      }
+    });
+
+    return { timelines: result, count: total, total: totalTime };
+  }
+
+  async findOne(url: string) {
     const params = new URLSearchParams(url);
     const userId = parseInt(params.get('u'));
     const eventId = parseInt(params.get('e'));
 
-    console.log(params);
     if (!userId || !eventId) {
       throw new NotFoundException(`Event #${url} not found`);
     }
@@ -195,13 +247,118 @@ export class TimelinesService {
     } else {
       const item = await this.timelimeRepository.create({
         user: attendee.user,
-        event: attendee.event,
         checkout: new Date(),
         site: attendee.site,
+        event: { id: attendee.event.id },
         scannedby: user,
       });
       await this.timelimeRepository.save(item);
       return true;
     }
+  }
+
+  async bulkCheckin({ ids, type, actionId }: Bulkaction, user: User) {
+    if (ids) {
+      ids.map(async (id) => {
+        const attendee = await this.attendeeRepository.findOne({
+          where: { id: id },
+          relations: [
+            'site',
+            'user',
+            'event',
+            'event.halls',
+            'event.halls.seminars',
+            'event.halls.workshops',
+          ],
+        });
+
+        if (!attendee) {
+          throw new NotFoundException(`Attendee #${id} not found`);
+        }
+
+        const timeline = await this.timelimeRepository.findOne({
+          where: {
+            user: { id: attendee.user.id },
+            [type]: { id: actionId },
+          },
+          order: { id: 'DESC' },
+        });
+
+        if (timeline) {
+          await this.timelimeRepository
+            .createQueryBuilder('timeline')
+            .update({ checkin: new Date(), scannedby: user })
+            .where({ id: timeline.id })
+            .returning('*')
+            .execute();
+          return true;
+        } else {
+          const item = await this.timelimeRepository.create({
+            user: attendee.user,
+            [type]: actionId,
+            checkin: new Date(),
+            site: attendee.site,
+            scannedby: user,
+          });
+          await this.timelimeRepository.save(item);
+          return true;
+        }
+      });
+    }
+
+    return true;
+  }
+
+  async bulkcheckout({ ids, type, actionId }: Bulkaction, user: User) {
+    if (ids) {
+      ids.map(async (id) => {
+        const attendee = await this.attendeeRepository.findOne({
+          where: { id: id },
+          relations: [
+            'site',
+            'user',
+            'event',
+            'event.halls',
+            'event.halls.seminars',
+            'event.halls.workshops',
+          ],
+        });
+
+        if (!attendee) {
+          throw new NotFoundException(`Attendee #${id} not found`);
+        }
+
+        const timeline = await this.timelimeRepository.findOne({
+          where: {
+            user: { id: attendee.user.id },
+            [type]: { id: actionId },
+          },
+          order: { id: 'DESC' },
+        });
+
+        if (timeline) {
+          await this.timelimeRepository
+            .createQueryBuilder('timeline')
+            .update({ checkout: new Date(), scannedby: user })
+            .where({ id: timeline.id })
+            .returning('*')
+            .execute();
+          return true;
+        } else {
+          const item = await this.timelimeRepository.create({
+            user: attendee.user,
+            [type]: actionId,
+            event: { id: attendee.event.id },
+            checkout: new Date(),
+            site: attendee.site,
+            scannedby: user,
+          });
+          await this.timelimeRepository.save(item);
+          return true;
+        }
+      });
+    }
+
+    return true;
   }
 }

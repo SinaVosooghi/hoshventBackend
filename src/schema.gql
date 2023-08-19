@@ -103,6 +103,12 @@ type BrandPaginate {
   count: Float!
 }
 
+input Bulkaction {
+  actionId: Int!
+  ids: [Int!]
+  type: String!
+}
+
 type Category {
   """Description of the Category"""
   body: String
@@ -920,6 +926,7 @@ input CreateSiteInput {
 
   """Plan of the Site"""
   plan: Float
+  port: Float!
 
   """Body SEO of the Site"""
   seobody: String
@@ -1175,7 +1182,7 @@ type EventPaginate {
 input GetAttendeesArgs {
   event: Float
   limit: Float
-  searchTerm: String
+  searchTerm: Float
   siteid: Float
   skip: Float!
   status: Boolean
@@ -1387,15 +1394,19 @@ input GetSlidersArgs {
 input GetTimelinsArgs {
   featured: Boolean
   limit: Float
+  scannedby: Float
   searchTerm: String
+  seminar: Float
   site: Float
   skip: Float!
   status: Boolean
   type: String
   user: Float
+  workshop: Float
 }
 
 input GetUsersApiArgs {
+  category: Float
   limit: Float
   role: Float
   searchTerm: String
@@ -1579,6 +1590,8 @@ type Message {
 }
 
 type Mutation {
+  bulkcheckin(input: Bulkaction!): Boolean!
+  bulkcheckout(input: Bulkaction!): Boolean!
   checkin(aid: Int!, id: Int!, type: String!): Boolean!
   checkout(aid: Int!, id: Int!, type: String!): Boolean!
   createAttendee(input: CreateAtendeeInput!): Attendee!
@@ -1961,7 +1974,7 @@ type Query {
   slidersApi(input: GetSlidersArgs!): SliderPaginate!
   teacherPaymentsApi(input: GetPaymentsArgs!): PaymentPaginate!
   timeline(url: String!): Attendee!
-  timelines: [Timeline!]!
+  timelines(input: GetTimelinsArgs!): TimelinePaginate!
   user(id: Int!): User!
   userEventsApi(input: GetEventsArgs!): AttendeePaginate!
   userTimelines(input: GetTimelinsArgs!): TimelinePaginate!
@@ -2214,6 +2227,9 @@ type Site {
 
   """category of the Site"""
   plan: Plan
+
+  """Port of the Site"""
+  port: Float!
 
   """Body SEO of the Site"""
   seobody: String
@@ -2928,6 +2944,7 @@ input UpdateSiteInput {
 
   """Plan of the Site"""
   plan: Float
+  port: Float
 
   """Body SEO of the Site"""
   seobody: String
@@ -3143,6 +3160,9 @@ type User {
 
   """Status of the user"""
   status: Boolean
+
+  """Message of chats"""
+  timelines: [Timeline!]
   updated: DateTime
 
   """Username of the user"""

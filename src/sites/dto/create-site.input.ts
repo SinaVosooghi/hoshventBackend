@@ -21,6 +21,9 @@ export class CreateSiteInput {
   @Field({ nullable: true })
   tax: number;
 
+  @Field()
+  port: number;
+
   @Field(() => String, {
     description: 'Phonenumber of website',
     nullable: true,

@@ -11,6 +11,8 @@ import { Like, Repository } from 'typeorm';
 import { GetSitesArgs } from './dto/get-items';
 import { UsersService } from 'src/users/users.service';
 import { imageUploader } from 'src/utils/imageUploader';
+import { writeFile } from 'fs';
+import { exec } from 'child_process';
 
 @Injectable()
 export class SitesService {
@@ -29,7 +31,68 @@ export class SitesService {
 
     const item = await this.siteRepository.create({ ...createSiteInput, logo });
 
+    await writeFile(
+      './nginx/conf.d',
+      `
+    server {
+        server_name ${item.domain}.conf;
+        root /var/www/front/.next;
+    
+        listen 80;
+    
+        index index.html index.htm index.php;
+    
+        location / {
+            proxy_pass http://146.19.212.55:${item.port};
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+    }
+    `,
+      (err) => {
+        if (err) {
+          console.error(err);
+        }
+        // file written successfully
+      },
+    );
+
+    const src = `/var/www/tenant`;
+    const dist = `/var/www/${item.domain}`;
+
+    await exec(`mkdir -p ${dist}`);
+    await exec(`cp -r ${src}/* ${dist}`);
+
+    await writeFile(
+      `/var/www/${item.domain}/.env.local`,
+      `
+      NEXT_PUBLIC_BASE_API=https://api.hoshvent.com/graphql
+      NEXT_PUBLIC_SITE_URL=https://api.hoshvent.com
+      NODE_ENV="production"
+      NEXT_PUBLIC_UPLOAD_MULTIPLE_API=https://hoshvent.com/multiple
+      NEXT_PUBLIC_UPLOAD_VIDEO_API=https://hoshvent.com/video
+      NEXT_PUBLIC_SITE=https://hoshvent.com
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+      
+      NEXT_PUBLIC_JITSI_API_KEY=""
+      NEXT_PUBLIC_JITSI_APP_ID=""
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+      NEXT_PUBLIC_SITE=${item.id}
+      
+    `,
+      (err) => {
+        if (err) {
+          console.error(err);
+        }
+        // file written successfully
+      },
+    );
+
     try {
+      await exec(`docker-compose up -d`);
       return await this.siteRepository.save(item);
     } catch (err) {
       if (err.code === '23505') {

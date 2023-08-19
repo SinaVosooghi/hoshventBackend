@@ -12,6 +12,7 @@ import { ObjectType, Field } from '@nestjs/graphql';
 import { Role } from 'src/roles/entities/role.entity';
 import { Site } from 'src/sites/entities/site.entity';
 import { Category } from 'src/categories/entities/category.entity';
+import { Timeline } from 'src/timelines/entities/timeline.entity';
 
 @ObjectType()
 @Entity()
@@ -116,6 +117,11 @@ export class User {
     nullable: true,
   })
   site: Site;
+
+  @OneToMany(() => Timeline, (timeline) => timeline.scannedby, { nullable: true })
+  @Field(() => [Timeline], { description: 'Message of chats', nullable: true })
+  timelines: Timeline[];
+
 
   @ManyToOne(() => Site, (site) => site.id, {
     onDelete: 'SET NULL',

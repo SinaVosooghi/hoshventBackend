@@ -33,18 +33,30 @@ export class AttendeesService {
     }
   }
 
-  async findAll({ skip, limit, status, siteid }: GetAttendeesArgs) {
+  async findAll({
+    skip,
+    limit,
+    status,
+    siteid,
+    event,
+    searchTerm,
+  }: GetAttendeesArgs) {
     const [result, total] = await this.AttendeeRepository.findAndCount({
       where: {
         status: status ?? null,
+        ...(searchTerm && {
+          user: { mobilenumber: searchTerm },
+        }),
         ...(siteid && { site: { id: siteid } }),
+        ...(event && { event: { id: event } }),
       },
       order: { id: 'DESC' },
+      relations: ['user'],
       take: limit,
       skip: skip,
     });
 
-    return { attendees: result, count: total };
+    return { attends: result, count: total };
   }
 
   async findAllApi({ skip, limit, status, siteid, event }: GetAttendeesArgs) {

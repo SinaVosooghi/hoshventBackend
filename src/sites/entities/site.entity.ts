@@ -101,6 +101,10 @@ export class Site {
   @Field(() => String, { description: 'Slug of the Site' })
   slug: string;
 
+  @Column({ unique: true })
+  @Field(() => Number, { description: 'Port of the Site' })
+  port: number;
+
   @Column({ nullable: true })
   @Field(() => String, {
     description: 'Body SEO of the Site',
@@ -173,7 +177,6 @@ export class Site {
   @Column({ nullable: true })
   @Field({ nullable: true })
   tax: number;
-
 
   @CreateDateColumn({
     type: 'timestamp',

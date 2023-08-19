@@ -13,7 +13,7 @@ export class GetAttendeesArgs {
   status: boolean;
 
   @Field({ nullable: true })
-  searchTerm?: string;
+  searchTerm?: number;
 
   @Field({ nullable: true })
   siteid?: number;

@@ -21,6 +21,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/conf.d:/etc/nginx/conf.d
       - /var/www/admin/dist:/var/www/admin
+      - /var/www/office/dist:/var/www/office
     environment:
       - NGINX_PORT=${NGINX_PORT}
       - BACKEND_PORT=${BACKEND_PORT}

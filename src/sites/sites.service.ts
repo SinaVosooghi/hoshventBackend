@@ -32,7 +32,7 @@ export class SitesService {
     const item = await this.siteRepository.create({ ...createSiteInput, logo });
 
     await writeFile(
-      './nginx/conf.d',
+      `./nginx/conf.d/${item.domain}.conf`,
       `
     server {
         server_name ${item.domain}.conf;
@@ -63,6 +63,7 @@ export class SitesService {
     const src = `/var/www/tenant`;
     const dist = `/var/www/${item.domain}`;
 
+    console.log(dist);
     await exec(`mkdir -p ${dist}`);
     await exec(`cp -r ${src}/* ${dist}`);
 

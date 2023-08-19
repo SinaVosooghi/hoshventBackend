@@ -21,7 +21,7 @@ export class UsersResolver {
   }
 
   @Mutation(() => User)
-  @UseGuards(GqlAuthGuard)
+  // @UseGuards(GqlAuthGuard)
   createUser(
     @Args('input') createUserInput: CreateUserInput,
     @CurrentUser() user: User,

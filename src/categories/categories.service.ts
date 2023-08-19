@@ -31,7 +31,7 @@ export class CategoriesService {
 
     const item = await this.categoryRepository.create({
       ...createCategoryInput,
-      ...(user && { slug: `${user.site[0].slug}-${createCategoryInput.slug}` }),
+      ...(user && { slug: `${createCategoryInput.slug}` }),
       ...(user && { site: { id: user.site[0]?.id } }),
       image,
     });

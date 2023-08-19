@@ -63,6 +63,7 @@ export class SitesService {
     const src = `/var/www/tenant`;
     const dist = `/var/www/${item.domain}`;
 
+    
     cp(src, dist, () => {
       console.log('Files copied');
     });

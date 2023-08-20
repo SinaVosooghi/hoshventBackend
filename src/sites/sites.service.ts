@@ -65,9 +65,7 @@ export class SitesService {
     const src = `${path.resolve('../../../tenant')}`;
     const dist = path.resolve(`../../../${item.domain}`);
 
-    await cp(src, dist, { recursive: true }, (e) => {
-      console.log(e, 'Files copied');
-    });
+    await exec(`cp -R /var/www/tenant /var/www/${item.domain}`);
 
     await writeFile(
       `/var/www/${item.domain}/.env.local`,

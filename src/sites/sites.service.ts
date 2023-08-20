@@ -11,7 +11,7 @@ import { Like, Repository } from 'typeorm';
 import { GetSitesArgs } from './dto/get-items';
 import { UsersService } from 'src/users/users.service';
 import { imageUploader } from 'src/utils/imageUploader';
-import { writeFile, copyFile, cp } from 'fs';
+import { writeFile, cpSync, cp } from 'fs';
 import { exec } from 'child_process';
 
 @Injectable()
@@ -63,9 +63,7 @@ export class SitesService {
     const src = `/var/www/tenant`;
     const dist = `/var/www/${item.domain}`;
 
-    await cp(src, dist, { recursive: true }, (e) => {
-      console.log(e, 'Files copied');
-    });
+    await cpSync(src, dist, { recursive: true });
 
     await writeFile(
       `/var/www/${item.domain}/.env.local`,

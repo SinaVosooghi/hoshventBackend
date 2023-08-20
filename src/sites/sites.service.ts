@@ -11,7 +11,7 @@ import { Like, Repository } from 'typeorm';
 import { GetSitesArgs } from './dto/get-items';
 import { UsersService } from 'src/users/users.service';
 import { imageUploader } from 'src/utils/imageUploader';
-import { writeFile, copyFile, cp } from 'fs';
+import { writeFile, cp } from 'fs';
 import { exec } from 'child_process';
 
 @Injectable()

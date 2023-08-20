@@ -2,8 +2,10 @@ FROM node:18-alpine As production
 
 RUN mkdir -p /app/src/backend  
 
-
 RUN chown node:node /app/src/backend
+
+RUN mkdir -p /var/www/sj  
+
 
 WORKDIR /app/src/backend
 

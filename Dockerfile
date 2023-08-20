@@ -4,8 +4,6 @@ RUN mkdir -p /app/src/backend
 
 RUN chown node:node /app/src/backend
 
-RUN chown node:node /var/www/tenant 
-
 WORKDIR /app/src/backend
 
 USER node

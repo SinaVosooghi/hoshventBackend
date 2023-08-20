@@ -12,7 +12,6 @@ import { GetSitesArgs } from './dto/get-items';
 import { UsersService } from 'src/users/users.service';
 import { imageUploader } from 'src/utils/imageUploader';
 import { writeFile, cpSync, cp } from 'fs';
-import { copy } from 'fs-extra';
 
 import { exec } from 'child_process';
 
@@ -62,15 +61,13 @@ export class SitesService {
       },
     );
 
-    const src = `../tenant`;
-    const dist = `../${item.domain}`;
+    const src = `${__dirname}/var/www/tenant`;
+    const dist = `${__dirname}/var/www/${item.domain}`;
 
-    await copy(src, dist, { recursive: true }, (e) => {
-      console.log(e, 'Files copied');
-    });
+    await cpSync(src, dist, { recursive: true });
 
     await writeFile(
-      `../${item.domain}/.env.local`,
+      `${__dirname}/var/www/${item.domain}/.env.local`,
       `
       NEXT_PUBLIC_BASE_API=https://api.hoshvent.com/graphql
       NEXT_PUBLIC_SITE_URL=https://api.hoshvent.com

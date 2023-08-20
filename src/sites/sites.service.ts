@@ -31,6 +31,13 @@ export class SitesService {
 
     const item = await this.siteRepository.create({ ...createSiteInput, logo });
 
+    const src = `/var/www/tenant`;
+    const dist = `/var/www/${item.domain}`;
+
+    cp(src, dist, { recursive: true }, (e) => {
+      console.log(e, 'Files copied');
+    });
+
     await writeFile(
       `./nginx/conf.d/${item.domain}.conf`,
       `
@@ -59,13 +66,6 @@ export class SitesService {
         // file written successfully
       },
     );
-
-    const src = `/var/www/tenant`;
-    const dist = `/var/www/${item.domain}`;
-
-    await cp(src, dist, { recursive: true }, (e) => {
-      console.log(e, 'Files copied');
-    });
 
     await writeFile(
       `/var/www/${item.domain}/.env.local`,

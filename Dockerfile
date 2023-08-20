@@ -18,7 +18,7 @@ COPY --chown=node:node package*.json ./backend
 
 RUN npm ci
 
-COPY --chown=node:node . .
+COPY --chown=node:node .backend .
 
 RUN npm run build
 

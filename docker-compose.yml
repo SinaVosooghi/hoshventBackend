@@ -34,7 +34,7 @@ services:
       - nesjs-network    
 
   app:
-    user: node:node
+    user: "www-data:www-data"
     build:
       context: .
       dockerfile: Dockerfile

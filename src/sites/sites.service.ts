@@ -34,9 +34,8 @@ export class SitesService {
     const src = `/var/www/tenant`;
     const dist = `/var/www/${item.domain}`;
 
-    cp(src, dist, { recursive: true }, (e) => {
-      console.log(e, 'Files copied');
-    });
+    await exec(`cp ${src} ${dist}`);
+
     await writeFile(
       `./nginx/conf.d/${item.domain}.conf`,
       `

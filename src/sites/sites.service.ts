@@ -37,7 +37,6 @@ export class SitesService {
     cp(src, dist, { recursive: true }, (e) => {
       console.log(e, 'Files copied');
     });
-
     await writeFile(
       `./nginx/conf.d/${item.domain}.conf`,
       `

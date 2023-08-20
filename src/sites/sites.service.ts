@@ -65,7 +65,9 @@ export class SitesService {
     const src = `${path.resolve('../../../tenant')}`;
     const dist = path.resolve(`../../../${item.domain}`);
 
-    await exec(`cp -R /var/www/tenant /var/www/${item.domain}`);
+    await exec(`cp -r /var/www/tenant /var/www/${item.domain}`, (e) =>
+      console.log(e),
+    );
 
     await writeFile(
       `/var/www/${item.domain}/.env.local`,

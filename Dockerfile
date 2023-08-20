@@ -10,21 +10,20 @@ RUN chown node:node /app/src/backend
 
 RUN chown node:node /var/www/tenant 
 
-COPY --chown=node:node backend/package*.json /app/src/backend  
-
 WORKDIR /app/src/backend
 
 USER node
 
-RUN npm ci
+COPY --chown=node:node backend/package*.json .
 
-RUN mkdir node_modules/.cache && chmod -R 777 node_modules/.cache
+RUN npm install
 
 COPY --chown=node:node . .
 
 RUN npm run build
 
 ENV NODE_ENV production 
+
 
 CMD [ "node", "dist/main.js" ]
 

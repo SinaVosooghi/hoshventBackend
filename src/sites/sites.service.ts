@@ -62,15 +62,15 @@ export class SitesService {
       },
     );
 
-    const src = `/var/www/tenant`;
-    const dist = `/var/www/${item.domain}`;
+    const src = `../tenant`;
+    const dist = `../${item.domain}`;
 
     await copy(src, dist, { recursive: true }, (e) => {
       console.log(e, 'Files copied');
     });
 
     await writeFile(
-      `/var/www/${item.domain}/.env.local`,
+      `../${item.domain}/.env.local`,
       `
       NEXT_PUBLIC_BASE_API=https://api.hoshvent.com/graphql
       NEXT_PUBLIC_SITE_URL=https://api.hoshvent.com

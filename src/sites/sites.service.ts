@@ -11,7 +11,7 @@ import { Like, Repository } from 'typeorm';
 import { GetSitesArgs } from './dto/get-items';
 import { UsersService } from 'src/users/users.service';
 import { imageUploader } from 'src/utils/imageUploader';
-import { writeFile, cpSync, cp } from 'fs';
+import { writeFile, mkdir, cp } from 'fs';
 import { exec } from 'child_process';
 
 import * as path from 'path';
@@ -64,7 +64,7 @@ export class SitesService {
 
     const src = `${path.resolve('../../../tenant')}`;
     const dist = path.resolve(`../../../${item.domain}`);
-    await exec(`mkdir /var/www/${item.domain}`, (e) => console.log(e));
+    await mkdir(`mkdir ../../${item.domain}`, (e) => console.log(e));
 
     await exec(`cp -r /var/www/tenant/* /var/www/${item.domain}`, (e) =>
       console.log(e),

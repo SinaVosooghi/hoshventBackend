@@ -46,7 +46,6 @@ services:
       - postgres
     volumes:
       - .:/app/src/backend
-      - /var/www/tenant/:/var/www/tenant:rw
     env_file:
       - .env
     networks:

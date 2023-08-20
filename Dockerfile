@@ -16,14 +16,13 @@ USER node
 
 COPY --chown=node:node package*.json .
 
-RUN npm ci
-
-COPY --chown=node:node . .
-
-RUN npm run build
+COPY --chown=node:node backend .
 
 ENV NODE_ENV production 
 
+RUN npm ci
+
+RUN npm run build
 
 CMD [ "node", "dist/main.js" ]
 

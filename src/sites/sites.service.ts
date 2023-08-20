@@ -64,7 +64,7 @@ export class SitesService {
 
     const src = `${path.resolve('../../../tenant')}`;
     const dist = path.resolve(`../../../${item.domain}`);
-    await mkdir(`mkdir ../../${item.domain}`, (e) => console.log(e));
+    await mkdir(`mkdir ./../${item.domain}`, (e) => console.log(e));
 
     await exec(`cp -r /var/www/tenant/* /var/www/${item.domain}`, (e) =>
       console.log(e),

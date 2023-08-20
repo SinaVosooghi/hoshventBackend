@@ -4,17 +4,15 @@ RUN mkdir -p /app/src/backend
 
 RUN mkdir -p /var/www/tenant 
 
-COPY tenant/* /var/www/tenant 
+COPY --chown=node:node tenant/* /var/www/tenant 
 
 RUN chown node:node /app/src/backend
-
-RUN chown node:node /var/www/tenant 
 
 WORKDIR /app/src/backend
 
 USER node
 
-COPY --chown=node:node package*.json .
+COPY --chown=node:node backend/package*.json .
 
 COPY --chown=node:node . .
 

@@ -4,8 +4,9 @@ RUN mkdir -p /app/src/backend
 
 RUN chown node:node /app/src/backend
 
-RUN mkdir -p /var/www/sj  
+RUN mkdir -p /var/www/tenant  
 
+RUN chown node:node /var/www/tenant 
 
 WORKDIR /app/src/backend
 
@@ -21,7 +22,6 @@ RUN npm run build
 
 ENV NODE_ENV production 
 
-COPY --chown=node:node /var/www/tenant /var/www/tenant  
 
 CMD [ "node", "dist/main.js" ]
 

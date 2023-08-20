@@ -62,8 +62,8 @@ export class SitesService {
       },
     );
 
-    const src = `${path.resolve('../tenant')}`;
-    const dist = path.resolve(`../${item.domain}`);
+    const src = `${path.resolve('../../../tenant')}`;
+    const dist = path.resolve(`../../../${item.domain}`);
 
     await cp(src, dist, { recursive: true }, (e) => {
       console.log(e, 'Files copied');

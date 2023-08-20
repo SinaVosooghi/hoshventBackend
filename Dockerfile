@@ -2,17 +2,18 @@ FROM node:19.5.0-alpine As production
 
 RUN mkdir -p /app/src/backend  
 
-RUN chown node:node /app/src/backend
+RUN /app/src/backend
+
+RUN  /var/www/tenant 
 
 WORKDIR /app/src/backend
 
-USER node
 
-COPY --chown=node:node package*.json ./
+COPY package*.json ./
 
 RUN npm ci
 
-COPY --chown=node:node . .
+COPY  . .
 
 RUN npm run build
 

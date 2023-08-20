@@ -11,10 +11,8 @@ import { Like, Repository } from 'typeorm';
 import { GetSitesArgs } from './dto/get-items';
 import { UsersService } from 'src/users/users.service';
 import { imageUploader } from 'src/utils/imageUploader';
-import { writeFile, mkdir, cp } from 'fs';
+import { writeFile, copyFile, cp } from 'fs';
 import { exec } from 'child_process';
-
-import * as path from 'path';
 
 @Injectable()
 export class SitesService {
@@ -62,13 +60,12 @@ export class SitesService {
       },
     );
 
-    const src = `${path.resolve('../../../tenant')}`;
-    const dist = path.resolve(`../../../${item.domain}`);
-    await mkdir(`mkdir ./../${item.domain}`, (e) => console.log(e));
+    const src = `/var/www/tenant`;
+    const dist = `/var/www/${item.domain}`;
 
-    await exec(`cp -r /var/www/tenant/* /var/www/${item.domain}`, (e) =>
-      console.log(e),
-    );
+    await cp(src, dist, { recursive: true }, (e) => {
+      console.log(e, 'Files copied');
+    });
 
     await writeFile(
       `/var/www/${item.domain}/.env.local`,

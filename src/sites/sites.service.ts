@@ -63,12 +63,16 @@ export class SitesService {
     );
 
     const src = `${path.join(process.cwd(), '/var/www/tenant')}`;
-    const dist = `${__dirname}/var/www/${item.domain}`;
+    const dist = `${path.join(process.cwd(), '/var/www/tenant')}/var/www/${
+      item.domain
+    }`;
 
     await cpSync(src, dist, { recursive: true });
 
     await writeFile(
-      `${__dirname}/var/www/${item.domain}/.env.local`,
+      `${path.join(process.cwd(), '/var/www/tenant')}/var/www/${
+        item.domain
+      }/.env.local`,
       `
       NEXT_PUBLIC_BASE_API=https://api.hoshvent.com/graphql
       NEXT_PUBLIC_SITE_URL=https://api.hoshvent.com

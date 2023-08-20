@@ -16,7 +16,7 @@ USER node
 
 COPY --chown=node:node package*.json .
 
-COPY --chown=node:node backend .
+COPY --chown=node:node . .
 
 ENV NODE_ENV production 
 

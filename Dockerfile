@@ -14,7 +14,9 @@ WORKDIR /app/src/backend
 
 USER node
 
-COPY --chown=node:node backend/package*.json .
+RUN cd backend
+
+COPY --chown=node:node package*.json .
 
 RUN npm ci
 

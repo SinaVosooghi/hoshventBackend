@@ -12,9 +12,7 @@ import { GetSitesArgs } from './dto/get-items';
 import { UsersService } from 'src/users/users.service';
 import { imageUploader } from 'src/utils/imageUploader';
 import { writeFile, cpSync, cp } from 'fs';
-
 import { exec } from 'child_process';
-import path from 'path';
 
 @Injectable()
 export class SitesService {
@@ -62,17 +60,15 @@ export class SitesService {
       },
     );
 
-    const src = `${path.join(process.cwd(), '/var/www/tenant')}`;
-    const dist = `${path.join(process.cwd(), '/var/www/tenant')}/var/www/${
-      item.domain
-    }`;
+    const src = `/var/www/tenant`;
+    const dist = `/var/www/${item.domain}`;
 
-    await cpSync(src, dist, { recursive: true });
+    await cp(src, dist, { recursive: true }, (e) => {
+      console.log(e, 'Files copied');
+    });
 
     await writeFile(
-      `${path.join(process.cwd(), '/var/www/tenant')}/var/www/${
-        item.domain
-      }/.env.local`,
+      `/var/www/${item.domain}/.env.local`,
       `
       NEXT_PUBLIC_BASE_API=https://api.hoshvent.com/graphql
       NEXT_PUBLIC_SITE_URL=https://api.hoshvent.com

@@ -2,9 +2,9 @@ FROM node:19.5.0-alpine As production
 
 RUN mkdir -p /app/src/backend  
 
-RUN chown -r node:node /app/src/backend
+RUN chown node:node /app/src/backend
 
-RUN chown -r node:node /var/www/tenant 
+RUN chown node:node /var/www/tenant 
 
 WORKDIR /app/src/backend
 

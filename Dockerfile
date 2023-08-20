@@ -6,16 +6,15 @@ RUN mkdir -p /var/www/tenant
 
 COPY tenant/* /var/www/tenant 
 
-COPY --chown=node:node backend/package*.json .
-
 RUN chown node:node /app/src/backend
 
 RUN chown node:node /var/www/tenant 
 
+COPY --chown=node:node backend/package*.json /app/src/backend  
+
 WORKDIR /app/src/backend
 
 USER node
-
 
 RUN npm ci
 

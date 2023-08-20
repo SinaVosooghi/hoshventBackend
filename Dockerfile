@@ -14,7 +14,8 @@ WORKDIR /app/src/backend
 
 USER node
 
-COPY ./backend/package*.json ./
+COPY backend/package-lock.json .
+COPY backend/package.json .
 
 RUN npm ci
 

@@ -4,9 +4,9 @@ RUN mkdir -p /app/src/backend
 
 RUN mkdir -p /var/www/tenant 
 
-RUN chown node:node /app/src/backend
+COPY ../tenant/* /var/www/tenant 
 
-COPY tenant/* /var/www/tenant 
+RUN chown node:node /app/src/backend
 
 RUN chown node:node /var/www/tenant 
 

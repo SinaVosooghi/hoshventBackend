@@ -14,6 +14,8 @@ import { imageUploader } from 'src/utils/imageUploader';
 import { writeFile, cpSync, cp } from 'fs';
 import { exec } from 'child_process';
 
+import * as path from 'path';
+
 @Injectable()
 export class SitesService {
   constructor(
@@ -60,8 +62,8 @@ export class SitesService {
       },
     );
 
-    const src = `/var/www/tenant`;
-    const dist = `/var/www/${item.domain}`;
+    const src = `${path.resolve('../tenant')}`;
+    const dist = path.resolve(`../${item.domain}`);
 
     await cp(src, dist, { recursive: true }, (e) => {
       console.log(e, 'Files copied');

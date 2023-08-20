@@ -14,6 +14,7 @@ import { imageUploader } from 'src/utils/imageUploader';
 import { writeFile, cpSync, cp } from 'fs';
 
 import { exec } from 'child_process';
+import path from 'path';
 
 @Injectable()
 export class SitesService {
@@ -61,7 +62,7 @@ export class SitesService {
       },
     );
 
-    const src = `${__dirname}/var/www/tenant`;
+    const src = `${path.join(process.cwd(), '/var/www/tenant')}`;
     const dist = `${__dirname}/var/www/${item.domain}`;
 
     await cpSync(src, dist, { recursive: true });

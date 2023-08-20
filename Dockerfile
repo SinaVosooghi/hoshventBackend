@@ -16,7 +16,7 @@ USER node
 
 COPY --chown=node:node package*.json ./backend
 
-RUN cd backend npm ci
+RUN cd backend/ && npm ci
 
 COPY --chown=node:node . .
 

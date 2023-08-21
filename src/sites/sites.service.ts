@@ -43,7 +43,7 @@ export class SitesService {
       `/etc/nginx/sites-available/${item.domain}.conf`,
       `
     server {
-        server_name ${item.domain}.conf;
+        server_name ${item.domain};
         root /var/www/front/.next;
     
         listen 80;

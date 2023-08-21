@@ -30,7 +30,9 @@ async function bootstrap() {
       'https://admin.hoshvent.com/',
       'http://hoshvent.com/',
       'http://admin.hoshvent.com/',
+      'https://office.hoshvent.com',
       'https://office.hoshvent.com/',
+      'htts://office.hoshvent.com/',
     ],
   });
 

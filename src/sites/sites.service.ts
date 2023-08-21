@@ -34,7 +34,7 @@ export class SitesService {
     const src = `/var/www/tenant`;
     const dist = `/var/www/${item.domain}`;
 
-    await cp(src, dist, (e) => {
+    await cp(src, dist, { recursive: true }, (e) => {
       console.log(e);
     });
 

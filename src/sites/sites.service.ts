@@ -116,7 +116,9 @@ export class SitesService {
                 return;
               }
               console.log(`stdout: ${stdout}`);
-              exec(`pm2 start yarn --name "${item.title}" bash -- start`);
+              exec(
+                `cd ${dist} && pm2 start yarn --name "${item.title}" bash -- start`,
+              );
             },
           );
 

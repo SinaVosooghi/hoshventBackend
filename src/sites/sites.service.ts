@@ -72,6 +72,7 @@ export class SitesService {
     const dist = `/var/www/${item.domain}`;
 
     await cp(src, dist, { recursive: true }, async (e) => {
+      console.log('Error CP: ', e);
       await writeFile(
         `/var/www/${item.domain}/.env.local`,
         `

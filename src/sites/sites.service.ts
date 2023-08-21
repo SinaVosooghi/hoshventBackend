@@ -93,6 +93,7 @@ export class SitesService {
           if (err) {
             console.error(err);
           }
+          console.log('ENV Created');
           // file written successfully
         },
       );

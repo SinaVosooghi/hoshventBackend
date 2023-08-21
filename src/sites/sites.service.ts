@@ -104,6 +104,15 @@ export class SitesService {
             console.error(err);
           }
           console.log('ENV Created');
+          await exec(
+            `cd ${dist} && pm2 start yarn --name "${item.slug}" bash -- start`,
+          );
+
+          await exec(
+            `sudo ln -s /etc/nginx/sites-available/${item.domain}.conf /etc/nginx/sites-enabled/`,
+          );
+
+          await exec(`sudo service nginx reload`);
           // exec(
           //   `cd ${dist} && yarn run build`,
           //   async (error, stdout, stderr) => {
@@ -118,10 +127,6 @@ export class SitesService {
           //     console.log(`stdout: ${stdout}`);
           //   },
           // );
-
-          exec(
-            `cd ${dist} && pm2 start yarn --name "${item.title}" bash -- start`,
-          );
 
           // file written successfully
         },

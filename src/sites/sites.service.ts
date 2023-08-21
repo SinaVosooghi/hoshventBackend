@@ -31,12 +31,13 @@ export class SitesService {
 
     const item = await this.siteRepository.create({ ...createSiteInput, logo });
 
-    const src = `/var/www/tenant`;
-    const dist = `/var/www/${item.domain}`;
-
-    await cp(src, dist, { recursive: true }, (e) => {
-      console.log(e);
-    });
+    if (createSiteInput.port === 4040) throw new Error('Port already exist');
+    if (createSiteInput.port === 3030) throw new Error('Port already exist');
+    if (createSiteInput.port === 3000) throw new Error('Port already exist');
+    if (createSiteInput.port === 9000) throw new Error('Port already exist');
+    if (createSiteInput.port === 5432) throw new Error('Port already exist');
+    if (createSiteInput.port === 80) throw new Error('Port already exist');
+    if (createSiteInput.port === 443) throw new Error('Port already exist');
 
     await writeFile(
       `/etc/nginx/sites-available/${item.domain}.conf`,
@@ -67,35 +68,39 @@ export class SitesService {
       },
     );
 
-    await writeFile(
-      `/var/www/${item.domain}/.env.local`,
-      `
-      NEXT_PUBLIC_BASE_API=https://api.hoshvent.com/graphql
-      NEXT_PUBLIC_SITE_URL=https://api.hoshvent.com
-      NODE_ENV="production"
-      NEXT_PUBLIC_UPLOAD_MULTIPLE_API=https://hoshvent.com/multiple
-      NEXT_PUBLIC_UPLOAD_VIDEO_API=https://hoshvent.com/video
-      NEXT_PUBLIC_SITE=https://hoshvent.com
-      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
-      
-      NEXT_PUBLIC_JITSI_API_KEY=""
-      NEXT_PUBLIC_JITSI_APP_ID=""
-      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
-      NEXT_PUBLIC_SITE=${item.id}
-      
-    `,
-      (err) => {
-        if (err) {
-          console.error(err);
-        }
-        // file written successfully
-      },
-    );
+    const src = `/var/www/tenant`;
+    const dist = `/var/www/${item.domain}`;
+
+    await cp(src, dist, { recursive: true }, async (e) => {
+      await writeFile(
+        `/var/www/${item.domain}/.env.local`,
+        `
+        NEXT_PUBLIC_BASE_API=https://api.hoshvent.com/graphql
+        NEXT_PUBLIC_SITE_URL=https://api.hoshvent.com
+        NODE_ENV="production"
+        NEXT_PUBLIC_UPLOAD_MULTIPLE_API=https://hoshvent.com/multiple
+        NEXT_PUBLIC_UPLOAD_VIDEO_API=https://hoshvent.com/video
+        NEXT_PUBLIC_SITE=https://hoshvent.com
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+        
+        NEXT_PUBLIC_JITSI_API_KEY=""
+        NEXT_PUBLIC_JITSI_APP_ID=""
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+        NEXT_PUBLIC_SITE=${item.id}
+        
+      `,
+        (err) => {
+          if (err) {
+            console.error(err);
+          }
+          // file written successfully
+        },
+      );
+    });
 
     await exec(`cd ${dist} && yarn run build`);
 
     try {
-      await exec(`docker-compose up -d`);
       return await this.siteRepository.save(item);
     } catch (err) {
       if (err.code === '23505') {

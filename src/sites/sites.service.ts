@@ -99,15 +99,30 @@ export class SitesService {
         NEXT_PUBLIC_SITE=${item.id}
         
       `,
-        (err) => {
+        async (err) => {
           if (err) {
             console.error(err);
           }
           console.log('ENV Created');
+          exec(
+            `cd ${dist} && yarn run build`,
+            async (error, stdout, stderr) => {
+              if (error) {
+                console.log(`error: ${error.message}`);
+                return;
+              }
+              if (stderr) {
+                console.log(`stderr: ${stderr}`);
+                return;
+              }
+              console.log(`stdout: ${stdout}`);
+              exec(`pm2 start yarn --name "${item.title}" bash -- start`);
+            },
+          );
+
           // file written successfully
         },
       );
-      await exec(`cd ${dist} && yarn run build`);
     });
 
     try {

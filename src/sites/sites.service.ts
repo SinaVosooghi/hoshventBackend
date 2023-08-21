@@ -34,10 +34,12 @@ export class SitesService {
     const src = `/var/www/tenant`;
     const dist = `/var/www/${item.domain}`;
 
-    await exec(`cp ${src} ${dist}`);
+    await cp(src, dist, (e) => {
+      console.log(e);
+    });
 
     await writeFile(
-      `./nginx/conf.d/${item.domain}.conf`,
+      `/etc/nginx/sites-available/${item.domain}.conf`,
       `
     server {
         server_name ${item.domain}.conf;

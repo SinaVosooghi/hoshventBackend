@@ -72,38 +72,43 @@ export class SitesService {
     const src = `/var/www/tenant`;
     const dist = `/var/www/${item.domain}`;
 
-    await exec(`cp -r ${src} ${dist}`, (e) => {
-      console.log('Copyiiing');
-      console.log(e);
+    exec(`cp -r ${src} ${dist}`, async (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      await writeFile(
+        `/var/www/${item.domain}/.env.local`,
+        `
+        NEXT_PUBLIC_BASE_API=https://api.hoshvent.com/graphql
+        NEXT_PUBLIC_SITE_URL=https://api.hoshvent.com
+        NODE_ENV="production"
+        NEXT_PUBLIC_UPLOAD_MULTIPLE_API=https://hoshvent.com/multiple
+        NEXT_PUBLIC_UPLOAD_VIDEO_API=https://hoshvent.com/video
+        NEXT_PUBLIC_SITE=https://hoshvent.com
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+        
+        NEXT_PUBLIC_JITSI_API_KEY=""
+        NEXT_PUBLIC_JITSI_APP_ID=""
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+        NEXT_PUBLIC_SITE=${item.id}
+        
+      `,
+        (err) => {
+          if (err) {
+            console.error(err);
+          }
+          console.log('ENV Created');
+          // file written successfully
+        },
+      );
+      await exec(`cd ${dist} && yarn run build`);
     });
-
-    await writeFile(
-      `/var/www/${item.domain}/.env.local`,
-      `
-      NEXT_PUBLIC_BASE_API=https://api.hoshvent.com/graphql
-      NEXT_PUBLIC_SITE_URL=https://api.hoshvent.com
-      NODE_ENV="production"
-      NEXT_PUBLIC_UPLOAD_MULTIPLE_API=https://hoshvent.com/multiple
-      NEXT_PUBLIC_UPLOAD_VIDEO_API=https://hoshvent.com/video
-      NEXT_PUBLIC_SITE=https://hoshvent.com
-      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
-      
-      NEXT_PUBLIC_JITSI_API_KEY=""
-      NEXT_PUBLIC_JITSI_APP_ID=""
-      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
-      NEXT_PUBLIC_SITE=${item.id}
-      
-    `,
-      (err) => {
-        if (err) {
-          console.error(err);
-        }
-        console.log('ENV Created');
-        // file written successfully
-      },
-    );
-
-    await exec(`cd ${dist} && yarn run build`);
 
     try {
       return await this.siteRepository.save(item);

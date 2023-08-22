@@ -55,6 +55,13 @@ export class Payment {
     description: 'Payment method of the payment',
     nullable: true,
   })
+  host: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, {
+    description: 'Payment method of the payment',
+    nullable: true,
+  })
   paymentMethodId: string;
 
   @Column({ nullable: true })
@@ -119,6 +126,10 @@ export class Payment {
   @Column({ nullable: true })
   @Field(() => String, { description: 'status of the payment', nullable: true })
   status: string;
+
+  @Column({ nullable: true })
+  @Field(() => Boolean, { nullable: true })
+  approve: boolean;
 
   @ManyToOne(() => Site, (site) => site.id, {
     onDelete: 'SET NULL',

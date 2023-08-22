@@ -14,6 +14,9 @@ export class CreatePaymentInput {
   })
   authority: string;
 
+  @Field(() => String)
+  host: string;
+
   @Field(() => String, {
     description: 'Payment method of the payment',
     nullable: true,

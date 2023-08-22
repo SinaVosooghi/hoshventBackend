@@ -1,4 +1,5 @@
 import { InputType, Field } from '@nestjs/graphql';
+import { Category } from 'src/categories/entities/category.entity';
 import { Department } from 'src/departments/entities/department.entity';
 import { Invoice } from 'src/invoices/entities/invoice.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -14,7 +15,7 @@ export class CreateChatInput {
   @Field(() => Number, { description: 'From user of the chat', nullable: true })
   from: User;
 
-  @Field(() => [Number], { description: 'To user of the chat' })
+  @Field(() => [Number], { description: 'To user of the chat', nullable: true })
   to: [User];
 
   @Field(() => String, { description: 'subject of the Chat' })
@@ -32,6 +33,23 @@ export class CreateChatInput {
   })
   repliable: boolean;
 
+  @Field(() => Boolean, {
+    nullable: true,
+  })
+  sms: boolean;
+
+  @Field(() => Boolean, {
+    description: 'Can reply of the Chat',
+    nullable: true,
+  })
+  system: boolean;
+
+  @Field(() => Boolean, {
+    description: 'Can reply of the Chat',
+    nullable: true,
+  })
+  email: boolean;
+
   @Field(() => Boolean, { description: 'Close of the Chat', nullable: true })
   closed: boolean;
 
@@ -46,4 +64,7 @@ export class CreateChatInput {
     nullable: true,
   })
   department: Department;
+
+  @Field(() => Number, { nullable: true })
+  category?: number;
 }

@@ -386,12 +386,16 @@ input CreateCategoryInput {
 input CreateChatInput {
   """body of the Chat"""
   body: String!
+  category: Float
 
   """Close of the Chat"""
   closed: Boolean
 
   """Department user of the chat"""
   department: Float
+
+  """Can reply of the Chat"""
+  email: Boolean
 
   """From user of the chat"""
   from: Float
@@ -404,6 +408,7 @@ input CreateChatInput {
 
   """Can reply of the Chat"""
   repliable: Boolean
+  sms: Boolean
 
   """status of the Chat"""
   status: Boolean
@@ -411,8 +416,11 @@ input CreateChatInput {
   """subject of the Chat"""
   subject: String!
 
+  """Can reply of the Chat"""
+  system: Boolean
+
   """To user of the chat"""
-  to: [Float!]!
+  to: [Float!]
 
   """type of the Chat"""
   type: String!
@@ -658,6 +666,7 @@ input CreatePaymentInput {
 
   """Event of the payment"""
   event: Float
+  host: String!
 
   """Payment method id of the payment"""
   payment: Float
@@ -1624,6 +1633,7 @@ type Mutation {
   createTimeline(input: CreateTimelineInput!): Timeline!
   createUser(input: CreateUserInput!): User!
   createWorkshop(input: CreateWorkshopInput!): Workshop!
+  doPayment(input: CreatePaymentInput!): String!
   login: User!
   removeAttendee(id: Int!): Boolean!
   removeBlog(id: Int!): Boolean!
@@ -1684,6 +1694,7 @@ type Mutation {
   updateUser(input: UpdateUserInput!): User!
   updateWorkshop(input: UpdateWorkshopInput!): Workshop!
   uploadUsersCsv(input: UploadUsersPdfInput!): Boolean!
+  verification(input: VerificationInput!): Boolean!
 }
 
 type Order {
@@ -1732,6 +1743,7 @@ type OrderPaginate {
 type Payment {
   """Amount of the payment"""
   amount: Float
+  approve: Boolean
 
   """Authority of the payment"""
   authority: String
@@ -1739,6 +1751,9 @@ type Payment {
 
   """Event of the payment"""
   event: Event
+
+  """Payment method of the payment"""
+  host: String
 
   """Id of the payment"""
   id: Float!
@@ -2668,6 +2683,7 @@ input UpdatePaymentInput {
 
   """Event of the payment"""
   event: Float
+  host: String
   id: Int!
 
   """Payment method id of the payment"""
@@ -3181,6 +3197,11 @@ type UserPaginate {
 type VariationType {
   title: String
   value: String
+}
+
+input VerificationInput {
+  authority: String!
+  user: String!
 }
 
 type Workshop {

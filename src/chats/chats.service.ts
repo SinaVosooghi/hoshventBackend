@@ -4,41 +4,140 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DepartmentsService } from 'src/departments/departments.service';
 import { MessagesService } from 'src/messages/messages.service';
 import { User } from 'src/users/entities/user.entity';
 import { Like, Repository } from 'typeorm';
 import { CreateChatInput } from './dto/create-chat.input';
 import { GetChatsArgs } from './dto/get-chats.args';
 import { Chat } from './entities/chat.entity';
+import { sendSMS } from 'src/utils/sendSMS';
 
 @Injectable()
 export class ChatsService {
   constructor(
     @InjectRepository(Chat)
     private readonly chatRepository: Repository<Chat>,
+    @InjectRepository(User)
+    private readonly useRepo: Repository<User>,
     private readonly messageService: MessagesService,
   ) {}
 
   async create(createChatInput: CreateChatInput, user: User): Promise<boolean> {
     try {
-      createChatInput.to.map(async (userItem) => {
-        const item = await this.chatRepository.create({
-          ...createChatInput,
-          to: userItem,
-          from: user,
-          ...(user && { site: { id: user.site[0]?.id } }),
-        });
-        const chat = await this.chatRepository.save(item);
-
-        this.messageService.create(
-          {
-            chat: chat,
-            body: createChatInput.body,
+      if (createChatInput.category) {
+        const users = await this.useRepo.find({
+          where: {
+            category: { id: createChatInput.category },
+            ...(user && { siteid: { id: user.site[0]?.id } }),
           },
-          user,
-        );
-      });
+        });
+
+        if (users.length > 0) {
+          users.map(async (userItem: User) => {
+            if (createChatInput.sms) {
+              console.log('sms');
+              await sendSMS({
+                to: userItem.mobilenumber,
+                message: createChatInput.body,
+              });
+            }
+
+            if (createChatInput.email) {
+              console.log('Send email');
+            }
+
+            if (createChatInput.system) {
+              const item = await this.chatRepository.create({
+                ...createChatInput,
+                to: userItem,
+                from: user,
+                ...(user && { site: { id: user.site[0]?.id } }),
+              });
+              const chat = await this.chatRepository.save(item);
+
+              this.messageService.create(
+                {
+                  chat: chat,
+                  body: createChatInput.body,
+                },
+                user,
+              );
+            }
+          });
+        }
+      } else if (createChatInput.to) {
+        createChatInput.to.map(async (userItem) => {
+          if (createChatInput.sms) {
+            console.log('sms');
+            await sendSMS({
+              to: userItem.mobilenumber,
+              message: createChatInput.body,
+            });
+          }
+
+          if (createChatInput.email) {
+            console.log('Send email');
+          }
+
+          if (createChatInput.system) {
+            const item = await this.chatRepository.create({
+              ...createChatInput,
+              to: userItem,
+              from: user,
+              ...(user && { site: { id: user.site[0]?.id } }),
+            });
+            const chat = await this.chatRepository.save(item);
+
+            this.messageService.create(
+              {
+                chat: chat,
+                body: createChatInput.body,
+              },
+              user,
+            );
+          }
+        });
+      } else {
+        const users = await this.useRepo.find({
+          where: {
+            ...(user && { siteid: { id: user.site[0]?.id } }),
+          },
+        });
+
+        if (users.length > 0) {
+          users.map(async (userItem: User) => {
+            if (createChatInput.sms) {
+              console.log('sms');
+              await sendSMS({
+                to: userItem.mobilenumber,
+                message: createChatInput.body,
+              });
+            }
+
+            if (createChatInput.email) {
+              console.log('Send email');
+            }
+
+            if (createChatInput.system) {
+              const item = await this.chatRepository.create({
+                ...createChatInput,
+                to: userItem,
+                from: user,
+                ...(user && { site: { id: user.site[0]?.id } }),
+              });
+              const chat = await this.chatRepository.save(item);
+
+              this.messageService.create(
+                {
+                  chat: chat,
+                  body: createChatInput.body,
+                },
+                user,
+              );
+            }
+          });
+        }
+      }
 
       return true;
     } catch (err) {

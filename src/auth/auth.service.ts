@@ -2,11 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { jwtSecret } from './constants';
-import { use } from 'passport';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
+import { sendSMS } from 'src/utils/sendSMS';
 
 @Injectable()
 export class AuthService {
@@ -74,6 +74,15 @@ export class AuthService {
 
     await this.userService.updateUserToken(user.id, AT);
 
+    if (user.usertype === 'tenant' || user.usertype === 'user') {
+      await sendSMS({
+        to: user.mobilenumber,
+        message: `${user.firstName} ${user.lastName} گرامی،
+      با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
+      https://hoshvent.com`,
+      });
+    }
+
     return {
       type: user.usertype,
       firstName: user.firstName,
@@ -90,6 +99,8 @@ export class AuthService {
     type: string;
     firstName: string;
     lastName: string;
+    uid: number;
+    site: any;
   }> {
     const userWithEmail = await this.userRepository.findOneBy({
       email: user.email,
@@ -117,7 +128,7 @@ export class AuthService {
       address: '',
       postalcode: '',
       role: null,
-      username: '',
+      username: user.email,
       about: '',
       status: true,
       phonenumber: 0,
@@ -130,11 +141,22 @@ export class AuthService {
     };
     const AT = this.jwtService.sign(payload);
 
+    if (createdUser.usertype === 'tenant' || createdUser.usertype === 'user') {
+      await sendSMS({
+        to: createdUser.mobilenumber,
+        message: `${createdUser.firstName} ${createdUser.lastName} گرامی،
+      با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
+      https://hoshvent.com`,
+      });
+    }
+
     return {
       type: createdUser.usertype,
       firstName: createdUser.firstName,
       lastName: createdUser.lastName,
+      uid: createdUser.id,
       access_token: AT,
+      site: createdUser.site,
     };
   }
 

@@ -13,6 +13,7 @@ import { EventsModule } from 'src/events/events.module';
 import { CouponsModule } from 'src/coupons/coupons.module';
 import { Event } from 'src/events/entities/event.entity';
 import { AttendeesModule } from 'src/atendees/atendees.module';
+import { PaymentWebService } from './payment.web.service';
 
 @Module({
   imports: [
@@ -24,6 +25,11 @@ import { AttendeesModule } from 'src/atendees/atendees.module';
     CouponsModule,
     AttendeesModule,
   ],
-  providers: [PaymentResolver, PaymentService, PaymentApiResolver],
+  providers: [
+    PaymentResolver,
+    PaymentService,
+    PaymentApiResolver,
+    PaymentWebService,
+  ],
 })
 export class PaymentModule {}

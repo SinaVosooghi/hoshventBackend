@@ -83,7 +83,7 @@ export class UsersService {
         ...(category && { category: { id: category } }),
         ...(user && { siteid: { id: user.site[0]?.id } }),
       },
-      relations: ['role'],
+      relations: ['role', 'category'],
       order: { id: 'DESC' },
       take: limit,
       skip: skip,

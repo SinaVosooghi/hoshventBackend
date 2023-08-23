@@ -157,11 +157,17 @@ export class PaymentWebService {
         .returning('*')
         .execute();
 
-      await sendSMS({
-        to: paymentRecord.user.mobilenumber,
-        message: `${paymentRecord.user?.firstName} ${paymentRecord.user?.lastName} گرامی،
-        ثبت نام شما در رویداد ${paymentRecord.event?.title} با موفقیت انجام شد. به جمع ما خوش آمدید! به امید دیدار شما
-       https://api.hoshvent.com/scan&u=${paymentRecord?.user.id}&e=${paymentRecord?.event?.id}`,
+      paymentRecord.products.map(async (product) => {
+        const event = await this.eventRepository.findOne({
+          where: { id: product?.id },
+          relations: ['site'],
+        });
+        await sendSMS({
+          to: paymentRecord.user.mobilenumber,
+          message: `${paymentRecord.user?.firstName} ${paymentRecord.user?.lastName} گرامی،
+                  ثبت نام شما در رویداد ${product?.title} با موفقیت انجام شد. به جمع ما خوش آمدید! به امید دیدار شما
+                 https://${event?.site?.domain}/scan/${paymentRecord?.user.id}/${product?.id}`,
+        });
       });
 
       return true;

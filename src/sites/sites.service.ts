@@ -242,8 +242,6 @@ export class SitesService {
       relations: ['category', 'user', 'plan'],
     });
 
-    await this.mailService.sendCustom(site.user, 'test', 'test');
-
     if (!site) {
       throw new NotFoundException(`Site #${id} not found`);
     }

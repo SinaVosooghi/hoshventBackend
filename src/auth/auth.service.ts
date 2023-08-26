@@ -116,7 +116,10 @@ export class AuthService {
     });
 
     if (userWithEmail) {
-      throw new Error('Already exist, User with this email!');
+      throw new HttpException(
+        'Already exist, User with this email!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const userWithMobile = await this.userRepository.findOneBy({
@@ -124,7 +127,10 @@ export class AuthService {
     });
 
     if (userWithMobile) {
-      throw new Error('Already exist, User with this mobile!');
+      throw new HttpException(
+        'Already exist, User with this mobile!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const createdUser = await this.userService.create({

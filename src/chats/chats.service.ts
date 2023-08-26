@@ -11,6 +11,8 @@ import { CreateChatInput } from './dto/create-chat.input';
 import { GetChatsArgs } from './dto/get-chats.args';
 import { Chat } from './entities/chat.entity';
 import { sendSMS } from 'src/utils/sendSMS';
+import { MailService } from 'src/mail/mail.service';
+import { SitesService } from 'src/sites/sites.service';
 
 @Injectable()
 export class ChatsService {
@@ -20,9 +22,20 @@ export class ChatsService {
     @InjectRepository(User)
     private readonly useRepo: Repository<User>,
     private readonly messageService: MessagesService,
+    private readonly mailService: MailService,
+    private readonly sitesService: SitesService,
   ) {}
 
   async create(createChatInput: CreateChatInput, user: User): Promise<boolean> {
+    const site = await this.sitesService.findOne(user.site[0]?.id);
+    const chats = (await this.findAll({ sms: true }, user)).count;
+
+    if (createChatInput.sms) {
+      if (chats >= site.plan.sms) {
+        throw new Error('SMS Count finished');
+      }
+    }
+
     try {
       if (createChatInput.category) {
         const users = await this.useRepo.find({
@@ -35,7 +48,6 @@ export class ChatsService {
         if (users.length > 0) {
           users.map(async (userItem: User) => {
             if (createChatInput.sms) {
-              console.log('sms');
               await sendSMS({
                 to: userItem.mobilenumber,
                 message: createChatInput.body,
@@ -43,7 +55,11 @@ export class ChatsService {
             }
 
             if (createChatInput.email) {
-              console.log('Send email');
+              await this.mailService.sendCustom(
+                userItem,
+                createChatInput.body,
+                createChatInput.subject,
+              );
             }
 
             if (createChatInput.system) {
@@ -51,6 +67,8 @@ export class ChatsService {
                 ...createChatInput,
                 to: userItem,
                 from: user,
+                ...(createChatInput.sms && { sms: true }),
+                ...(createChatInput.email && { email: true }),
                 ...(user && { site: { id: user.site[0]?.id } }),
               });
               const chat = await this.chatRepository.save(item);
@@ -68,7 +86,6 @@ export class ChatsService {
       } else if (createChatInput.to) {
         createChatInput.to.map(async (userItem) => {
           if (createChatInput.sms) {
-            console.log('sms');
             await sendSMS({
               to: userItem.mobilenumber,
               message: createChatInput.body,
@@ -76,7 +93,11 @@ export class ChatsService {
           }
 
           if (createChatInput.email) {
-            console.log('Send email');
+            await this.mailService.sendCustom(
+              userItem,
+              createChatInput.body,
+              createChatInput.subject ?? 'Hoshvent',
+            );
           }
 
           if (createChatInput.system) {
@@ -192,6 +213,7 @@ export class ChatsService {
       status,
       priority,
       department,
+      sms,
     }: GetChatsArgs,
     user: User,
   ) {
@@ -203,6 +225,7 @@ export class ChatsService {
         priority: priority ?? null,
         department: department ? { id: department } : null,
         ...(user && { site: { id: user.site[0]?.id } }),
+        ...(sms && { sms: true }),
       },
       relations: ['messages', 'from', 'messages.user', 'invoice', 'department'],
       order: { id: 'DESC' },

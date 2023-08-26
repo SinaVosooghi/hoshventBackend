@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { sendSMS } from 'src/utils/sendSMS';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async validate(email: string, password: string): Promise<User> {
@@ -75,12 +77,19 @@ export class AuthService {
     await this.userService.updateUserToken(user.id, AT);
 
     if (user.usertype === 'tenant' || user.usertype === 'user') {
+      const message = `${user.firstName} ${user.lastName} گرامی،
+      با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
+      https://hoshvent.com`;
       await sendSMS({
         to: user.mobilenumber,
-        message: `${user.firstName} ${user.lastName} گرامی،
-      با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
-      https://hoshvent.com`,
+        message,
       });
+
+      await this.mailService.sendCustom(
+        user,
+        message,
+        'به سرویس رویداد خوش آمدید',
+      );
     }
 
     return {
@@ -142,12 +151,19 @@ export class AuthService {
     const AT = this.jwtService.sign(payload);
 
     if (createdUser.usertype === 'tenant' || createdUser.usertype === 'user') {
+      const message = `${createdUser.firstName} ${createdUser.lastName} گرامی،
+      با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
+      https://hoshvent.com`;
       await sendSMS({
         to: createdUser.mobilenumber,
-        message: `${createdUser.firstName} ${createdUser.lastName} گرامی،
-      با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
-      https://hoshvent.com`,
+        message,
       });
+
+      await this.mailService.sendCustom(
+        createdUser,
+        message,
+        'به سرویس رویداد خوش آمدید',
+      );
     }
 
     return {

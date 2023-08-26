@@ -13,6 +13,7 @@ import { SettingsService } from 'src/settings/settings.service';
 import { InvoicesService } from 'src/invoices/invoices.service';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { AttendeesService } from 'src/atendees/atendees.service';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class PaymentWebService {
@@ -22,9 +23,8 @@ export class PaymentWebService {
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
     private readonly settingService: SettingsService,
-    private readonly invoicesService: InvoicesService,
-    private readonly couponsService: CouponsService,
     private readonly attendeeService: AttendeesService,
+    private readonly mailService: MailService,
   ) {}
 
   async doPayment(input: CreatePaymentInput, user: User) {
@@ -124,7 +124,6 @@ export class PaymentWebService {
       throw new NotFoundException();
     }
 
-    console.log(paymentRecord);
 
     const { status, RefID } = await zarinpal.PaymentVerification({
       Amount: paymentRecord.amount, // In Tomans
@@ -162,12 +161,20 @@ export class PaymentWebService {
           where: { id: product?.id },
           relations: ['site'],
         });
+
+        const message = `${paymentRecord.user?.firstName} ${paymentRecord.user?.lastName} گرامی،
+        ثبت نام شما در رویداد ${product?.title} با موفقیت انجام شد. به جمع ما خوش آمدید! به امید دیدار شما
+       https://${event?.site?.domain}/scan/${paymentRecord?.user.id}/${product?.id}`;
         await sendSMS({
           to: paymentRecord.user.mobilenumber,
-          message: `${paymentRecord.user?.firstName} ${paymentRecord.user?.lastName} گرامی،
-                  ثبت نام شما در رویداد ${product?.title} با موفقیت انجام شد. به جمع ما خوش آمدید! به امید دیدار شما
-                 https://${event?.site?.domain}/scan/${paymentRecord?.user.id}/${product?.id}`,
+          message,
         });
+
+        await this.mailService.sendCustom(
+          paymentRecord.user,
+          message,
+          'خرید با موفقیت انجام شد',
+        );
       });
 
       return true;

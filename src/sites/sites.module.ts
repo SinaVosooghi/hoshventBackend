@@ -9,5 +9,6 @@ import { SitesResolverApi } from './sites.api.resolver';
 @Module({
   imports: [TypeOrmModule.forFeature([Site]), UsersModule],
   providers: [SitesResolver, SitesResolverApi, SitesService],
+  exports: [SitesService],
 })
 export class SitesModule {}

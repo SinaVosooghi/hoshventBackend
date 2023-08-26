@@ -5,22 +5,25 @@ import { Department } from 'src/departments/entities/department.entity';
 @InputType()
 export class GetChatsArgs {
   @Field({ nullable: true })
-  limit: number;
+  limit?: number;
 
   @Field()
-  skip: number;
+  skip?: number;
 
   @Field({ nullable: true })
-  status: boolean;
+  status?: boolean;
 
   @Field({ nullable: true })
-  priority: 'high' | 'medium' | 'low';
+  sms?: boolean;
 
   @Field({ nullable: true })
-  type: 'alert' | 'success' | 'info' | 'warning';
+  priority?: 'high' | 'medium' | 'low';
+
+  @Field({ nullable: true })
+  type?: 'alert' | 'success' | 'info' | 'warning';
 
   @Field(() => Number, { nullable: true })
-  department: number;
+  department?: number;
 
   @Field({ nullable: true })
   searchTerm?: string;

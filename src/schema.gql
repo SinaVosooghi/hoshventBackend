@@ -161,6 +161,7 @@ type Chat {
 
   """Department user of the chat"""
   department: Department
+  email: Boolean!
 
   """From user of the chat"""
   from: User!
@@ -183,6 +184,7 @@ type Chat {
 
   """Site of the item"""
   site: Site
+  sms: Boolean!
 
   """starred of the Chat"""
   starred: Boolean
@@ -1232,6 +1234,7 @@ input GetChatsArgs {
   priority: String
   searchTerm: String
   skip: Float!
+  sms: Boolean
   status: Boolean
   type: String
 }

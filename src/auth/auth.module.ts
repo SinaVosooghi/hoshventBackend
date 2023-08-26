@@ -10,6 +10,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './auth.controller';
 import { User } from 'src/users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       secret: jwtSecret,
       signOptions: { expiresIn: '120m' },
     }),
+    MailModule,
   ],
   providers: [AuthService, AuthResolver, JwtStrategy, LocalStrategy],
   controllers: [AuthController],

@@ -38,6 +38,7 @@ import { MenusModule } from './menus/menus.module';
 import { AttendeesModule } from './atendees/atendees.module';
 import { PaymentModule } from './payment/payment.module';
 import { TimelinesModule } from './timelines/timelines.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { TimelinesModule } from './timelines/timelines.module';
       rootPath: join(__dirname, '..', 'files'),
     }),
     ConfigModule.forRoot({
+      isGlobal: true,
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
@@ -88,6 +90,7 @@ import { TimelinesModule } from './timelines/timelines.module';
     HallsModule,
     MenusModule,
     TimelinesModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

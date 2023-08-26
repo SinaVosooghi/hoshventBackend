@@ -14,6 +14,7 @@ import { CouponsModule } from 'src/coupons/coupons.module';
 import { Event } from 'src/events/entities/event.entity';
 import { AttendeesModule } from 'src/atendees/atendees.module';
 import { PaymentWebService } from './payment.web.service';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PaymentWebService } from './payment.web.service';
     InvoicesModule,
     CouponsModule,
     AttendeesModule,
+    MailModule,
   ],
   providers: [
     PaymentResolver,

@@ -92,6 +92,14 @@ export class Chat {
   @Field(() => Boolean, { description: 'Close of the Chat', nullable: true })
   closed: boolean;
 
+  @Column({ default: false })
+  @Field(() => Boolean)
+  sms: boolean;
+
+  @Column({ default: false })
+  @Field(() => Boolean)
+  email: boolean;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',

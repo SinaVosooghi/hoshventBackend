@@ -13,6 +13,7 @@ import { UsersService } from 'src/users/users.service';
 import { imageUploader } from 'src/utils/imageUploader';
 import { writeFile, cp } from 'fs';
 import { exec } from 'child_process';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class SitesService {
@@ -20,6 +21,7 @@ export class SitesService {
     @InjectRepository(Site)
     private readonly siteRepository: Repository<Site>,
     private readonly userService: UsersService,
+    private readonly mailService: MailService,
   ) {}
 
   async create(createSiteInput: CreateSiteInput): Promise<Site> {
@@ -239,6 +241,9 @@ export class SitesService {
       where: { id: id },
       relations: ['category', 'user', 'plan'],
     });
+
+    await this.mailService.sendCustom(site.user, 'test', 'test');
+
     if (!site) {
       throw new NotFoundException(`Site #${id} not found`);
     }

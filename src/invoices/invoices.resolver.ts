@@ -8,6 +8,8 @@ import { GetInvoicesArgs } from './dto/get-invoices.args';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { GetInoivceArgs } from './dto/get-invoice';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Resolver(() => Invoice)
 export class InvoicesResolver {
@@ -15,8 +17,11 @@ export class InvoicesResolver {
 
   @Mutation(() => Invoice)
   @UseGuards(GqlAuthGuard)
-  createInvoice(@Args('input') createInvoiceInput: CreateInvoiceInput) {
-    return this.invoicesService.create(createInvoiceInput);
+  createInvoice(
+    @Args('input') createInvoiceInput: CreateInvoiceInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.invoicesService.create(createInvoiceInput, user);
   }
 
   @Query(() => InvoicePaginate, { name: 'invoices' })

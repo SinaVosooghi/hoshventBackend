@@ -45,7 +45,7 @@ export class Invoice {
 
   @Column()
   @Field(() => String, { description: 'Type of the invoice' })
-  type: 'shop' | 'course';
+  type: 'shop' | 'course' | 'event';
 
   @Column({ default: 'online' })
   @Field(() => String, {

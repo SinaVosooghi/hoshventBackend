@@ -20,9 +20,16 @@ export class BlogsService {
   ) {}
 
   async create(createBlogInput: CreateBlogInput, user: User): Promise<Blog> {
+    let image = null;
+    if (createBlogInput.image) {
+      const imageUpload = await imageUploader(createBlogInput.image);
+      image = imageUpload.image;
+    }
+
     const item = await this.blogRepository.create({
       ...createBlogInput,
       author: user,
+      image,
       ...(user && { site: { id: user.site[0]?.id } }),
     });
 
@@ -36,7 +43,16 @@ export class BlogsService {
   }
 
   async findAll(
-    { skip, limit, searchTerm, status, sort, featured, category }: GetBlogsArgs,
+    {
+      skip,
+      limit,
+      searchTerm,
+      status,
+      sort,
+      featured,
+      category,
+      siteid,
+    }: GetBlogsArgs,
     user: User,
   ) {
     const [result, total] = await this.blogRepository.findAndCount({
@@ -47,6 +63,7 @@ export class BlogsService {
         ...(featured && { featured: true }),
         ...(featured === false && { featured: false }),
         ...(user && { site: { id: user.site[0]?.id } }),
+        ...(siteid && { site: { id: siteid } }),
       },
       relations: ['category', 'author'],
       order: {
@@ -67,7 +84,7 @@ export class BlogsService {
   async findOne(id: number): Promise<Blog> {
     const blog = await this.blogRepository.findOne({
       where: { id: id },
-      relations: ['category', 'author'],
+      relations: ['category', 'author', 'likes'],
     });
 
     if (!blog) {
@@ -79,7 +96,7 @@ export class BlogsService {
   async findOneApi(slug: string): Promise<Blog> {
     const blog = await this.blogRepository.findOne({
       where: { slug: slug },
-      relations: ['category', 'author'],
+      relations: ['category', 'author', 'likes'],
     });
 
     if (!blog) {
@@ -89,9 +106,8 @@ export class BlogsService {
   }
 
   async update(id: number, updateBlogInput: UpdateBlogInput): Promise<Blog> {
-    let image: any = updateBlogInput.image;
-
-    if (typeof updateBlogInput.image !== 'string' && updateBlogInput.image) {
+    let image = null;
+    if (updateBlogInput.image) {
       const imageUpload = await imageUploader(updateBlogInput.image);
       image = imageUpload.image;
     }

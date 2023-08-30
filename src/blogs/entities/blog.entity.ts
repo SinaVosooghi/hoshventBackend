@@ -8,11 +8,13 @@ import {
   Entity,
   JoinTable,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import slugify from 'slugify';
 import { Site } from 'src/sites/entities/site.entity';
+import { Like } from 'src/likes/entities/like.entity';
 
 @ObjectType()
 @Entity()
@@ -92,6 +94,16 @@ export class Blog {
     nullable: true,
   })
   seotitle: string;
+
+  @OneToMany(() => Like, (like) => like.blog, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @Field(() => [Like], {
+    description: 'likes of the blog',
+    nullable: true,
+  })
+  likes: Like[];
 
   @CreateDateColumn({
     type: 'timestamp',

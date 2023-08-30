@@ -45,6 +45,9 @@ type Blog {
   """Image of the blog"""
   image: String
 
+  """likes of the blog"""
+  likes: [Like!]
+
   """Read time of the blog"""
   readtime: Float
 
@@ -321,8 +324,8 @@ input CreateBlogInput {
   """Featured of the blog"""
   featured: Boolean!
 
-  """Image of the blog"""
-  image: String
+  """Image of the Service"""
+  image: Upload
 
   """Read time of the blog"""
   readtime: Float
@@ -410,6 +413,7 @@ input CreateChatInput {
 
   """Can reply of the Chat"""
   repliable: Boolean
+  site: Float
   sms: Boolean
 
   """status of the Chat"""
@@ -443,6 +447,9 @@ input CreateContactInput {
   body: String!
   email: String
   name: String
+
+  """Site of the Event"""
+  siteid: Float
   subject: String!
 }
 
@@ -618,9 +625,23 @@ input CreateItemInput {
   quantity: Float!
 }
 
+input CreateLikeInput {
+  """Blog of the Like"""
+  blog: Float
+
+  """Course of the Like"""
+  course: Float
+
+  """Like of the Like"""
+  like: Boolean!
+
+  """Product of the Like"""
+  product: Float
+}
+
 input CreateMenuInput {
   link: String!
-  order: Float!
+  order: Float = 0
   status: Boolean
   title: String!
 }
@@ -1204,6 +1225,7 @@ input GetBlogsArgs {
   featured: Boolean
   limit: Float
   searchTerm: String
+  siteid: Float
   skip: Float!
   sort: String
   status: Boolean
@@ -1555,6 +1577,25 @@ The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](
 """
 scalar JSONObject
 
+type Like {
+  """ Course of the Favorite"""
+  blog: Blog
+  created: DateTime
+
+  """Id of the Favorite"""
+  id: Float!
+
+  """like of the Like"""
+  like: Boolean!
+
+  """ User of the Favorite"""
+  product: Product
+  updated: DateTime
+
+  """ User of the Favorite"""
+  user: User!
+}
+
 type Menu {
   created: DateTime
 
@@ -1563,7 +1604,7 @@ type Menu {
 
   """Link of the menu"""
   link: String
-  order: Float!
+  order: Float
 
   """Site of the menu"""
   site: Site
@@ -1620,6 +1661,7 @@ type Mutation {
   createInvoice(input: CreateInvoiceInput!): Invoice!
   createInvoiceChat(input: CreateChatInput!): Boolean!
   createItem(createItemInput: CreateItemInput!): Item!
+  createLike(input: CreateLikeInput!): Like!
   createMenu(input: CreateMenuInput!): Menu!
   createMessage(input: CreateMessageInput!): Message!
   createOrder(input: CreateOrderInput!): Order!
@@ -1635,6 +1677,7 @@ type Mutation {
   createSlider(input: CreateSliderInput!): Slider!
   createTimeline(input: CreateTimelineInput!): Timeline!
   createUser(input: CreateUserInput!): User!
+  createUserChatApi(input: CreateChatInput!): Boolean!
   createWorkshop(input: CreateWorkshopInput!): Workshop!
   doPayment(input: CreatePaymentInput!): String!
   login: User!
@@ -1652,6 +1695,7 @@ type Mutation {
   removeImage(id: Int!): Boolean!
   removeInvoice(id: Int!): Boolean!
   removeItem(id: Int!): Boolean!
+  removeLike(id: Int!): Like!
   removeMenu(id: Int!): Boolean!
   removeMessage(id: Int!): Message!
   removeOrder(id: Int!): Boolean!
@@ -1788,7 +1832,7 @@ type Payment {
   updated: DateTime
 
   """User of the payment"""
-  user: User!
+  user: User
 }
 
 type PaymentPaginate {
@@ -1954,6 +1998,8 @@ type Query {
   invoices(input: GetInvoicesArgs!): InvoicePaginate!
   item(id: Int!): Item!
   items: [Item!]!
+  like(id: Int!): Like!
+  likes: [Like!]!
   menu(id: Int!): Menu!
   menuApi(id: Int!): Menu!
   menus(input: GetMenusArgs!): MenuPaginate!
@@ -2369,8 +2415,8 @@ input UpdateBlogInput {
   featured: Boolean
   id: Int!
 
-  """Image of the blog"""
-  image: String
+  """Image of the Service"""
+  image: Upload
 
   """Read time of the blog"""
   readtime: Float
@@ -2452,6 +2498,9 @@ input UpdateContactInput {
   email: String
   id: Int!
   name: String
+
+  """Site of the Event"""
+  siteid: Float
   subject: String
 }
 
@@ -2636,7 +2685,7 @@ input UpdateItemInput {
 input UpdateMenuInput {
   id: Int!
   link: String
-  order: Float
+  order: Float = 0
   status: Boolean
   title: String
 }

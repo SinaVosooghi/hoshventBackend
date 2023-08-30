@@ -1,5 +1,4 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { FileUpload, GraphQLUpload } from 'graphql-upload';
 
 @InputType()
 export class CreateMenuInput {
@@ -9,7 +8,7 @@ export class CreateMenuInput {
   @Field(() => String)
   link: string;
 
-  @Field(() => Number)
+  @Field(() => Number, { defaultValue: 0, nullable: true })
   order: number;
 
   @Field(() => Boolean, {

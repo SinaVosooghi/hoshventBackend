@@ -15,6 +15,7 @@ import { Coupon } from 'src/coupons/entities/coupon.entity';
 import { CouponsModule } from 'src/coupons/coupons.module';
 import { UsersModule } from 'src/users/users.module';
 import { EventsModule } from 'src/events/events.module';
+import { ChatsModule } from 'src/chats/chats.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { EventsModule } from 'src/events/events.module';
     UsersModule,
     ItemsModule,
     EventsModule,
+    ChatsModule,
   ],
   providers: [InvoicesResolver, InvoicesService],
   exports: [InvoicesService],

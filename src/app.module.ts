@@ -39,6 +39,7 @@ import { AttendeesModule } from './atendees/atendees.module';
 import { PaymentModule } from './payment/payment.module';
 import { TimelinesModule } from './timelines/timelines.module';
 import { MailModule } from './mail/mail.module';
+import { LikesModule } from './likes/likes.module';
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import { MailModule } from './mail/mail.module';
     MenusModule,
     TimelinesModule,
     MailModule,
+    LikesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

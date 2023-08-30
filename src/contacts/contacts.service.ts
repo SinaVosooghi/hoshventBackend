@@ -25,6 +25,7 @@ export class ContactsService {
     const item = await this.contactRepository.create({
       ...createContactInput,
       ...(user && { site: { id: user.site[0]?.id } }),
+      ...(createContactInput.siteid && { site: createContactInput.siteid }),
     });
 
     try {

@@ -1,5 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { Category } from 'src/categories/entities/category.entity';
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
 
 @InputType()
 export class CreateBlogInput {
@@ -12,8 +13,11 @@ export class CreateBlogInput {
   @Field(() => Number, { description: 'Read time of the blog', nullable: true })
   readtime: number;
 
-  @Field(() => String, { description: 'Image of the blog', nullable: true })
-  image: string;
+  @Field(() => GraphQLUpload, {
+    description: 'Image of the Service',
+    nullable: true,
+  })
+  image: Promise<FileUpload>;
 
   @Field(() => Number, { description: 'Category of the blog' })
   category: Category;

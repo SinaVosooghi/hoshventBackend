@@ -23,4 +23,7 @@ export class GetBlogsArgs {
 
   @Field({ nullable: true })
   category: string;
+
+  @Field({ nullable: true })
+  siteid?: number;
 }

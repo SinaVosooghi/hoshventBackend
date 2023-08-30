@@ -67,4 +67,7 @@ export class CreateChatInput {
 
   @Field(() => Number, { nullable: true })
   category?: number;
+
+  @Field(() => Number, { nullable: true })
+  site?: number;
 }

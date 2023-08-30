@@ -10,7 +10,7 @@ export class CreateInvoiceInput {
   note: string;
 
   @Field(() => String, { description: 'Type of the invoice' })
-  type: 'shop' | 'course';
+  type: 'shop' | 'course' | 'event';
 
   @Field(() => Boolean, { description: 'Payment has been done of the invoice' })
   donepayment: boolean;

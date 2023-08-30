@@ -69,7 +69,7 @@ export class Payment {
   statusCode: string;
 
   @ManyToOne(() => User, (user) => user.id, { nullable: true })
-  @Field(() => User, { description: 'User of the payment' })
+  @Field(() => User, { description: 'User of the payment', nullable: true })
   user: User;
 
   @ManyToOne(() => Event, (event) => event.id, {

@@ -21,6 +21,8 @@ import { UpdateInvoiceInput } from './dto/update-invoice.input';
 import { Invoice } from './entities/invoice.entity';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { EventsService } from 'src/events/events.service';
+import { ChatsService } from 'src/chats/chats.service';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class InvoicesService {
@@ -34,13 +36,16 @@ export class InvoicesService {
     @InjectRepository(Product)
     private readonly settingService: SettingsService,
     private readonly couponService: CouponsService,
-    private readonly eventsService: EventsService,
+    private readonly chatService: ChatsService,
     private readonly shippingService: ShippingsService,
     private readonly itemService: ItemsService,
     private readonly orderService: OrdersService,
   ) {}
 
-  async create(createInvoiceInput: CreateInvoiceInput): Promise<Invoice> {
+  async create(
+    createInvoiceInput: CreateInvoiceInput,
+    user: User,
+  ): Promise<Invoice> {
     const setting = await this.settingRepository.find({
       skip: 0,
       take: 1,
@@ -115,6 +120,30 @@ export class InvoicesService {
       order: order,
       coupon,
     });
+
+    await this.chatService.createInvoice(
+      {
+        priority: 'high',
+        type: 'invoice',
+        from: user,
+        to: [createInvoiceInput.user],
+        subject: 'فاکتور',
+        invoice: item,
+        sms: true,
+        email: true,
+        repliable: true,
+        closed: false,
+        body: `فاکتور شماه #${item.invoicenumber}<br>
+          مبلغ: ${item.total} تومان <br>
+          ${item.type === 'event' ? 'رویداد' : 'فروشگاه'}<br>
+          صادر شد
+        `,
+        status: true,
+        system: true,
+        department: null,
+      },
+      user,
+    );
 
     try {
       return await this.invoiceRepository.save(item);

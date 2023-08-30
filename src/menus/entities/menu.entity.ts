@@ -26,8 +26,8 @@ export class Menu {
   @Field(() => String, { description: 'Link of the menu', nullable: true })
   link: string;
 
-  @Column({ default: 0 })
-  @Field(() => Number)
+  @Column({ default: 0, nullable: true })
+  @Field(() => Number, { nullable: true, defaultValue: 0 })
   order: number;
 
   @Column({ default: true })

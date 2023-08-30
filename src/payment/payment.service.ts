@@ -86,7 +86,7 @@ export class PaymentService {
       amount = amount - (amount * coupon.percent) / 100;
     }
 
-    const payment = new HandlePayment(this.invoicesService);
+    const payment = new HandlePayment(this.invoicesService, user);
 
     charge = await payment.shopPayment({
       amount,
@@ -177,6 +177,7 @@ export class PaymentService {
   async findOne(id: number): Promise<Payment> {
     const payment = await this.paymentRepository.findOne({
       where: { id: id },
+      relations: ['user', 'event'],
     });
     if (!payment) {
       throw new NotFoundException(`Payment #${id} not found`);

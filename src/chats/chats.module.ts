@@ -17,5 +17,6 @@ import { SitesModule } from 'src/sites/sites.module';
     SitesModule,
   ],
   providers: [ChatsResolver, ChatsService, ChatsApiResolver],
+  exports: [ChatsService],
 })
 export class ChatsModule {}

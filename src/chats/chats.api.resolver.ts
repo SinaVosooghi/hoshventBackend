@@ -22,6 +22,15 @@ export class ChatsApiResolver {
     return this.chatsService.create(createChatInput, user);
   }
 
+  @Mutation(() => Boolean, { name: 'createUserChatApi' })
+  @UseGuards(GqlAuthGuard)
+  createUserChat(
+    @CurrentUser() user: User,
+    @Args('input') createChatInput: CreateChatInput,
+  ) {
+    return this.chatsService.createUserChat(createChatInput, user);
+  }
+
   @Query(() => ChatPaginate, { name: 'chatsApi' })
   @UseGuards(GqlAuthGuard)
   findAll(

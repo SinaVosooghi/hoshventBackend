@@ -100,23 +100,21 @@ export class ChatsService {
             );
           }
 
-          if (createChatInput.system) {
-            const item = await this.chatRepository.create({
-              ...createChatInput,
-              to: userItem,
-              from: user,
-              ...(user && { site: { id: user.site[0]?.id } }),
-            });
-            const chat = await this.chatRepository.save(item);
+          const item = await this.chatRepository.create({
+            ...createChatInput,
+            to: userItem,
+            from: user,
+            ...(user && { site: { id: user.site[0]?.id } }),
+          });
+          const chat = await this.chatRepository.save(item);
 
-            this.messageService.create(
-              {
-                chat: chat,
-                body: createChatInput.body,
-              },
-              user,
-            );
-          }
+          this.messageService.create(
+            {
+              chat: chat,
+              body: createChatInput.body,
+            },
+            user,
+          );
         });
       } else {
         const users = await this.useRepo.find({
@@ -159,6 +157,37 @@ export class ChatsService {
           });
         }
       }
+
+      return true;
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('Duplicate error');
+      }
+    }
+  }
+
+  async createUserChat(
+    createChatInput: CreateChatInput,
+    user: User,
+  ): Promise<boolean> {
+    const site = await this.sitesService.findOne(createChatInput.site);
+
+    try {
+      const item = await this.chatRepository.create({
+        ...createChatInput,
+        to: site.user,
+        from: user,
+        site,
+      });
+      const chat = await this.chatRepository.save(item);
+
+      this.messageService.create(
+        {
+          chat: chat,
+          body: createChatInput.body,
+        },
+        user,
+      );
 
       return true;
     } catch (err) {

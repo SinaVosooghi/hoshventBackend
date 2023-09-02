@@ -4,96 +4,83 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import * as ZarinPalCheckout from 'zarinpal-checkout';
 import { Payment } from './entities/payment.entity';
-import { Event } from 'src/events/entities/event.entity';
 import { CreatePaymentInput } from './dto/create-payment.input';
 import { VerificationInput } from './dto/verification.input';
-import { sendSMS } from 'src/utils/sendSMS';
-import { User } from 'src/users/entities/user.entity';
 import { SettingsService } from 'src/settings/settings.service';
-import { InvoicesService } from 'src/invoices/invoices.service';
-import { CouponsService } from 'src/coupons/coupons.service';
 import { AttendeesService } from 'src/atendees/atendees.service';
 import { MailService } from 'src/mail/mail.service';
+import { Event } from 'src/events/entities/event.entity';
+import { EventsService } from 'src/events/events.service';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { CouponsService } from 'src/coupons/coupons.service';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class PaymentWebService {
   constructor(
-    @InjectRepository(Event)
-    private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Attendee)
+    private readonly attendeeRepository: Repository<Attendee>,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
     private readonly settingService: SettingsService,
     private readonly attendeeService: AttendeesService,
     private readonly mailService: MailService,
+    private readonly eventService: EventsService,
+    private readonly couponService: CouponsService,
   ) {}
 
   async doPayment(input: CreatePaymentInput, user: User) {
     const zarinpal = ZarinPalCheckout.create(
       'a20335fe-fb44-11e9-8f7a-000c295eb8fc',
-      true,
+      false,
     );
 
     const setting = await this.settingService.findOne();
     let amount;
     let charge;
-    let coupon;
 
-    const productIds = input.products.map((i) => i.id);
-    const events = await this.eventRepository.find({
-      where: { id: In(productIds) },
-    });
+    const event = await this.eventService.findOne(input.event);
+    const coupon = await this.couponService.findOne(input.coupon);
 
-    const newArray = events.map((p) => {
-      return {
-        id: p.id,
-        product: p.id,
-        price: p.price,
-        quantity: input.products.find((r) => r.id == p.id).qty,
-      };
-    });
+    const total = event.offprice ?? event.price;
 
-    let total = 0;
-    total = Math.ceil(
-      newArray
-        ?.map((item: any) => item?.price * item.quantity)
-        .reduce((prev: any, curr: any) => prev + curr, 0),
-    );
-
-    amount = setting?.tax
-      ? Math.round(setting?.tax * total) / 100 + total
-      : total;
+    if (setting.tax) {
+      // @ts-ignore
+      amount = Math.round(setting?.tax * total) / 100 + parseFloat(total);
+    } else {
+      amount = total;
+    }
 
     if (input.coupon) {
-      amount = amount - (amount * coupon.percent) / 100;
+      const discountPrice = (amount * coupon.percent) / 100;
+      amount = amount - discountPrice;
     }
 
     const { url, status, authority } = await zarinpal.PaymentRequest({
       Amount: amount, // In Tomans
-      CallbackURL: `${input.host}/validate`,
-      Description: 'پرداخت',
+      CallbackURL: `${process.env.FRONTEND_URL}/validate`,
+      Description: `خرید رویداد ${event.title}`,
       Email: '',
       Mobile: '',
     });
 
     if (status === 100) {
-      const p = await this.paymentRepository.create({
-        ...input,
-        authority,
-        event: { id: input.event },
-        statusCode: status,
-        user,
-      });
-      await this.paymentRepository.save(p);
-
-      newArray.map(async (event: any) => {
-        await this.attendeeService.create({
-          user: user,
-          status: true,
-          event: event,
-          site: input.site,
+      const buyEvent = await this.eventService.buyEvent({ id: event.id }, user);
+      if (buyEvent) {
+        const p = await this.paymentRepository.create({
+          ...input,
+          authority,
+          event: { id: input.event },
+          statusCode: status,
+          user,
+          amount,
         });
-      });
-      return url;
+        await this.paymentRepository.save(p);
+
+        return url;
+      } else {
+        return false;
+      }
     } else {
       const p = await this.paymentRepository.create({
         ...input,
@@ -101,16 +88,18 @@ export class PaymentWebService {
         authority,
         event: { id: input.event },
         user,
+        amount,
       });
       await this.paymentRepository.save(p);
     }
+
     return false;
   }
 
   async verify(input: VerificationInput) {
     const zarinpal = ZarinPalCheckout.create(
       'a20335fe-fb44-11e9-8f7a-000c295eb8fc',
-      true,
+      false,
     );
 
     const paymentRecord = await this.paymentRepository.findOne({
@@ -124,19 +113,27 @@ export class PaymentWebService {
       throw new NotFoundException();
     }
 
-
     const { status, RefID } = await zarinpal.PaymentVerification({
       Amount: paymentRecord.amount, // In Tomans
       Authority: input.authority,
     });
 
-    if (status === -21) {
+    if (status !== 100) {
       await this.paymentRepository
         .createQueryBuilder('payment')
         .update({ statusCode: '-21' })
         .where({ id: paymentRecord.id })
         .returning('*')
         .execute();
+
+      const attendee = await this.attendeeRepository.findOne({
+        where: {
+          event: { id: paymentRecord.event.id },
+          user: { id: paymentRecord.user.id },
+        },
+      });
+
+      await this.attendeeRepository.remove(attendee);
 
       throw new Error('خطا در تراکنش');
     }
@@ -155,27 +152,6 @@ export class PaymentWebService {
         .where({ id: paymentRecord.id })
         .returning('*')
         .execute();
-
-      paymentRecord.products.map(async (product) => {
-        const event = await this.eventRepository.findOne({
-          where: { id: product?.id },
-          relations: ['site'],
-        });
-
-        const message = `${paymentRecord.user?.firstName} ${paymentRecord.user?.lastName} گرامی،
-        ثبت نام شما در رویداد ${product?.title} با موفقیت انجام شد. به جمع ما خوش آمدید! به امید دیدار شما
-       https://${event?.site?.domain}/scan/${paymentRecord?.user.id}/${product?.id}`;
-        await sendSMS({
-          to: paymentRecord.user.mobilenumber,
-          message,
-        });
-
-        await this.mailService.sendCustom(
-          paymentRecord.user,
-          message,
-          'خرید با موفقیت انجام شد',
-        );
-      });
 
       return true;
     }

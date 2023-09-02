@@ -13,6 +13,8 @@ import { Event } from './entities/event.entity';
 import { imageUploader } from 'src/utils/imageUploader';
 import { fileUploader } from 'src/utils/fileUploader';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { BuyEventInput } from './dto/buy-event.input';
+import { AttendeesService } from 'src/atendees/atendees.service';
 
 @Injectable()
 export class EventsService {
@@ -21,6 +23,7 @@ export class EventsService {
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(Attendee)
     private readonly attendeeRepository: Repository<Attendee>,
+    private readonly attendeeService: AttendeesService,
   ) {}
 
   async create(createEventInput: CreateEventInput, user: User): Promise<Event> {
@@ -186,5 +189,46 @@ export class EventsService {
     });
 
     return { attends: result, count: total };
+  }
+
+  async checkOne(id: number, user: User) {
+    // Check course
+    const event = await this.eventRepository.findOne({
+      where: { id: id },
+      relations: ['attendees'],
+    });
+
+    const foundAttendee = await this.attendeeRepository.findOne({
+      where: { user: { id: user.id }, event: { id: event.id } },
+    });
+
+    if (!event) {
+      throw new NotFoundException(`Event #${id} not found`);
+    }
+
+    return {
+      alreadyBought: foundAttendee ? true : false,
+      outOfCapacity: event.attendees.length >= event.capacity,
+    };
+  }
+
+  async buyEvent({ id }: BuyEventInput, user: User) {
+    if (!id) return false;
+    const foundAttendee = await this.checkOne(id, user);
+
+    if (foundAttendee.alreadyBought) throw new Error('Already added');
+
+    const event = await this.eventRepository.findOne({
+      where: { id: id },
+    });
+
+    await this.attendeeService.create({
+      user: user,
+      status: true,
+      event,
+      site: user?.site[0]?.id,
+    });
+
+    return true;
   }
 }

@@ -1142,6 +1142,9 @@ type DepartmentPaginate {
 }
 
 type Event {
+  """Attendee of the section"""
+  attendees: [Attendee!]
+
   """body of the blog"""
   body: String!
 

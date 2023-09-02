@@ -18,24 +18,6 @@ async function bootstrap() {
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
   app.use(cookieParser());
-  app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:4000',
-      'http://localhost:4040',
-      'http://localhost:3030',
-      'https://hoshvent.com',
-      'https://admin.hoshvent.com',
-      'https://hoshvent.com/',
-      'https://admin.hoshvent.com/',
-      'http://hoshvent.com/',
-      'http://admin.hoshvent.com/',
-      'https://office.hoshvent.com',
-      'https://office.hoshvent.com/',
-      'htts://office.hoshvent.com/',
-    ],
-  });
-
   await app.listen(port);
   Logger.log(`🚀 Server running on http://localhost:${port}`, 'Bootstrap');
 }

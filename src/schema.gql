@@ -534,7 +534,7 @@ input CreateEventInput {
   seotitle: String
 
   """Site of the Event"""
-  site: Float!
+  site: Float
 
   """Slug of the Event"""
   slug: String!

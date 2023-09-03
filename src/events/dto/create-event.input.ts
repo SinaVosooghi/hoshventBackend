@@ -37,7 +37,7 @@ export class CreateEventInput {
   })
   duration?: string;
 
-  @Field(() => Number, { description: 'Site of the Event' })
+  @Field(() => Number, { description: 'Site of the Event', nullable: true })
   site: Site;
 
   @Field(() => Number, { description: 'Site of the Event' })

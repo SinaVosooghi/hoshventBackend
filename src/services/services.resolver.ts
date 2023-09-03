@@ -29,7 +29,7 @@ export class ServicesResolver {
     @Args('input') getServicesArgs: GetServicesArgs,
     @CurrentUser() user: User,
   ) {
-    return this.servicesService.findAll(getServicesArgs);
+    return this.servicesService.findAll(getServicesArgs, user);
   }
 
   @Query(() => Service, { name: 'service' })

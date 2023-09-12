@@ -15,6 +15,7 @@ import { Event } from 'src/events/entities/event.entity';
 import { AttendeesModule } from 'src/atendees/atendees.module';
 import { PaymentWebService } from './payment.web.service';
 import { MailModule } from 'src/mail/mail.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MailModule } from 'src/mail/mail.module';
     CouponsModule,
     AttendeesModule,
     MailModule,
+    HttpModule,
   ],
   providers: [
     PaymentResolver,

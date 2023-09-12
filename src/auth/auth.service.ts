@@ -8,6 +8,8 @@ import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { sendSMS } from 'src/utils/sendSMS';
 import { MailService } from 'src/mail/mail.service';
+import { registerFieldsType } from 'src/sites/entities/site.entity';
+import { SitesService } from 'src/sites/sites.service';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +19,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly siteService: SitesService,
   ) {}
 
   async validate(email: string, password: string): Promise<User> {
@@ -76,21 +79,21 @@ export class AuthService {
 
     await this.userService.updateUserToken(user.id, AT);
 
-    if (user.usertype === 'tenant' || user.usertype === 'user') {
-      const message = `${user.firstName} ${user.lastName} گرامی،
-      با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
-      https://hoshvent.com`;
-      await sendSMS({
-        to: user.mobilenumber,
-        message,
-      });
+    // if (user.usertype === 'tenant' || user.usertype === 'user') {
+    //   const message = `${user.firstName} ${user.lastName} گرامی،
+    //   با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
+    //   https://hoshvent.com`;
+    //   await sendSMS({
+    //     to: user.mobilenumber,
+    //     message,
+    //   });
 
-      await this.mailService.sendCustom(
-        user,
-        message,
-        'به سرویس رویداد خوش آمدید',
-      );
-    }
+    //   await this.mailService.sendCustom(
+    //     user,
+    //     message,
+    //     'به سرویس رویداد خوش آمدید',
+    //   );
+    // }
 
     return {
       type: user.usertype,
@@ -111,6 +114,9 @@ export class AuthService {
     uid: number;
     site: any;
   }> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const site = await this.siteService.findOne(parseInt(user.siteid));
     const userWithEmail = await this.userRepository.findOneBy({
       email: user.email,
     });
@@ -147,7 +153,8 @@ export class AuthService {
       about: '',
       status: true,
       phonenumber: 0,
-      site: user.siteid,
+      siteid: site,
+      registerFields: user.registerFields,
     });
 
     const payload = {

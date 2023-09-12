@@ -231,4 +231,13 @@ export class EventsService {
 
     return true;
   }
+
+  async checkBuyEvent({ id }: BuyEventInput, user: User) {
+    if (!id) return false;
+    const foundAttendee = await this.checkOne(id, user);
+
+    if (foundAttendee.alreadyBought) throw new Error('Already added');
+
+    return true;
+  }
 }

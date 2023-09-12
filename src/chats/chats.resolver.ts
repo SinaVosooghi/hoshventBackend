@@ -19,7 +19,6 @@ export class ChatsResolver {
     @CurrentUser() user: User,
     @Args('input') createChatInput: CreateChatInput,
   ) {
-    console.log(user);
     return this.chatsService.create(createChatInput, user);
   }
 

@@ -28,6 +28,7 @@ export class ServicesService {
   ): Promise<Service> {
     let image = null;
     let events = [];
+
     if (createServiceInput.image) {
       const imageUpload = await imageUploader(createServiceInput.image);
       image = imageUpload.image;

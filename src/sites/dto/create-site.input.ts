@@ -3,6 +3,8 @@ import { Category } from 'src/categories/entities/category.entity';
 import { Plan } from 'src/plans/entities/plan.entity';
 import { User } from 'src/users/entities/user.entity';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
+import { GraphQLJSONObject } from 'graphql-type-json';
+import { registerFieldsType } from '../entities/site.entity';
 
 @InputType()
 export class CreateSiteInput {
@@ -127,4 +129,7 @@ export class CreateSiteInput {
 
   @Field(() => Number, { nullable: true })
   user: User;
+
+  @Field(() => [GraphQLJSONObject], { nullable: true })
+  registerFields?: registerFieldsType[];
 }

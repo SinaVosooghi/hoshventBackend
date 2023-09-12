@@ -50,6 +50,9 @@ export class CreateSettingInput {
   about: string;
 
   @Field({ nullable: true })
+  homeabout: string;
+
+  @Field({ nullable: true })
   contact: string;
 
   @Field({ nullable: true })

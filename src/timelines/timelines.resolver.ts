@@ -11,6 +11,7 @@ import { Attendee } from 'src/atendees/entities/attendee.entity';
 import { GetTimelinsArgs } from './dto/get-items.args';
 import { TimelinePaginate } from './entities/timelinePagintate';
 import { Bulkaction } from './dto/bulk-action';
+import { GetUserTimelineArgs } from './dto/get-user.args';
 
 @Resolver(() => Timeline)
 export class TimelinesResolver {
@@ -41,8 +42,12 @@ export class TimelinesResolver {
   }
 
   @Query(() => Attendee, { name: 'timeline' })
-  findOne(@Args('url', { type: () => String }) url: string) {
-    return this.timelinesService.findOne(url);
+  @UseGuards(GqlAuthGuard)
+  findOne(
+    @Args('input') getTimelinsArgs: GetUserTimelineArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.timelinesService.findOne(getTimelinsArgs, user);
   }
 
   @Mutation(() => Boolean, { name: 'checkin' })

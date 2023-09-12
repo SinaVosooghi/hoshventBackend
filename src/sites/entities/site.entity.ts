@@ -13,6 +13,20 @@ import {
 } from 'typeorm';
 
 @ObjectType()
+export class registerFieldsType {
+  @Field(() => Number, { nullable: true })
+  order: number;
+
+  @Field(() => String, { nullable: true })
+  title: string;
+
+  @Field(() => String, { nullable: true })
+  type: string;
+
+  @Field(() => String, { nullable: true })
+  value: string;
+}
+@ObjectType()
 @Entity()
 export class Site {
   @PrimaryGeneratedColumn({
@@ -193,4 +207,11 @@ export class Site {
   })
   @Field(() => Date, { nullable: true })
   updated: Date;
+
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+  })
+  @Field(() => [registerFieldsType], { nullable: true })
+  registerFields: [registerFieldsType];
 }

@@ -16,6 +16,6 @@ export class UserApiResolver {
     @Args('input') updateUserInput: UpdateUserInput,
     @CurrentUser() user: User,
   ) {
-    return this.userService.updateApi(updateUserInput, user);
+    return this.userService.updateApi(updateUserInput);
   }
 }

@@ -46,7 +46,10 @@ export class PaymentApiResolver {
   }
 
   @Mutation(() => Boolean, { name: 'verification' })
-  async verification(@Args('input') verificationInput: VerificationInput) {
-    return await this.paymentWebService.verify(verificationInput);
+  async verification(
+    @Args('input') verificationInput: VerificationInput,
+    @CurrentUser() user: User,
+  ) {
+    return await this.paymentWebService.verify(verificationInput, user);
   }
 }

@@ -27,4 +27,7 @@ export class GetChatsArgs {
 
   @Field({ nullable: true })
   searchTerm?: string;
+
+  @Field({ nullable: true })
+  siteid?: number;
 }

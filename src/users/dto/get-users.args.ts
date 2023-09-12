@@ -23,4 +23,7 @@ export class GetUsersApiArgs {
 
   @Field({ nullable: true })
   status?: boolean;
+
+  @Field({ nullable: true })
+  siteid?: number;
 }

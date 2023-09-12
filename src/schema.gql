@@ -885,6 +885,7 @@ input CreateSettingInput {
   facebook: String
   faq: String
   favicon: String
+  homeabout: String
   instagram: String
   keywords: String
   linkedin: String
@@ -959,6 +960,7 @@ input CreateSiteInput {
   """Plan of the Site"""
   plan: Float
   port: Float!
+  registerFields: [JSONObject!]
 
   """Body SEO of the Site"""
   seobody: String
@@ -1042,12 +1044,14 @@ input CreateUserInput {
 
   """Postalcode of the user"""
   postalcode: String
+  registerFields: JSONObject
 
   """role of the user"""
   role: Float
+  seminars: [Float!]
 
   """Site of the user"""
-  site: Float
+  siteid: Float
 
   """status of the user"""
   status: Boolean
@@ -1057,6 +1061,7 @@ input CreateUserInput {
 
   """type of the user"""
   usertype: String!
+  workshops: [Float!]
 }
 
 input CreateWorkshopInput {
@@ -1258,6 +1263,7 @@ input GetChatsArgs {
   limit: Float
   priority: String
   searchTerm: String
+  siteid: Float
   skip: Float!
   sms: Boolean
   status: Boolean
@@ -1321,6 +1327,7 @@ input GetHallsArgs {
 input GetInvoicesArgs {
   limit: Float
   searchTerm: String
+  siteid: Float
   skip: Float!
   status: Boolean
   type: String
@@ -1442,11 +1449,19 @@ input GetTimelinsArgs {
   workshop: Float
 }
 
+input GetUserTimelineArgs {
+  checkin: Boolean
+  seminar: String
+  url: String
+  workshop: String
+}
+
 input GetUsersApiArgs {
   category: Float
   limit: Float
   role: Float
   searchTerm: String
+  siteid: Float
   skip: Float!
   status: Boolean
   usertype: String
@@ -2040,7 +2055,7 @@ type Query {
   sliders(input: GetSlidersArgs!): SliderPaginate!
   slidersApi(input: GetSlidersArgs!): SliderPaginate!
   teacherPaymentsApi(input: GetPaymentsArgs!): PaymentPaginate!
-  timeline(url: String!): Attendee!
+  timeline(input: GetUserTimelineArgs!): Attendee!
   timelines(input: GetTimelinsArgs!): TimelinePaginate!
   user(id: Int!): User!
   userEventsApi(input: GetEventsArgs!): AttendeePaginate!
@@ -2205,6 +2220,7 @@ type Setting {
   facebook: String
   faq: String
   favicon: String
+  homeabout: String
 
   """Id of the Setting"""
   id: Float!
@@ -2297,6 +2313,7 @@ type Site {
 
   """Port of the Site"""
   port: Float!
+  registerFields: [registerFieldsType!]
 
   """Body SEO of the Site"""
   seobody: String
@@ -2940,6 +2957,7 @@ input UpdateSettingInput {
   facebook: String
   faq: String
   favicon: String
+  homeabout: String
   instagram: String
   keywords: String
   linkedin: String
@@ -3016,6 +3034,7 @@ input UpdateSiteInput {
   """Plan of the Site"""
   plan: Float
   port: Float
+  registerFields: [JSONObject!]
 
   """Body SEO of the Site"""
   seobody: String
@@ -3103,12 +3122,14 @@ input UpdateUserInput {
 
   """Postalcode of the user"""
   postalcode: String
+  registerFields: JSONObject
 
   """role of the user"""
   role: Float
+  seminars: [Float!]
 
   """Site of the user"""
-  site: Float
+  siteid: Float
 
   """status of the user"""
   status: Boolean
@@ -3118,6 +3139,7 @@ input UpdateUserInput {
 
   """type of the user"""
   usertype: String
+  workshops: [Float!]
 }
 
 input UpdateWorkshopInput {
@@ -3219,9 +3241,11 @@ type User {
 
   """postalcode of the user"""
   postalcode: String
+  registerFields: JSONObject
 
   """Role of the user"""
   role: Role
+  seminars: [Seminar!]
 
   """Site of the user"""
   site: [Site!]
@@ -3241,6 +3265,7 @@ type User {
 
   """Type of the user"""
   usertype: String
+  workshops: [Workshop!]
 }
 
 type UserPaginate {
@@ -3326,4 +3351,11 @@ type productOptions {
   id: Float
   qty: Float
   title: String
+}
+
+type registerFieldsType {
+  order: Float
+  title: String
+  type: String
+  value: String
 }

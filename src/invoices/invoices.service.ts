@@ -154,11 +154,12 @@ export class InvoicesService {
     }
   }
 
-  async findAll({ skip, limit, searchTerm, type }: GetInvoicesArgs) {
+  async findAll({ skip, limit, searchTerm, type, siteid }: GetInvoicesArgs) {
     const [result, total] = await this.invoiceRepository.findAndCount({
       where: {
         invoicenumber: searchTerm ? parseInt(searchTerm) : null,
         type: type,
+        ...(siteid && { site: { id: siteid } }),
       },
       relations: ['user', 'order'],
       order: { id: 'DESC' },

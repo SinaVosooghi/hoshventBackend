@@ -11,6 +11,7 @@ import { AuthController } from './auth.controller';
 import { User } from 'src/users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailModule } from 'src/mail/mail.module';
+import { SitesModule } from 'src/sites/sites.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MailModule } from 'src/mail/mail.module';
       signOptions: { expiresIn: '120m' },
     }),
     MailModule,
+    SitesModule,
   ],
   providers: [AuthService, AuthResolver, JwtStrategy, LocalStrategy],
   controllers: [AuthController],

@@ -78,6 +78,10 @@ export class Setting {
 
   @Column({ nullable: true })
   @Field({ nullable: true })
+  homeabout: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
   tax: number;
 
   @Column({ nullable: true })

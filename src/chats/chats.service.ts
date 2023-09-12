@@ -243,6 +243,7 @@ export class ChatsService {
       priority,
       department,
       sms,
+      siteid,
     }: GetChatsArgs,
     user: User,
   ) {
@@ -254,6 +255,7 @@ export class ChatsService {
         priority: priority ?? null,
         department: department ? { id: department } : null,
         ...(user && { site: { id: user.site[0]?.id } }),
+        ...(siteid && { site: { id: siteid } }),
         ...(sms && { sms: true }),
       },
       relations: ['messages', 'from', 'messages.user', 'invoice', 'department'],

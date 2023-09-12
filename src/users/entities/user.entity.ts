@@ -3,6 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -10,9 +12,12 @@ import {
 } from 'typeorm';
 import { ObjectType, Field } from '@nestjs/graphql';
 import { Role } from 'src/roles/entities/role.entity';
-import { Site } from 'src/sites/entities/site.entity';
+import { Site, registerFieldsType } from 'src/sites/entities/site.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Timeline } from 'src/timelines/entities/timeline.entity';
+import { Seminar } from 'src/seminars/entities/seminar.entity';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @ObjectType()
 @Entity()
@@ -23,7 +28,7 @@ export class User {
   @Field(() => Number, { description: 'Id of the user' })
   id: number;
 
-  @Column({ unique: true, nullable: true })
+  @Column({ nullable: true })
   @Field(() => String, { description: 'Username of the user', nullable: true })
   username: string;
 
@@ -118,10 +123,11 @@ export class User {
   })
   site: Site;
 
-  @OneToMany(() => Timeline, (timeline) => timeline.scannedby, { nullable: true })
+  @OneToMany(() => Timeline, (timeline) => timeline.scannedby, {
+    nullable: true,
+  })
   @Field(() => [Timeline], { description: 'Message of chats', nullable: true })
   timelines: Timeline[];
-
 
   @ManyToOne(() => Site, (site) => site.id, {
     onDelete: 'SET NULL',
@@ -148,4 +154,25 @@ export class User {
   })
   @Field(() => Date, { nullable: true })
   updated: Date;
+
+  @ManyToMany(() => Seminar)
+  @JoinTable()
+  @Field(() => [Seminar], {
+    nullable: true,
+  })
+  seminars?: Seminar[];
+
+  @ManyToMany(() => Workshop)
+  @JoinTable()
+  @Field(() => [Workshop], {
+    nullable: true,
+  })
+  workshops?: Workshop[];
+
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+  })
+  @Field(() => GraphQLJSONObject, { nullable: true })
+  registerFields: registerFieldsType;
 }

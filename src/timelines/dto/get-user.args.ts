@@ -2,22 +2,16 @@ import { ArgsType, Field, InputType } from '@nestjs/graphql';
 
 @ArgsType()
 @InputType()
-export class GetInvoicesArgs {
+export class GetUserTimelineArgs {
   @Field({ nullable: true })
-  limit: number;
-
-  @Field()
-  skip: number;
+  url: string;
 
   @Field({ nullable: true })
-  type: 'course' | 'shop';
+  workshop?: string;
 
   @Field({ nullable: true })
-  status: boolean;
+  seminar?: string;
 
   @Field({ nullable: true })
-  searchTerm?: string;
-
-  @Field({ nullable: true })
-  siteid?: number;
+  checkin?: boolean;
 }

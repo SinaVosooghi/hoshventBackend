@@ -16,6 +16,7 @@ import { time } from 'console';
 import { GetTimelinsArgs } from './dto/get-items.args';
 import * as moment from 'moment';
 import { Bulkaction } from './dto/bulk-action';
+import { GetUserTimelineArgs } from './dto/get-user.args';
 
 @Injectable()
 export class TimelinesService {
@@ -27,9 +28,6 @@ export class TimelinesService {
   ) {}
 
   async create(createTimelineInput: CreateTimelineInput, user: User) {
-    console.log(createTimelineInput.url);
-    const sliders = await this.timelimeRepository.findOneBy({ id: 1 });
-
     const item = await this.timelimeRepository.create({
       ...createTimelineInput,
       scannedby: user,
@@ -140,7 +138,10 @@ export class TimelinesService {
     return { timelines: result, count: total, total: totalTime };
   }
 
-  async findOne(url: string) {
+  async findOne(
+    { url, seminar, workshop, checkin }: GetUserTimelineArgs,
+    user: User,
+  ) {
     const params = new URLSearchParams(url);
     const userId = parseInt(params.get('u'));
     const eventId = parseInt(params.get('e'));
@@ -163,6 +164,24 @@ export class TimelinesService {
 
     if (!attendee) {
       throw new NotFoundException(`Event #${url} not found`);
+    }
+
+    const id = seminar ?? workshop;
+
+    if (checkin) {
+      await this.checkin(
+        attendee.id,
+        parseInt(id),
+        seminar ? 'seminar' : 'workshop',
+        user,
+      );
+    } else {
+      await this.checkout(
+        attendee.id,
+        parseInt(id),
+        seminar ? 'seminar' : 'workshop',
+        user,
+      );
     }
 
     try {

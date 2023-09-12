@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { User } from './entities/user.entity';
@@ -19,20 +19,25 @@ import { parse } from 'papaparse';
 import { UploadUsersPdfInput } from './dto/upload-pdf.input';
 import { csvUploader } from 'src/utils/csvUploader';
 import { readFileSync } from 'fs';
-import { Category } from 'src/categories/entities/category.entity';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
+import { Seminar } from 'src/seminars/entities/seminar.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Category)
-    private readonly categoryModel: Repository<Category>,
+    @InjectRepository(Seminar)
+    private readonly seminarsRepo: Repository<Seminar>,
+    @InjectRepository(Workshop)
+    private readonly workshopRepo: Repository<Workshop>,
   ) {}
 
   async create(input: CreateUserInput, user?: User): Promise<User> {
     const userObject = input;
     let avatar = null;
+    let seminars = [];
+    let workshops = [];
 
     if (input.avatar) {
       const imageUpload = await imageUploader(input.avatar);
@@ -45,9 +50,24 @@ export class UsersService {
       userObject.password = hash;
     }
 
+    if (input.seminars?.length) {
+      seminars = await this.seminarsRepo.findBy({
+        id: In(input.seminars),
+      });
+    }
+
+    if (input.workshops?.length) {
+      workshops = await this.workshopRepo.findBy({
+        id: In(input.workshops),
+      });
+    }
+
     const userItem = this.userRepository.create({
       ...userObject,
       avatar,
+      workshops,
+      seminars,
+      username: input.email,
       ...(user && { siteid: { id: user.site[0]?.id } }),
     });
 
@@ -69,6 +89,7 @@ export class UsersService {
       status,
       usertype,
       category,
+      siteid,
     }: GetUsersApiArgs,
     user: User,
   ) {
@@ -82,6 +103,7 @@ export class UsersService {
         usertype,
         ...(category && { category: { id: category } }),
         ...(user && { siteid: { id: user.site[0]?.id } }),
+        ...(siteid && { site: { id: siteid } }),
       },
       relations: ['role', 'category'],
       order: { id: 'DESC' },
@@ -95,64 +117,153 @@ export class UsersService {
   async findOne(id: number): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: id },
-      relations: ['role', 'site', 'category', 'site.plan'],
+      relations: [
+        'role',
+        'site',
+        'category',
+        'site.plan',
+        'workshops',
+        'seminars',
+      ],
     });
 
     if (!user) {
       throw new NotFoundException(`User #${id} not found`);
     }
+
+    console.log(user);
+
     return user;
   }
 
   async update(id: number, updateUserInput: UpdateUserInput): Promise<User> {
-    const userObject = updateUserInput;
+    const serviceItem = await this.userRepository.findOne({
+      where: { id: updateUserInput.id },
+      relations: ['workshops', 'seminars'],
+    });
+    let image: any = updateUserInput.avatar;
 
-    let avatar = null;
+    const avatar = null;
+    let seminars = [];
+    let workshops = [];
 
-    if (updateUserInput.avatar) {
+    if (typeof updateUserInput.avatar !== 'string' && updateUserInput.avatar) {
       const imageUpload = await imageUploader(updateUserInput.avatar);
-      avatar = imageUpload.image;
+      image = imageUpload.image;
     }
-    if (updateUserInput.password) {
-      const saltOrRounds = 10;
-      const hash = await bcrypt.hash(updateUserInput.password, saltOrRounds);
-      userObject.password = hash;
-    }
+
+    seminars = await this.seminarsRepo.findBy({
+      id: In(updateUserInput.seminars),
+    });
+
+    workshops = await this.workshopRepo.findBy({
+      id: In(updateUserInput.workshops),
+    });
+
+    const actualRelationships = await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'seminars')
+      .of(serviceItem)
+      .loadMany();
+
+    const actualRelationshipsW = await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'workshops')
+      .of(serviceItem)
+      .loadMany();
+
+    await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'workshops')
+      .of(serviceItem)
+      .addAndRemove(workshops, actualRelationshipsW);
+
+    await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'seminars')
+      .of(serviceItem)
+      .addAndRemove(seminars, actualRelationships);
+
+    delete updateUserInput.seminars;
+    delete updateUserInput.workshops;
 
     const user = await this.userRepository
-      .createQueryBuilder('user')
-      .update({ ...userObject, ...(avatar && { avatar: avatar }) })
-      .where({ id: id })
+      .createQueryBuilder()
+      .update()
+      .set({ ...updateUserInput, ...(image && { avatar: image }) })
+      .where({ id: updateUserInput.id })
       .returning('*')
       .execute();
 
     if (!user) {
-      throw new HttpException('Todo not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(`user #${updateUserInput.id} not found`);
     }
     return user.raw[0];
   }
 
-  async updateApi(updateUserInput: UpdateUserInput, user: User): Promise<User> {
-    const userObject = updateUserInput;
+  async updateApi(updateUserInput: UpdateUserInput): Promise<User> {
+    const serviceItem = await this.userRepository.findOne({
+      where: { id: updateUserInput.id },
+      relations: ['workshops', 'seminars'],
+    });
+    let image: any = updateUserInput.avatar;
 
-    let avatar = null;
+    const avatar = null;
+    let seminars = [];
+    let workshops = [];
 
-    if (updateUserInput.avatar) {
+    if (typeof updateUserInput.avatar !== 'string' && updateUserInput.avatar) {
       const imageUpload = await imageUploader(updateUserInput.avatar);
-      avatar = imageUpload.image;
+      image = imageUpload.image;
     }
 
-    const userItem = await this.userRepository
-      .createQueryBuilder('user')
-      .update({ ...userObject, avatar })
-      .where({ id: user.id })
+    seminars = await this.seminarsRepo.findBy({
+      id: In(updateUserInput.seminars),
+    });
+
+    workshops = await this.workshopRepo.findBy({
+      id: In(updateUserInput.workshops),
+    });
+
+    const actualRelationships = await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'seminars')
+      .of(serviceItem)
+      .loadMany();
+
+    const actualRelationshipsW = await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'workshops')
+      .of(serviceItem)
+      .loadMany();
+
+    await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'workshops')
+      .of(serviceItem)
+      .addAndRemove(workshops, actualRelationshipsW);
+
+    await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'seminars')
+      .of(serviceItem)
+      .addAndRemove(seminars, actualRelationships);
+
+    delete updateUserInput.seminars;
+    delete updateUserInput.workshops;
+
+    const user = await this.userRepository
+      .createQueryBuilder()
+      .update()
+      .set({ ...updateUserInput, ...(image && { avatar: image }) })
+      .where({ id: updateUserInput.id })
       .returning('*')
       .execute();
 
-    if (!userItem) {
-      throw new HttpException('Todo not found', HttpStatus.NOT_FOUND);
+    if (!user) {
+      throw new NotFoundException(`user #${updateUserInput.id} not found`);
     }
-    return userItem.raw[0];
+    return user.raw[0];
   }
 
   async remove(id: number): Promise<boolean> {

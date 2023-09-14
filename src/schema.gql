@@ -926,6 +926,7 @@ input CreateSiteInput {
 
   """Description of the Site"""
   body: String
+  cardlayout: String
 
   """Domain of the Site"""
   cardnumber: String
@@ -2273,6 +2274,7 @@ type Site {
 
   """Description of the Site"""
   body: String
+  cardlayout: String
 
   """Domain of the Site"""
   cardnumber: String
@@ -2999,6 +3001,7 @@ input UpdateSiteInput {
 
   """Description of the Site"""
   body: String
+  cardlayout: String
 
   """Domain of the Site"""
   cardnumber: String

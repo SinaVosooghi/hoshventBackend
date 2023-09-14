@@ -23,6 +23,9 @@ export class CreateSiteInput {
   @Field({ nullable: true })
   tax: number;
 
+  @Field(() => String, { nullable: true })
+  cardlayout: string;
+
   @Field()
   port: number;
 

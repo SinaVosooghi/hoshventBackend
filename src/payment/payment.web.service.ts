@@ -38,7 +38,6 @@ export class PaymentWebService {
   ) {}
 
   async doPayment(input: CreatePaymentInput, user: User) {
-    console.log(input);
     const setting = await this.settingService.findOne();
     let amount;
     let url;
@@ -171,7 +170,6 @@ export class PaymentWebService {
         ),
     );
 
-    console.log(data);
     if (data.ref_id) {
       const { code, message, card_pan, ref_id } = data;
 

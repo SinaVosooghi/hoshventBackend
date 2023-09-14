@@ -144,6 +144,10 @@ export class Site {
   @Field(() => String, { description: 'Logo of the course', nullable: true })
   logo: string;
 
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  cardlayout: string;
+
   @Column({ default: 'internal' })
   @Field(() => String, {
     description: 'Type of the Site',

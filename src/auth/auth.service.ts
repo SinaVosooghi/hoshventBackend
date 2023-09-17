@@ -37,6 +37,7 @@ export class AuthService {
     lastName: string;
     uid: number;
     avatar: string;
+    role?: any;
   }> {
     const payload = {
       email: user.email,
@@ -45,6 +46,7 @@ export class AuthService {
     const AT = this.jwtService.sign(payload);
 
     await this.userService.updateUserToken(user.id, AT);
+    const foundUser = await this.userService.findOne(user.id);
 
     return {
       type: user.usertype,
@@ -53,6 +55,7 @@ export class AuthService {
       uid: user.id,
       access_token: AT,
       avatar: user.avatar,
+      role: foundUser.role,
     };
   }
 
@@ -64,6 +67,7 @@ export class AuthService {
     uid: number;
     avatar: string;
     site: any;
+    role?: any;
   }> {
     if (user.usertype !== 'tenant') {
       throw new HttpException(
@@ -78,6 +82,7 @@ export class AuthService {
     const AT = this.jwtService.sign(payload);
 
     await this.userService.updateUserToken(user.id, AT);
+    const foundUser = await this.userService.findOne(user.id);
 
     // if (user.usertype === 'tenant' || user.usertype === 'user') {
     //   const message = `${user.firstName} ${user.lastName} گرامی،
@@ -103,6 +108,7 @@ export class AuthService {
       access_token: AT,
       avatar: user.avatar,
       site: user.site,
+      role: foundUser.role,
     };
   }
 
@@ -155,6 +161,7 @@ export class AuthService {
       phonenumber: 0,
       siteid: site,
       registerFields: user.registerFields,
+      gender: user.gender,
     });
 
     const payload = {

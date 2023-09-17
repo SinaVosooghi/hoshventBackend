@@ -4,6 +4,7 @@ import { ArgsType, Field, InputType } from '@nestjs/graphql';
 export class VerificationInput {
   @Field()
   authority: string;
+
   @Field()
   user: string;
 }

@@ -93,4 +93,7 @@ export class CreateUserInput {
 
   @Field(() => GraphQLJSONObject, { nullable: true })
   registerFields?: registerFieldsType;
+
+  @Field(() => String, { nullable: true })
+  gender?: 'male' | 'female';
 }

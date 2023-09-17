@@ -32,6 +32,10 @@ export class User {
   @Field(() => String, { description: 'Username of the user', nullable: true })
   username: string;
 
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  gender: 'male' | 'female';
+
   @Column({ unique: true, nullable: true, type: 'bigint' })
   @Field(() => Number, { description: 'Mobilenumber of the user' })
   mobilenumber: number;

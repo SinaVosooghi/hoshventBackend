@@ -1027,6 +1027,7 @@ input CreateUserInput {
 
   """first name of the user"""
   firstName: String!
+  gender: String
 
   """last name of the user"""
   lastName: String!
@@ -1486,6 +1487,7 @@ type Hall {
   """Description of the hall"""
   body: String
   created: DateTime
+  deletedAt: DateTime
 
   """Event of the hall"""
   event: Event
@@ -3106,6 +3108,7 @@ input UpdateUserInput {
 
   """first name of the user"""
   firstName: String
+  gender: String
   id: Int!
 
   """last name of the user"""
@@ -3223,6 +3226,7 @@ type User {
 
   """First name of the user"""
   firstName: String!
+  gender: String
 
   """Id of the user"""
   id: Float!

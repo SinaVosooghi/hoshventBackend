@@ -208,7 +208,7 @@ export class EventsService {
 
     return {
       alreadyBought: foundAttendee ? true : false,
-      outOfCapacity: event.attendees.length >= event.capacity,
+      outOfCapacity: event.capacity && event.attendees.length >= event.capacity,
     };
   }
 

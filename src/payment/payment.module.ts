@@ -16,6 +16,7 @@ import { AttendeesModule } from 'src/atendees/atendees.module';
 import { PaymentWebService } from './payment.web.service';
 import { MailModule } from 'src/mail/mail.module';
 import { HttpModule } from '@nestjs/axios';
+import { SitesModule } from 'src/sites/sites.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { HttpModule } from '@nestjs/axios';
     AttendeesModule,
     MailModule,
     HttpModule,
+    SitesModule,
   ],
   providers: [
     PaymentResolver,

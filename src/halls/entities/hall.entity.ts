@@ -6,6 +6,7 @@ import {
   BeforeInsert,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
@@ -79,6 +80,10 @@ export class Hall {
   })
   @Field(() => Date, { nullable: true })
   updated: Date;
+
+  @DeleteDateColumn()
+  @Field(() => Date, { nullable: true })
+  deletedAt?: Date;
 
   @ManyToOne(() => Site, (site) => site.id, {
     onDelete: 'SET NULL',

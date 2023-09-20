@@ -5,7 +5,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToOne,
   OneToMany,
@@ -16,7 +15,6 @@ import slugify from 'slugify';
 import { Site } from 'src/sites/entities/site.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Hall } from 'src/halls/entities/hall.entity';
-import { Attendee } from 'src/atendees/entities/attendee.entity';
 
 @ObjectType()
 @Entity()
@@ -79,17 +77,6 @@ export class Event {
     nullable: true,
   })
   video: string;
-
-  @OneToMany(() => Attendee, (attendee) => attendee.event, {
-    nullable: true,
-    onDelete: 'SET NULL',
-  })
-  @JoinColumn()
-  @Field(() => [Attendee], {
-    description: 'Attendee of the section',
-    nullable: true,
-  })
-  attendees: Attendee[];
 
   @ManyToOne(() => Category, (category) => category.id, {
     nullable: true,

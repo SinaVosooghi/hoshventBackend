@@ -11,6 +11,9 @@ import { UpdateWorkshopInput } from './dto/update-workshop.input';
 import { Workshop } from './entities/workshop.entity';
 import { imageUploader } from 'src/utils/imageUploader';
 import { User } from 'src/users/entities/user.entity';
+import { Service } from 'src/services/entities/services.entity';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { AttendeesService } from 'src/atendees/atendees.service';
 
 @Injectable()
 export class WorkshopsService {
@@ -19,6 +22,11 @@ export class WorkshopsService {
     private readonly workshopRepository: Repository<Workshop>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Service)
+    private readonly serviceRepository: Repository<Service>,
+    @InjectRepository(Attendee)
+    private readonly attendeeRepository: Repository<Attendee>,
+    private readonly attendeeService: AttendeesService,
   ) {}
 
   async create(
@@ -28,6 +36,7 @@ export class WorkshopsService {
     let image = null;
 
     let lecturers = [];
+    let services = [];
 
     if (createWorkshopInput.image) {
       const imageUpload = await imageUploader(createWorkshopInput.image);
@@ -39,11 +48,17 @@ export class WorkshopsService {
         id: In(createWorkshopInput.lecturers),
       });
     }
+    if (createWorkshopInput.services.length) {
+      services = await this.serviceRepository.findBy({
+        id: In(createWorkshopInput.services),
+      });
+    }
 
     const item = await this.workshopRepository.create({
       ...createWorkshopInput,
       image,
       lecturers,
+      services,
       ...(user && { slug: `${user.site[0].slug}-${createWorkshopInput.slug}` }),
       ...(user && { site: { id: user.site[0]?.id } }),
     });
@@ -83,7 +98,7 @@ export class WorkshopsService {
         ...(siteid && { site: { id: siteid } }),
         ...(user && { site: { id: user.site[0]?.id } }),
       },
-      relations: ['user', 'hall', 'hall.event', 'lecturers'],
+      relations: ['user', 'hall', 'hall.site', 'lecturers', 'services'],
       order: { id: 'DESC' },
       take: limit,
       skip: skip,
@@ -95,7 +110,7 @@ export class WorkshopsService {
   async findOne(id: number): Promise<Workshop> {
     const workshop = await this.workshopRepository.findOne({
       where: { id: id },
-      relations: ['user', 'hall', 'hall.event', 'lecturers'],
+      relations: ['user', 'hall', 'hall.site', 'lecturers', 'services'],
     });
 
     if (!workshop) {
@@ -107,7 +122,7 @@ export class WorkshopsService {
   async findOneBySlug(slug: string): Promise<Workshop> {
     const workshop = await this.workshopRepository.findOne({
       where: { slug: slug },
-      relations: ['user', 'hall', 'hall.event', 'lecturers'],
+      relations: ['user', 'hall', 'hall.site', 'lecturers', 'services'],
     });
 
     if (!workshop) {
@@ -126,6 +141,8 @@ export class WorkshopsService {
     });
 
     let lecturers = [];
+    let services = [];
+
     let image: any = updateWorkshopInput.image;
 
     if (typeof image !== 'string' && typeof image !== 'undefined' && image) {
@@ -137,9 +154,19 @@ export class WorkshopsService {
       id: In(updateWorkshopInput.lecturers),
     });
 
+    services = await this.serviceRepository.findBy({
+      id: In(updateWorkshopInput.services),
+    });
+
     const actualRelationships = await this.workshopRepository
       .createQueryBuilder()
       .relation(Workshop, 'lecturers')
+      .of(workshopItem)
+      .loadMany();
+
+    const actualRelationshipsServices = await this.workshopRepository
+      .createQueryBuilder()
+      .relation(Workshop, 'services')
       .of(workshopItem)
       .loadMany();
 
@@ -149,7 +176,15 @@ export class WorkshopsService {
       .of(workshopItem)
       .addAndRemove(lecturers, actualRelationships);
 
+    await this.workshopRepository
+      .createQueryBuilder()
+      .relation(Workshop, 'services')
+      .of(workshopItem)
+      .addAndRemove(services, actualRelationshipsServices);
+
     delete updateWorkshopInput.lecturers;
+    delete updateWorkshopInput.services;
+
     const workshop = await this.workshopRepository
       .createQueryBuilder()
       .update({
@@ -170,6 +205,61 @@ export class WorkshopsService {
     const workshop = await this.workshopRepository.findOneBy({ id: id });
 
     await this.workshopRepository.softRemove(workshop);
+    return true;
+  }
+
+  async checkOne(id: number, user: User) {
+    // Check course
+    const workshop = await this.workshopRepository.findOne({
+      where: { id: id },
+      relations: ['attendees'],
+    });
+
+    const foundAttendee = await this.attendeeRepository.findOne({
+      where: {
+        user: { id: user.id },
+        workshop: { id: workshop.id },
+      },
+    });
+
+    if (!workshop) {
+      throw new NotFoundException(`workshop #${id} not found`);
+    }
+
+    return {
+      alreadyBought: foundAttendee ? true : false,
+      outOfCapacity:
+        workshop.capacity && workshop?.attendees.length >= workshop.capacity,
+    };
+  }
+
+  async buyWorkshop(id: number, user: User, services: any) {
+    if (!id) return false;
+    const foundAttendee = await this.checkOne(id, user);
+
+    if (foundAttendee.alreadyBought) throw new Error('Already added');
+
+    const workshop = await this.workshopRepository.findOne({
+      where: { id: id },
+    });
+
+    await this.attendeeService.create({
+      user: user,
+      status: true,
+      site: user?.site[0]?.id,
+      workshop: workshop,
+      services,
+    });
+
+    return true;
+  }
+
+  async checkBuyWorkshop(id: number, user: User) {
+    if (!id) return false;
+    const foundAttendee = await this.checkOne(id, user);
+
+    if (foundAttendee.alreadyBought) throw new Error('Already added');
+
     return true;
   }
 }

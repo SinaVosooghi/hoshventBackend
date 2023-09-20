@@ -11,12 +11,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Timeline } from './entities/timeline.entity';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
-import { UsersService } from 'src/users/users.service';
-import { time } from 'console';
 import { GetTimelinsArgs } from './dto/get-items.args';
 import * as moment from 'moment';
 import { Bulkaction } from './dto/bulk-action';
 import { GetUserTimelineArgs } from './dto/get-user.args';
+import { ServiceTypes } from 'src/payment/entities/payment.entity';
+import { ManualCheckinInput } from './dto/manual-checkin-input';
 
 @Injectable()
 export class TimelinesService {
@@ -58,14 +58,7 @@ export class TimelinesService {
         ...(workshop && { workshop: { id: workshop } }),
       },
       order: { id: 'DESC' },
-      relations: [
-        'user',
-        'event',
-        'seminar',
-        'seminar.hall',
-        'seminar.hall.event',
-        'workshop',
-      ],
+      relations: ['user', 'seminar', 'workshop'],
       take: limit,
       skip: skip,
     });
@@ -108,14 +101,7 @@ export class TimelinesService {
         ...(workshop && { workshop: { id: workshop } }),
       },
       order: { id: 'DESC' },
-      relations: [
-        'user',
-        'event',
-        'seminar',
-        'seminar.hall',
-        'seminar.hall.event',
-        'workshop',
-      ],
+      relations: ['user', 'seminar', 'workshop'],
       take: limit,
       skip: skip,
     });
@@ -143,40 +129,48 @@ export class TimelinesService {
     user: User,
   ) {
     const params = new URLSearchParams(url);
+    console.log(params);
     const userId = parseInt(params.get('u'));
-    const eventId = parseInt(params.get('e'));
+    const workshopId = parseInt(params.get('w'));
+    const seminarId = parseInt(params.get('s'));
+    let attendee = null;
 
-    if (!userId || !eventId) {
-      throw new NotFoundException(`Event #${url} not found`);
+    if (workshopId) {
+      if (!userId || !workshopId) {
+        throw new NotFoundException(`Site #${url} not found`);
+      }
+
+      attendee = await this.attendeeRepository.findOne({
+        where: { user: { id: userId }, workshop: { id: workshopId } },
+        relations: ['site', 'user', 'workshop'],
+      });
+
+      if (!attendee) {
+        throw new NotFoundException(`Event #${url} not found`);
+      }
     }
 
-    const attendee = await this.attendeeRepository.findOne({
-      where: { user: { id: userId }, event: { id: eventId } },
-      relations: [
-        'site',
-        'user',
-        'event',
-        'event.halls',
-        'event.halls.seminars',
-        'event.halls.workshops',
-      ],
-    });
+    if (seminarId) {
+      if (!userId || !seminarId) {
+        throw new NotFoundException(`Site #${url} not found`);
+      }
 
-    if (!attendee) {
-      throw new NotFoundException(`Event #${url} not found`);
+      attendee = await this.attendeeRepository.findOne({
+        where: { user: { id: userId }, workshop: { id: workshopId } },
+        relations: ['site', 'user', 'workshop'],
+      });
+
+      if (!attendee) {
+        throw new NotFoundException(`Event #${url} not found`);
+      }
     }
 
     const id = seminar ?? workshop;
 
+    console.log(attendee);
+
     if (checkin) {
       await this.checkin(
-        attendee.id,
-        parseInt(id),
-        seminar ? 'seminar' : 'workshop',
-        user,
-      );
-    } else {
-      await this.checkout(
         attendee.id,
         parseInt(id),
         seminar ? 'seminar' : 'workshop',
@@ -201,17 +195,48 @@ export class TimelinesService {
     return `This action removes a #${id} timeline`;
   }
 
+  async manualCheckin(
+    { aid, id, type, service }: ManualCheckinInput,
+    user: User,
+  ) {
+    const attendee = await this.attendeeRepository.findOne({
+      where: { id: aid },
+    });
+
+    const prevServices = [...attendee.services];
+    const objIndex = prevServices.findIndex((obj) => obj.id == service);
+
+    if (prevServices[objIndex].scanned)
+      throw new NotFoundException(`Already added`);
+
+    prevServices[objIndex].scanned = true;
+
+    await this.attendeeRepository
+      .createQueryBuilder('Attendee')
+      .update({ services: prevServices })
+      .where({ id: aid })
+      .returning('*')
+      .execute();
+
+    if (!attendee) {
+      throw new NotFoundException(`Attendee #${id} not found`);
+    }
+
+    const item = await this.timelimeRepository.create({
+      user: attendee.user,
+      [type]: id,
+      checkin: new Date(),
+      site: attendee.site,
+      scannedby: user,
+    });
+
+    await this.timelimeRepository.save(item);
+    return true;
+  }
+
   async checkin(aid: number, id: number, type: string, user: User) {
     const attendee = await this.attendeeRepository.findOne({
       where: { id: aid },
-      relations: [
-        'site',
-        'user',
-        'event',
-        'event.halls',
-        'event.halls.seminars',
-        'event.halls.workshops',
-      ],
     });
 
     if (!attendee) {
@@ -230,17 +255,10 @@ export class TimelinesService {
     return true;
   }
 
-  async checkout(aid: number, id: number, type: string, user: User) {
+  async checkout(aid: number, id: number, type: string, user?: User) {
     const attendee = await this.attendeeRepository.findOne({
       where: { id: aid },
-      relations: [
-        'site',
-        'user',
-        'event',
-        'event.halls',
-        'event.halls.seminars',
-        'event.halls.workshops',
-      ],
+      relations: ['site', 'user'],
     });
 
     if (!attendee) {
@@ -268,7 +286,6 @@ export class TimelinesService {
         user: attendee.user,
         checkout: new Date(),
         site: attendee.site,
-        event: { id: attendee.event.id },
         scannedby: user,
       });
       await this.timelimeRepository.save(item);
@@ -281,14 +298,7 @@ export class TimelinesService {
       ids.map(async (id) => {
         const attendee = await this.attendeeRepository.findOne({
           where: { id: id },
-          relations: [
-            'site',
-            'user',
-            'event',
-            'event.halls',
-            'event.halls.seminars',
-            'event.halls.workshops',
-          ],
+          relations: ['site', 'user'],
         });
 
         if (!attendee) {
@@ -333,14 +343,7 @@ export class TimelinesService {
       ids.map(async (id) => {
         const attendee = await this.attendeeRepository.findOne({
           where: { id: id },
-          relations: [
-            'site',
-            'user',
-            'event',
-            'event.halls',
-            'event.halls.seminars',
-            'event.halls.workshops',
-          ],
+          relations: ['site', 'user'],
         });
 
         if (!attendee) {
@@ -367,7 +370,6 @@ export class TimelinesService {
           const item = await this.timelimeRepository.create({
             user: attendee.user,
             [type]: actionId,
-            event: { id: attendee.event.id },
             checkout: new Date(),
             site: attendee.site,
             scannedby: user,

@@ -7,13 +7,17 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Site } from 'src/sites/entities/site.entity';
+import { Service } from 'src/services/entities/services.entity';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
 
 @ObjectType()
 @Entity()
@@ -64,6 +68,11 @@ export class Workshop {
   @JoinTable()
   @Field(() => [User], { description: 'User of the Workshop', nullable: true })
   lecturers: User[];
+
+  @ManyToMany(() => Service)
+  @JoinTable()
+  @Field(() => [Service], { nullable: true })
+  services: Service[];
 
   @Column({ nullable: true })
   @Field(() => String, { description: 'Image of the workshop', nullable: true })
@@ -145,6 +154,17 @@ export class Workshop {
   })
   @Field(() => Date, { nullable: true })
   updated: Date;
+
+  @OneToMany(() => Attendee, (attendee) => attendee.workshop, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn()
+  @Field(() => [Attendee], {
+    description: 'Attendee of the section',
+    nullable: true,
+  })
+  attendees: Attendee[];
 
   @BeforeInsert()
   generateSlug() {

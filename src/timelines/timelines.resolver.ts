@@ -12,6 +12,9 @@ import { GetTimelinsArgs } from './dto/get-items.args';
 import { TimelinePaginate } from './entities/timelinePagintate';
 import { Bulkaction } from './dto/bulk-action';
 import { GetUserTimelineArgs } from './dto/get-user.args';
+import { ServiceTypes } from 'src/payment/entities/payment.entity';
+import { GraphQLJSONObject } from 'graphql-type-json';
+import { ManualCheckinInput } from './dto/manual-checkin-input';
 
 @Resolver(() => Timeline)
 export class TimelinesResolver {
@@ -61,15 +64,27 @@ export class TimelinesResolver {
     return this.timelinesService.checkin(aid, id, type, user);
   }
 
+  @Mutation(() => Boolean, { name: 'manualCheckin' })
+  @UseGuards(GqlAuthGuard)
+  manualCheckin(
+    @Args('input') manualCheckinInput: ManualCheckinInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.timelinesService.manualCheckin(manualCheckinInput, user);
+  }
+
   @Mutation(() => Boolean, { name: 'checkout' })
   @UseGuards(GqlAuthGuard)
   checkout(
-    @Args('id', { type: () => Int }) id: number,
-    @Args('aid', { type: () => Int }) aid: number,
-    @Args('type', { type: () => String }) type: string,
+    @Args('input') manualCheckin: ManualCheckinInput,
     @CurrentUser() user: User,
   ) {
-    return this.timelinesService.checkout(aid, id, type, user);
+    return this.timelinesService.checkout(
+      manualCheckin.aid,
+      manualCheckin.id,
+      manualCheckin.type,
+      user,
+    );
   }
 
   @Mutation(() => Timeline)

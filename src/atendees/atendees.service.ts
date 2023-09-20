@@ -4,21 +4,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Like, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateAtendeeInput } from './dto/create-atendee.input';
 import { GetAttendeesArgs } from './dto/get-attendees.args';
 import { UpdateAttendeeInput } from './dto/update-atendee.input';
 import { Attendee } from './entities/attendee.entity';
-import { Event } from 'src/events/entities/event.entity';
-import { User } from 'src/users/entities/user.entity';
+import { Site } from 'src/sites/entities/site.entity';
 
 @Injectable()
 export class AttendeesService {
   constructor(
     @InjectRepository(Attendee)
     private readonly AttendeeRepository: Repository<Attendee>,
-    @InjectRepository(Event)
-    private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Site)
+    private readonly siteRepository: Repository<Site>,
   ) {}
 
   async create(createAttendeeInput: CreateAtendeeInput): Promise<Attendee> {
@@ -60,7 +59,7 @@ export class AttendeesService {
   }
 
   async findAllApi({ skip, limit, status, siteid, event }: GetAttendeesArgs) {
-    const events = await this.eventRepository.find({
+    const sites = await this.siteRepository.find({
       where: {
         ...(siteid && { site: { id: siteid } }),
         ...(event && { id: event }),
@@ -69,11 +68,11 @@ export class AttendeesService {
       select: { id: true },
     });
 
-    const eventIds = events.map((c) => c.id);
+    const eventIds = sites.map((c) => c.id);
     const [result, total] = await this.AttendeeRepository.findAndCount({
       where: {
         status: status ?? null,
-        event: {
+        site: {
           id: In(eventIds),
         },
       },

@@ -10,27 +10,26 @@ import { CreatePaymentInput } from './dto/create-payment.input';
 import { GetPaymentsArgs } from './dto/get-payments.args';
 import { UpdatePaymentInput } from './dto/update-payment.input';
 import { Payment } from './entities/payment.entity';
-import { EventsService } from 'src/events/events.service';
 import { SettingsService } from 'src/settings/settings.service';
 import { InvoicesService } from 'src/invoices/invoices.service';
-import { Product } from 'src/product/entities/product.entity';
 import { HandlePayment } from './handlePayment';
-import { Event } from 'src/events/entities/event.entity';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
 import { User } from 'src/users/entities/user.entity';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { AttendeesService } from 'src/atendees/atendees.service';
+import { SitesService } from 'src/sites/sites.service';
+import { Site } from 'src/sites/entities/site.entity';
 
 @Injectable()
 export class PaymentService {
   constructor(
-    @InjectRepository(Event)
-    private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Site)
+    private readonly siteRepository: Repository<Site>,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Attendee)
     private readonly attendeeRepository: Repository<Attendee>,
-    private readonly eventService: EventsService,
+    private readonly sitesService: SitesService,
     private readonly settingService: SettingsService,
     private readonly invoicesService: InvoicesService,
     private readonly couponsService: CouponsService,
@@ -41,11 +40,10 @@ export class PaymentService {
     createPaymentInput: CreatePaymentInput,
     user: User,
   ): Promise<boolean> {
-    const event = await this.eventService.findOne(createPaymentInput.event);
+    const event = await this.sitesService.findOne(createPaymentInput.site.id);
 
     const item = await this.paymentRepository.create({
       ...createPaymentInput,
-      event,
     });
 
     const setting = await this.settingService.findOne();
@@ -58,7 +56,7 @@ export class PaymentService {
     }
 
     const productIds = createPaymentInput.products.map((i) => i.id);
-    const events = await this.eventRepository.find({
+    const events = await this.siteRepository.find({
       where: { id: In(productIds) },
     });
 
@@ -66,7 +64,6 @@ export class PaymentService {
       return {
         id: p.id,
         product: p.id,
-        price: p.price,
         quantity: createPaymentInput.products.find((r) => r.id == p.id).qty,
       };
     });
@@ -111,7 +108,6 @@ export class PaymentService {
         await this.attendeeService.create({
           user: user,
           status: true,
-          event: event,
           site: createPaymentInput.site,
         });
       });
@@ -153,17 +149,17 @@ export class PaymentService {
   }
 
   async teachersPaymentApi({ skip, limit }: GetPaymentsArgs, user) {
-    const events = await this.eventRepository.find({
+    const sites = await this.siteRepository.find({
       where: {
         user: { id: user.id },
       },
       select: { id: true },
     });
-    const eventIds = events.map((c) => c.id);
+    const siteIds = sites.map((c) => c.id);
 
     const [result, total] = await this.paymentRepository.findAndCount({
       where: {
-        event: In(eventIds),
+        site: In(siteIds),
       },
       order: { id: 'DESC' },
       relations: ['user', 'event'],
@@ -189,11 +185,11 @@ export class PaymentService {
     id: number,
     updatePaymentInput: UpdatePaymentInput,
   ): Promise<Payment> {
-    const event = await this.eventService.findOne(updatePaymentInput.event);
+    const site = await this.sitesService.findOne(updatePaymentInput.site.id);
 
     const payment = await this.paymentRepository
       .createQueryBuilder('payment')
-      .update({ ...updatePaymentInput, event })
+      .update({ ...updatePaymentInput, site })
       .where({ id: id })
       .returning('*')
       .execute();

@@ -28,7 +28,6 @@ import { OrdersModule } from './orders/orders.module';
 import { ShippingsModule } from './shippings/shippings.module';
 import { ItemsModule } from './items/items.module';
 import { WorkshopsModule } from './workshops/workshops.module';
-import { EventsModule } from './events/events.module';
 import { ServicesModule } from './services/services.module';
 import { PlansModule } from './plans/plans.module';
 import { SeminarsModule } from './seminars/seminars.module';
@@ -83,7 +82,6 @@ import { LikesModule } from './likes/likes.module';
     ShippingsModule,
     ItemsModule,
     WorkshopsModule,
-    EventsModule,
     ServicesModule,
     PlansModule,
     SeminarsModule,

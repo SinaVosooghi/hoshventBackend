@@ -2,6 +2,7 @@ import { InputType, Field } from '@nestjs/graphql';
 import { GraphQLUpload } from 'graphql-upload';
 import { FileUpload } from 'src/halls/dto/create-hall.input';
 import { Hall } from 'src/halls/entities/hall.entity';
+import { Service } from 'src/services/entities/services.entity';
 import { User } from 'src/users/entities/user.entity';
 
 @InputType()
@@ -41,6 +42,11 @@ export class CreateSeminarInput {
     nullable: true,
   })
   lecturers: [User];
+
+  @Field(() => [Number], {
+    nullable: true,
+  })
+  services: [Service];
 
   @Field(() => GraphQLUpload, {
     description: 'Image of the Seminar',

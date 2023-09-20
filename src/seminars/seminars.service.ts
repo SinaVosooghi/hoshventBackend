@@ -11,6 +11,9 @@ import { UpdateSeminarInput } from './dto/update-seminar.input';
 import { Seminar } from './entities/seminar.entity';
 import { imageUploader } from 'src/utils/imageUploader';
 import { User } from 'src/users/entities/user.entity';
+import { Service } from 'src/services/entities/services.entity';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { AttendeesService } from 'src/atendees/atendees.service';
 
 @Injectable()
 export class SeminarsService {
@@ -19,6 +22,11 @@ export class SeminarsService {
     private readonly seminarRepository: Repository<Seminar>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Service)
+    private readonly serviceRepository: Repository<Service>,
+    @InjectRepository(Attendee)
+    private readonly attendeeRepository: Repository<Attendee>,
+    private readonly attendeeService: AttendeesService,
   ) {}
 
   async create(
@@ -28,6 +36,7 @@ export class SeminarsService {
     let image = null;
 
     let lecturers = [];
+    let services = [];
 
     if (createSeminarInput.image) {
       const imageUpload = await imageUploader(createSeminarInput.image);
@@ -40,10 +49,17 @@ export class SeminarsService {
       });
     }
 
+    if (createSeminarInput.services.length) {
+      services = await this.serviceRepository.findBy({
+        id: In(createSeminarInput.services),
+      });
+    }
+
     const item = await this.seminarRepository.create({
       ...createSeminarInput,
       image,
       lecturers,
+      services,
       ...(user && { slug: `${user.site[0].slug}-${createSeminarInput.slug}` }),
       ...(user && { site: { id: user.site[0]?.id } }),
     });
@@ -82,7 +98,7 @@ export class SeminarsService {
         ...(siteid && { site: { id: siteid } }),
         ...(user && { site: { id: user.site[0]?.id } }),
       },
-      relations: ['user', 'hall', 'hall.event', 'lecturers'],
+      relations: ['user', 'hall', 'hall.site', 'lecturers', 'services'],
       order: { id: 'DESC' },
       take: limit,
       skip: skip,
@@ -94,7 +110,7 @@ export class SeminarsService {
   async findOne(id: number): Promise<Seminar> {
     const seminar = await this.seminarRepository.findOne({
       where: { id: id },
-      relations: ['user', 'hall', 'hall.event', 'lecturers'],
+      relations: ['user', 'hall', 'hall.site', 'lecturers', 'services'],
     });
     if (!seminar) {
       throw new NotFoundException(`Seminar #${id} not found`);
@@ -103,15 +119,15 @@ export class SeminarsService {
   }
 
   async findOneBySlug(slug: string): Promise<Seminar> {
-    const workshop = await this.seminarRepository.findOne({
+    const seminar = await this.seminarRepository.findOne({
       where: { slug: slug },
-      relations: ['user', 'hall', 'hall.event', 'lecturers'],
+      relations: ['user', 'hall', 'hall.site', 'lecturers', 'services'],
     });
 
-    if (!workshop) {
+    if (!seminar) {
       throw new NotFoundException(`Seminar #${slug} not found`);
     }
-    return workshop;
+    return seminar;
   }
 
   async update(
@@ -125,6 +141,7 @@ export class SeminarsService {
     let image = null;
 
     let lecturers = [];
+    let services = [];
 
     if (updateSeminarInput.image) {
       const imageUpload = await imageUploader(updateSeminarInput.image);
@@ -133,6 +150,10 @@ export class SeminarsService {
 
     lecturers = await this.userRepo.findBy({
       id: In(updateSeminarInput.lecturers),
+    });
+
+    services = await this.serviceRepository.findBy({
+      id: In(updateSeminarInput.services),
     });
 
     const actualRelationships = await this.seminarRepository
@@ -146,6 +167,12 @@ export class SeminarsService {
       .relation(Seminar, 'lecturers')
       .of(seminarItem)
       .addAndRemove(lecturers, actualRelationships);
+
+    await this.seminarRepository
+      .createQueryBuilder()
+      .relation(Seminar, 'lecturers')
+      .of(seminarItem)
+      .addAndRemove(services, actualRelationships);
 
     delete updateSeminarInput.lecturers;
     const seminar = await this.seminarRepository
@@ -166,6 +193,63 @@ export class SeminarsService {
     const seminar = await this.seminarRepository.findOneBy({ id: id });
 
     await this.seminarRepository.softRemove(seminar);
+    return true;
+  }
+
+  async checkOne(id: number, user: User) {
+    if (!user) {
+      throw new NotFoundException(`seminar #${id} not found`);
+    } // Check course
+    const seminar = await this.seminarRepository.findOne({
+      where: { id: id },
+      relations: ['attendees'],
+    });
+
+    const foundAttendee = await this.attendeeRepository.findOne({
+      where: {
+        user: { id: user?.id },
+        seminar: { id: seminar.id },
+      },
+    });
+
+    if (!seminar) {
+      throw new NotFoundException(`seminar #${id} not found`);
+    }
+
+    return {
+      alreadyBought: foundAttendee ? true : false,
+      outOfCapacity:
+        seminar.capacity && seminar?.attendees.length >= seminar.capacity,
+    };
+  }
+
+  async buySeminar(id: number, user: User, services: any) {
+    if (!id) return false;
+    const foundAttendee = await this.checkOne(id, user);
+
+    if (foundAttendee.alreadyBought) throw new Error('Already added');
+
+    const seminar = await this.seminarRepository.findOne({
+      where: { id: id },
+    });
+
+    await this.attendeeService.create({
+      user: user,
+      status: true,
+      site: user?.site[0]?.id,
+      seminar: seminar,
+      services,
+    });
+
+    return true;
+  }
+
+  async checkBuySeminar(id: number, user: User) {
+    if (!id) return false;
+    const foundAttendee = await this.checkOne(id, user);
+
+    if (foundAttendee.alreadyBought) throw new Error('Already added');
+
     return true;
   }
 }

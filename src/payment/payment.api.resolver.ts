@@ -46,6 +46,7 @@ export class PaymentApiResolver {
   }
 
   @Mutation(() => Boolean, { name: 'verification' })
+  @UseGuards(GqlAuthGuard)
   async verification(
     @Args('input') verificationInput: VerificationInput,
     @CurrentUser() user: User,

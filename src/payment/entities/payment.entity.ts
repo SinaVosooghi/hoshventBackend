@@ -1,5 +1,4 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Event } from 'src/events/entities/event.entity';
 import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -12,6 +11,21 @@ import {
 } from 'typeorm';
 
 @ObjectType()
+export class ServiceTypes {
+  @Field(() => Number, { nullable: true })
+  id: number;
+
+  @Field(() => String, { nullable: true })
+  title: string;
+
+  @Field(() => String, { nullable: true })
+  price: string;
+
+  @Field(() => Boolean, { defaultValue: false })
+  scanned: boolean;
+}
+
+@ObjectType()
 export class productOptions {
   @Field(() => Number, { nullable: true })
   id: number;
@@ -19,8 +33,14 @@ export class productOptions {
   @Field(() => String, { nullable: true })
   title: string;
 
+  @Field(() => String, { nullable: true })
+  services: [ServiceTypes];
+
   @Field(() => Number, { nullable: true })
   qty: number;
+
+  @Field(() => String, { nullable: true })
+  type: 'Workshop' | 'Seminar';
 }
 
 @ObjectType()
@@ -71,13 +91,6 @@ export class Payment {
   @ManyToOne(() => User, (user) => user.id, { nullable: true })
   @Field(() => User, { description: 'User of the payment', nullable: true })
   user: User;
-
-  @ManyToOne(() => Event, (event) => event.id, {
-    nullable: true,
-    onDelete: 'SET NULL',
-  })
-  @Field(() => Event, { description: 'Event of the payment', nullable: true })
-  event: Event;
 
   @Column({
     type: 'jsonb',

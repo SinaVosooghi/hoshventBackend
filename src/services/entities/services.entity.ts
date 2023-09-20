@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { Site } from 'src/sites/entities/site.entity';
 import { Event } from 'src/events/entities/event.entity';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
 
 @ObjectType()
 @Entity()
@@ -44,6 +45,13 @@ export class Service {
     nullable: true,
   })
   quantity: number;
+
+  @ManyToMany(() => Workshop)
+  @JoinTable()
+  @Field(() => [Workshop], {
+    nullable: true,
+  })
+  workshops?: Workshop[];
 
   @Column({ nullable: true })
   @Field(() => Number, {

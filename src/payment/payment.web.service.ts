@@ -7,39 +7,42 @@ import { CreatePaymentInput } from './dto/create-payment.input';
 import { VerificationInput } from './dto/verification.input';
 import { SettingsService } from 'src/settings/settings.service';
 import { AttendeesService } from 'src/atendees/atendees.service';
-import { MailService } from 'src/mail/mail.service';
-import { Attendee } from 'src/atendees/entities/attendee.entity';
 
-import { Product } from 'src/product/entities/product.entity';
-import { EventsService } from 'src/events/events.service';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { User } from 'src/users/entities/user.entity';
 
-import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, map } from 'rxjs';
-import { Event } from 'src/events/entities/event.entity';
 import { SitesService } from 'src/sites/sites.service';
+import { Site } from 'src/sites/entities/site.entity';
+import { Service } from 'src/services/entities/services.entity';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
+import { Seminar } from 'src/seminars/entities/seminar.entity';
+import { WorkshopsService } from 'src/workshops/workshops.service';
+import { SeminarsService } from 'src/seminars/seminars.service';
 @Injectable()
 export class PaymentWebService {
   private readonly logger = new Logger(PaymentWebService.name);
 
   constructor(
-    @InjectRepository(Attendee)
-    private readonly attendeeRepository: Repository<Attendee>,
-    @InjectRepository(Event)
-    private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Service)
+    private readonly serviceRepository: Repository<Service>,
+    @InjectRepository(Site)
+    private readonly siteRepository: Repository<Site>,
+    @InjectRepository(Workshop)
+    private readonly workshopRepository: Repository<Workshop>,
+    @InjectRepository(Seminar)
+    private readonly seminarRepository: Repository<Seminar>,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
     private readonly settingService: SettingsService,
     private readonly attendeeService: AttendeesService,
-    private readonly mailService: MailService,
     private readonly siteService: SitesService,
-    private readonly eventService: EventsService,
     private readonly couponService: CouponsService,
     private readonly httpService: HttpService,
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    private readonly seminarsService: SeminarsService,
+    private readonly workshopsService: WorkshopsService,
   ) {}
 
   async doPayment(input: CreatePaymentInput, user: User) {
@@ -48,31 +51,73 @@ export class PaymentWebService {
     let url;
     let coupon;
 
-    const event = await this.eventService.findOne(input.event);
     const site = await this.siteService.findOne(input.site.id);
-
+    let workshops = [];
+    let seminars = [];
     if (input.coupon) {
       coupon = await this.couponService.findOne(input.coupon);
     }
 
-    const productIds = input.products.map((i) => i.id);
+    const workshopIds = input.products
+      .filter((i) => {
+        return i.type === 'Workshop' ? i.id : null;
+      })
+      .map((j) => j.id);
 
-    const products = await this.eventRepository.find({
-      where: { id: In(productIds) },
-    });
-    const newArray = products.map((p) => {
+    const seminarIds = input.products
+      .filter((i) => {
+        return i.type === 'Seminar' ? i.id : null;
+      })
+      .map((j) => j.id);
+
+    if (workshopIds.length) {
+      workshops = await this.workshopRepository.find({
+        where: { id: In(workshopIds) },
+      });
+    }
+
+    if (seminarIds.length) {
+      seminars = await this.seminarRepository.find({
+        where: { id: In(seminarIds) },
+      });
+    }
+
+    const newWorkshopArray = workshops.map((p) => {
       return {
         id: p.id,
-        event: p.id,
-        price: p.price,
+        workshop: p.id,
         quantity: input.products.find((r) => r.id == p.id).qty,
+        services: input.products.find((r) => r.id == p.id).services,
+        servicesTotal: input.products
+          .find((r) => r.id == p.id)
+          .services?.reduce((prev: any, curr: any) => prev + curr.price, 0),
+        type: 'workshop',
+        price: p.offprice ?? p.price,
       };
     });
+
+    const newSeminarArray = seminars.map((p) => {
+      return {
+        id: p.id,
+        seminar: p.id,
+        quantity: input.products.find((r) => r.id == p.id).qty,
+        services: input.products.find((r) => r.id == p.id).services,
+        servicesTotal: input.products
+          .find((r) => r.id == p.id)
+          .services?.reduce((prev: any, curr: any) => prev + curr.price, 0),
+        type: 'seminar',
+        price: p.offprice ?? p.price,
+      };
+    });
+
+    const newArray = [...newWorkshopArray, ...newSeminarArray];
 
     let total = 0;
     total = Math.ceil(
       newArray
-        ?.map((item: any) => item?.price * item.quantity)
+        ?.map((item: any) => {
+          return item?.price + item.servicesTotal;
+        })
         .reduce((prev: any, curr: any) => prev + curr, 0),
     );
 
@@ -86,7 +131,6 @@ export class PaymentWebService {
     }
 
     if (amount > 0) {
-      console.log(`${site.domain}/validate`);
       const requestConfig: AxiosRequestConfig = {
         headers: {
           accept: 'application/json',
@@ -94,9 +138,9 @@ export class PaymentWebService {
         },
         params: {
           merchant_id: 'a20335fe-fb44-11e9-8f7a-000c295eb8fc',
-          amount: amount,
-          callback_url: `${site.domain}/validate`,
-          description: `خرید  ${event.title}`,
+          amount: Math.round(amount),
+          callback_url: `http://localhost:4040/validate`,
+          description: `خرید  ${site.title}`,
           currency: 'IRT',
         },
       };
@@ -119,7 +163,11 @@ export class PaymentWebService {
           ),
       );
 
-      if (data.code === 100 && data.message === 'Success' && data.authority) {
+      if (
+        data?.code === 100 &&
+        data?.message === 'Success' &&
+        data?.authority
+      ) {
         const { code, message, authority, fee } = data;
 
         url = `https://www.zarinpal.com/pg/StartPay/${authority}`;
@@ -127,7 +175,6 @@ export class PaymentWebService {
         const p = await this.paymentRepository.create({
           ...input,
           authority,
-          event: { id: input.event },
           statusCode: code,
           user,
           amount,
@@ -140,7 +187,6 @@ export class PaymentWebService {
           ...input,
           statusCode: '999',
           authority: null,
-          event: { id: input.event },
           user,
           amount,
         });
@@ -150,18 +196,37 @@ export class PaymentWebService {
     } else {
       const siteId = input.site;
       newArray.map(async (event) => {
-        const buyCourse = await this.eventService.checkBuyEvent(
-          { id: event.id },
-          user,
-        );
-        if (buyCourse) {
-          await this.attendeeService.create({
-            user: user,
-            status: true,
-            //@ts-ignore
-            event: { id: event.id },
-            site: siteId,
-          });
+        if (event.type === 'Workshop') {
+          const buy = await this.workshopsService.checkBuyWorkshop(
+            event.id,
+            user,
+          );
+          if (buy) {
+            const workshop = await this.workshopRepository.findOneBy(event.id);
+            await this.attendeeService.create({
+              user: user,
+              status: true,
+              workshop,
+              site: siteId,
+              services: event.services,
+            });
+          }
+        } else {
+          const buy = await this.seminarsService.checkBuySeminar(
+            event.id,
+            user,
+          );
+          if (buy) {
+            const seminar = await this.seminarRepository.findOneBy(event.id);
+
+            await this.attendeeService.create({
+              user: user,
+              status: true,
+              seminar,
+              site: siteId,
+              services: event.services,
+            });
+          }
         }
       });
 
@@ -174,8 +239,11 @@ export class PaymentWebService {
       where: {
         authority: input.authority,
       },
-      relations: ['user', 'event'],
+      relations: ['user'],
     });
+
+    let workshops = [];
+    let seminars = [];
 
     if (!paymentRecord) {
       throw new NotFoundException();
@@ -187,11 +255,18 @@ export class PaymentWebService {
         'content-type': 'application/json',
       },
       params: {
-        merchant_id: 'c51d0ced-c887-462d-9b95-717534c42e95',
+        merchant_id: 'a20335fe-fb44-11e9-8f7a-000c295eb8fc',
         amount: paymentRecord.amount,
         authority: paymentRecord.authority,
       },
     };
+
+    // const data = {
+    //   code: '100',
+    //   message: 'Paid',
+    //   card_pan: '1231231231',
+    //   ref_id: '871253671',
+    // };
 
     const { data } = await lastValueFrom(
       this.httpService
@@ -211,35 +286,114 @@ export class PaymentWebService {
         ),
     );
 
-    if (data.ref_id) {
+    if (data?.ref_id) {
       const { code, message, card_pan, ref_id } = data;
 
-      const buyCourse = await this.eventService.buyEvent(
-        { id: paymentRecord.event.id },
-        paymentRecord.user,
-      );
+      const workshopIds = paymentRecord.products
+        .filter((i) => {
+          return i.type === 'Workshop' ? i.id : null;
+        })
+        .map((j) => j.id);
 
-      if (buyCourse) {
-        await this.paymentRepository
-          .createQueryBuilder('payment')
-          .update({
-            refid: ref_id,
-            approve: true,
-            paymentMethodId: card_pan,
-            status: message,
-            statusCode: code,
-          })
-          .where({ id: paymentRecord.id })
-          .returning('*')
-          .execute();
-        return true;
-      } else {
-        return false;
+      const seminarIds = paymentRecord.products
+        .filter((i) => {
+          return i.type === 'Seminar' ? i.id : null;
+        })
+        .map((j) => j.id);
+
+      if (workshopIds.length) {
+        workshops = await this.workshopRepository.find({
+          where: { id: In(workshopIds) },
+        });
       }
+
+      if (seminarIds.length) {
+        seminars = await this.seminarRepository.find({
+          where: { id: In(seminarIds) },
+        });
+      }
+
+      const newWorkshopArray = workshops.map((p) => {
+        return {
+          id: p.id,
+          workshop: p.id,
+          quantity: paymentRecord.products.find((r) => r.id == p.id).qty,
+          servicesTotal: paymentRecord.products
+            .find((r) => r.id == p.id)
+            .services?.reduce((prev: any, curr: any) => prev + curr.price, 0),
+          services: paymentRecord.products.find((r) => r.id == p.id).services,
+          type: 'workshop',
+          price: p.offprice ?? p.price,
+        };
+      });
+
+      const newSeminarArray = seminars.map((p) => {
+        return {
+          id: p.id,
+          seminar: p.id,
+          quantity: paymentRecord.products.find((r) => r.id == p.id).qty,
+          services: paymentRecord.products.find((r) => r.id == p.id).services,
+          servicesTotal: paymentRecord.products
+            .find((r) => r.id == p.id)
+            .services?.reduce((prev: any, curr: any) => prev + curr.price, 0),
+          type: 'seminar',
+          price: p.offprice ?? p.price,
+        };
+      });
+
+      const newArray = [...newWorkshopArray, ...newSeminarArray];
+      newArray.map(async (event) => {
+        if (event.type === 'workshop') {
+          const buy = await this.workshopsService.buyWorkshop(
+            event.id,
+            user,
+            event.services,
+          );
+          if (buy) {
+            await this.paymentRepository
+              .createQueryBuilder('payment')
+              .update({
+                refid: ref_id,
+                approve: true,
+                paymentMethodId: card_pan,
+                status: message,
+                statusCode: code,
+              })
+              .where({ id: paymentRecord.id })
+              .returning('*')
+              .execute();
+          } else {
+            return false;
+          }
+        } else if (event.type === 'seminar') {
+          const buy = await this.seminarsService.buySeminar(
+            event.id,
+            user,
+            event.services,
+          );
+          if (buy) {
+            await this.paymentRepository
+              .createQueryBuilder('payment')
+              .update({
+                refid: ref_id,
+                approve: true,
+                paymentMethodId: card_pan,
+                status: message,
+                statusCode: code,
+              })
+              .where({ id: paymentRecord.id })
+              .returning('*')
+              .execute();
+          } else {
+            return false;
+          }
+        }
+      });
+      return true;
     } else {
       await this.paymentRepository
         .createQueryBuilder('payment')
-        .update({ approve: false, status: data.message })
+        .update({ approve: false, status: data?.message })
         .where({ id: paymentRecord.id })
         .returning('*')
         .execute();

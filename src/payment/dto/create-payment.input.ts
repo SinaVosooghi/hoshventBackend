@@ -47,9 +47,6 @@ export class CreatePaymentInput {
   @Field(() => [GraphQLJSONObject], { nullable: true })
   products?: productOptions[];
 
-  @Field(() => Number, { description: 'Event of the payment', nullable: true })
-  event: number;
-
   @Field(() => String, { description: 'Type of the payment', nullable: true })
   type: 'shop' | 'event';
 

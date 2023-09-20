@@ -4,10 +4,10 @@ import { AttendeesResolver } from './atendees.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Attendee } from './entities/attendee.entity';
 import { AttendeesApiResolver } from './atendees.api.resolver';
-import { Event } from 'src/events/entities/event.entity';
+import { Site } from 'src/sites/entities/site.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Attendee, Event])],
+  imports: [TypeOrmModule.forFeature([Attendee, Site])],
   providers: [AttendeesResolver, AttendeesService, AttendeesApiResolver],
   exports: [AttendeesService],
 })

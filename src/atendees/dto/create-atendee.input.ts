@@ -1,7 +1,9 @@
-import { InputType, Int, Field } from '@nestjs/graphql';
-import { Event } from 'src/events/entities/event.entity';
+import { InputType, Field } from '@nestjs/graphql';
+import { ServiceTypes } from 'src/payment/entities/payment.entity';
+import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
 
 @InputType()
 export class CreateAtendeeInput {
@@ -14,9 +16,15 @@ export class CreateAtendeeInput {
   @Field(() => Number, { description: 'User of the attendee' })
   user: User;
 
-  @Field(() => Number, { description: 'Event of the attendee' })
-  event: Event;
-
-  @Field(() => Number, { description: 'Site of the Event', nullable: true })
+  @Field(() => Number, { nullable: true })
   site: Site;
+
+  @Field(() => Number, { nullable: true })
+  workshop?: Workshop;
+
+  @Field(() => Number, { nullable: true })
+  seminar?: Seminar;
+
+  @Field(() => String, { nullable: true })
+  services?: [ServiceTypes];
 }

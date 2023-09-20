@@ -1,7 +1,9 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Event } from 'src/events/entities/event.entity';
+import { ServiceTypes } from 'src/payment/entities/payment.entity';
+import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
 import {
   Column,
   CreateDateColumn,
@@ -10,6 +12,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { GraphQLJSONObject } from 'graphql-type-json';
 
 @ObjectType()
 @Entity()
@@ -24,19 +27,19 @@ export class Attendee {
   @Field(() => Boolean, { description: 'Status of the attendee' })
   status: boolean;
 
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+  })
+  @Field(() => [GraphQLJSONObject], { nullable: true })
+  services: [ServiceTypes];
+
   @ManyToOne(() => User, (user) => user.id, { nullable: true })
   @Field(() => User, {
     description: 'Organizer of the attendee',
     nullable: true,
   })
   user: User;
-
-  @ManyToOne(() => Event, (event) => event.id, {
-    nullable: true,
-    onDelete: 'SET NULL',
-  })
-  @Field(() => Event, { nullable: true })
-  event: Event;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -63,4 +66,22 @@ export class Attendee {
     nullable: true,
   })
   site: Site;
+
+  @ManyToOne(() => Workshop, (workshop) => workshop.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Workshop, {
+    nullable: true,
+  })
+  workshop: Workshop;
+
+  @ManyToOne(() => Seminar, (seminar) => seminar.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Seminar, {
+    nullable: true,
+  })
+  seminar: Seminar;
 }

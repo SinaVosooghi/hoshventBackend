@@ -1,4 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Plan } from 'src/plans/entities/plan.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -8,6 +9,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -147,6 +149,17 @@ export class Site {
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })
   cardlayout: string;
+
+  @OneToMany(() => Attendee, (attendee) => attendee.site, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn()
+  @Field(() => [Attendee], {
+    description: 'Attendee of the section',
+    nullable: true,
+  })
+  attendees: Attendee[];
 
   @Column({ default: 'internal' })
   @Field(() => String, {

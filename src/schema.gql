@@ -4,10 +4,11 @@
 
 type Attendee {
   created: DateTime
-  event: Event
 
   """id of the attendee"""
   id: Float
+  seminar: Seminar
+  services: [JSONObject!]
 
   """Site of the item"""
   site: Site
@@ -18,6 +19,7 @@ type Attendee {
 
   """Organizer of the attendee"""
   user: User
+  workshop: Workshop
 }
 
 type AttendeePaginate {
@@ -301,10 +303,8 @@ type CouponPaginate {
 }
 
 input CreateAtendeeInput {
-  """Event of the attendee"""
-  event: Float!
-
-  """Site of the Event"""
+  seminar: Float
+  services: String
   site: Float
 
   """Status of the attendee"""
@@ -312,6 +312,7 @@ input CreateAtendeeInput {
 
   """User of the attendee"""
   user: Float!
+  workshop: Float
 }
 
 input CreateBlogInput {
@@ -686,9 +687,6 @@ input CreatePaymentInput {
 
   """Coupon method id of the payment"""
   coupon: Float
-
-  """Event of the payment"""
-  event: Float
   host: String!
 
   """Payment method id of the payment"""
@@ -824,6 +822,7 @@ input CreateSeminarInput {
 
   """Title SEO of the seminar"""
   seotitle: String
+  services: [Float!]
 
   """Slug of the seminar"""
   slug: String!
@@ -1096,6 +1095,7 @@ input CreateWorkshopInput {
 
   """Title SEO of the workshop"""
   seotitle: String
+  services: [Float!]
 
   """Slug of the workshop"""
   slug: String!
@@ -1149,9 +1149,6 @@ type DepartmentPaginate {
 }
 
 type Event {
-  """Attendee of the section"""
-  attendees: [Attendee!]
-
   """body of the blog"""
   body: String!
 
@@ -1617,6 +1614,13 @@ type Like {
   user: User!
 }
 
+input ManualCheckinInput {
+  aid: Int!
+  id: Int
+  service: Float
+  type: String!
+}
+
 type Menu {
   created: DateTime
 
@@ -1667,7 +1671,7 @@ type Mutation {
   bulkcheckin(input: Bulkaction!): Boolean!
   bulkcheckout(input: Bulkaction!): Boolean!
   checkin(aid: Int!, id: Int!, type: String!): Boolean!
-  checkout(aid: Int!, id: Int!, type: String!): Boolean!
+  checkout(input: ManualCheckinInput!): Boolean!
   createAttendee(input: CreateAtendeeInput!): Attendee!
   createBlog(input: CreateBlogInput!): Blog!
   createBrand(input: CreateBrandInput!): Brand!
@@ -1702,6 +1706,7 @@ type Mutation {
   createWorkshop(input: CreateWorkshopInput!): Workshop!
   doPayment(input: CreatePaymentInput!): String!
   login: User!
+  manualCheckin(input: ManualCheckinInput!): Boolean!
   removeAttendee(id: Int!): Boolean!
   removeBlog(id: Int!): Boolean!
   removeBrand(id: Int!): Boolean!
@@ -1816,9 +1821,6 @@ type Payment {
   """Authority of the payment"""
   authority: String
   created: DateTime
-
-  """Event of the payment"""
-  event: Event
 
   """Payment method of the payment"""
   host: String
@@ -2100,6 +2102,9 @@ type RolePaginate {
 }
 
 type Seminar {
+  """Attendee of the section"""
+  attendees: [Attendee!]
+
   """Description of the workshop"""
   body: String
 
@@ -2133,6 +2138,7 @@ type Seminar {
 
   """Title SEO of the workshop"""
   seotitle: String
+  services: [Service!]
 
   """Site of the item"""
   site: Site
@@ -2203,6 +2209,7 @@ type Service {
 
   """Author of the service"""
   user: User
+  workshops: [Workshop!]
 }
 
 type ServicePaginate {
@@ -2273,6 +2280,9 @@ type ShippingPaginate {
 type Site {
   """Address of website"""
   address: String
+
+  """Attendee of the section"""
+  attendees: [Attendee!]
 
   """Description of the Site"""
   body: String
@@ -2384,9 +2394,6 @@ type Timeline {
   checkout: DateTime
   created: DateTime
 
-  """Site of the item"""
-  event: Event
-
   """Id of slider"""
   id: Float!
 
@@ -2414,11 +2421,9 @@ type TimelinePaginate {
 }
 
 input UpdateAttendeeInput {
-  """Event of the attendee"""
-  event: Float
   id: Int!
-
-  """Site of the Event"""
+  seminar: Float
+  services: String
   site: Float
 
   """Status of the attendee"""
@@ -2426,6 +2431,7 @@ input UpdateAttendeeInput {
 
   """User of the attendee"""
   user: Float
+  workshop: Float
 }
 
 input UpdateBlogInput {
@@ -2756,9 +2762,6 @@ input UpdatePaymentInput {
 
   """Coupon method id of the payment"""
   coupon: Float
-
-  """Event of the payment"""
-  event: Float
   host: String
   id: Int!
 
@@ -2899,6 +2902,7 @@ input UpdateSeminarInput {
 
   """Title SEO of the seminar"""
   seotitle: String
+  services: [Float!]
 
   """Slug of the seminar"""
   slug: String
@@ -3179,6 +3183,7 @@ input UpdateWorkshopInput {
 
   """Title SEO of the workshop"""
   seotitle: String
+  services: [Float!]
 
   """Slug of the workshop"""
   slug: String
@@ -3292,6 +3297,9 @@ input VerificationInput {
 }
 
 type Workshop {
+  """Attendee of the section"""
+  attendees: [Attendee!]
+
   """Description of the workshop"""
   body: String
 
@@ -3325,6 +3333,7 @@ type Workshop {
 
   """Title SEO of the workshop"""
   seotitle: String
+  services: [Service!]
 
   """Site of the item"""
   site: Site
@@ -3357,7 +3366,9 @@ type WorkshopPaginate {
 type productOptions {
   id: Float
   qty: Float
+  services: String
   title: String
+  type: String
 }
 
 type registerFieldsType {

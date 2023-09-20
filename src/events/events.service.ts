@@ -182,7 +182,13 @@ export class EventsService {
   async findUserEvents({ skip, limit }: GetEventsArgs, user?: User) {
     const [result, total] = await this.attendeeRepository.findAndCount({
       where: { user: { id: user.id } },
-      relations: ['event', 'event.category', 'event.user', 'user'],
+      relations: [
+        'workshop',
+        'workshop.user',
+        'seminar',
+        'seminar.user',
+        'user',
+      ],
       order: { id: 'ASC' },
       take: limit,
       skip: skip,
@@ -199,7 +205,7 @@ export class EventsService {
     });
 
     const foundAttendee = await this.attendeeRepository.findOne({
-      where: { user: { id: user.id }, event: { id: event.id } },
+      where: { user: { id: user.id }, site: { id: event.id } },
     });
 
     if (!event) {
@@ -208,7 +214,7 @@ export class EventsService {
 
     return {
       alreadyBought: foundAttendee ? true : false,
-      outOfCapacity: event.capacity && event.attendees.length >= event.capacity,
+      // outOfCapacity: event.capacity && event?.attendees.length >= event.capacity,
     };
   }
 
@@ -225,7 +231,6 @@ export class EventsService {
     await this.attendeeService.create({
       user: user,
       status: true,
-      event,
       site: user?.site[0]?.id,
     });
 

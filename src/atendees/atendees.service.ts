@@ -10,14 +10,18 @@ import { GetAttendeesArgs } from './dto/get-attendees.args';
 import { UpdateAttendeeInput } from './dto/update-atendee.input';
 import { Attendee } from './entities/attendee.entity';
 import { Site } from 'src/sites/entities/site.entity';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
+import { Seminar } from 'src/seminars/entities/seminar.entity';
 
 @Injectable()
 export class AttendeesService {
   constructor(
     @InjectRepository(Attendee)
     private readonly AttendeeRepository: Repository<Attendee>,
-    @InjectRepository(Site)
-    private readonly siteRepository: Repository<Site>,
+    @InjectRepository(Workshop)
+    private readonly workshopRepository: Repository<Workshop>,
+    @InjectRepository(Seminar)
+    private readonly seminarRepository: Repository<Seminar>,
   ) {}
 
   async create(createAttendeeInput: CreateAtendeeInput): Promise<Attendee> {
@@ -32,22 +36,13 @@ export class AttendeesService {
     }
   }
 
-  async findAll({
-    skip,
-    limit,
-    status,
-    siteid,
-    event,
-    searchTerm,
-  }: GetAttendeesArgs) {
+  async findAll({ skip, limit, status, siteid, w, s }: GetAttendeesArgs) {
     const [result, total] = await this.AttendeeRepository.findAndCount({
       where: {
         status: status ?? null,
-        ...(searchTerm && {
-          user: { mobilenumber: searchTerm },
-        }),
         ...(siteid && { site: { id: siteid } }),
-        ...(event && { event: { id: event } }),
+        ...(w && { workshop: { id: w } }),
+        ...(s && { seminar: { id: s } }),
       },
       order: { id: 'DESC' },
       relations: ['user'],
@@ -58,26 +53,66 @@ export class AttendeesService {
     return { attends: result, count: total };
   }
 
-  async findAllApi({ skip, limit, status, siteid, event }: GetAttendeesArgs) {
-    const sites = await this.siteRepository.find({
-      where: {
-        ...(siteid && { site: { id: siteid } }),
-        ...(event && { id: event }),
-      },
-      relations: ['user'],
-      select: { id: true },
-    });
+  async findAllApi({ skip, limit, status, siteid, w, s }: GetAttendeesArgs) {
+    if (w) {
+      const workshops = await this.workshopRepository.find({
+        where: {
+          ...(siteid && { site: { id: siteid } }),
+          ...(w && { id: w }),
+        },
+        relations: ['user'],
+        select: { id: true },
+      });
 
-    const eventIds = sites.map((c) => c.id);
+      const ids = workshops.map((c) => c.id);
+      const [result, total] = await this.AttendeeRepository.findAndCount({
+        where: {
+          status: status ?? null,
+          workshop: {
+            id: In(ids),
+          },
+        },
+        order: { id: 'DESC' },
+        relations: ['user', 'workshop'],
+        take: limit,
+        skip: skip,
+      });
+
+      return { attends: result, count: total };
+    } else if (s) {
+      const seminars = await this.seminarRepository.find({
+        where: {
+          ...(siteid && { site: { id: siteid } }),
+          ...(s && { id: s }),
+        },
+        relations: ['user'],
+        select: { id: true },
+      });
+
+      const ids = seminars.map((c) => c.id);
+      const [result, total] = await this.AttendeeRepository.findAndCount({
+        where: {
+          status: status ?? null,
+          seminar: {
+            id: In(ids),
+          },
+        },
+        order: { id: 'DESC' },
+        relations: ['user', 'seminar'],
+        take: limit,
+        skip: skip,
+      });
+
+      return { attends: result, count: total };
+    }
+
     const [result, total] = await this.AttendeeRepository.findAndCount({
       where: {
         status: status ?? null,
-        site: {
-          id: In(eventIds),
-        },
+        ...(siteid && { site: { id: siteid } }),
       },
       order: { id: 'DESC' },
-      relations: ['user', 'event'],
+      relations: ['user', 'seminar', 'workshop'],
       take: limit,
       skip: skip,
     });

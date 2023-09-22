@@ -792,6 +792,18 @@ input CreateRoleInput {
   title: String!
 }
 
+input CreateScanInput {
+  """User of the attendee"""
+  scanby: Float!
+  seminar: Float
+  site: Float
+  type: String!
+
+  """User of the attendee"""
+  user: Float!
+  workshop: Float
+}
+
 input CreateSeminarInput {
   """Description of the seminar"""
   body: String
@@ -1219,12 +1231,13 @@ type EventPaginate {
 }
 
 input GetAttendeesArgs {
-  event: Float
   limit: Float
-  searchTerm: Float
+  s: Float
+  searchTerm: String
   siteid: Float
   skip: Float!
   status: Boolean
+  w: Float
 }
 
 input GetBlogsArgs {
@@ -1379,6 +1392,12 @@ input GetProductsArgs {
 input GetRolesApiArgs {
   limit: Float
   searchTerm: String
+  skip: Float!
+}
+
+input GetScansArgs {
+  limit: Float
+  siteid: Float
   skip: Float!
 }
 
@@ -1694,6 +1713,7 @@ type Mutation {
   createPlan(input: CreatePlanInput!): Plan!
   createProduct(input: CreateProductInput!): Product!
   createRole(input: CreateRoleInput!): Role!
+  createScan(input: CreateScanInput!): Scan!
   createSeminar(input: CreateSeminarInput!): Seminar!
   createService(input: CreateServiceInput!): Service!
   createSetting(input: CreateSettingInput!): Setting!
@@ -1729,6 +1749,7 @@ type Mutation {
   removePlan(id: Int!): Boolean!
   removeProduct(id: Int!): Boolean!
   removeRole(id: Int!): Boolean!
+  removeScan(id: Int!): Boolean!
   removeSeminar(id: Int!): Boolean!
   removeService(id: Int!): Boolean!
   removeSetting(id: Int!): Setting!
@@ -1757,6 +1778,7 @@ type Mutation {
   updatePlan(input: UpdatePlanInput!): Plan!
   updateProduct(input: UpdateProductInput!): Product!
   updateRole(input: UpdateRoleInput!): Role!
+  updateScan(input: UpdateScanInput!): Scan!
   updateSeminar(input: UpdateSeminarInput!): Seminar!
   updateService(input: UpdateServiceInput!): Service!
   updateSetting(input: UpdateSettingInput!): Setting!
@@ -2044,6 +2066,8 @@ type Query {
   productsApi(input: GetProductsArgs!): ProductPaginate!
   role(id: Int!): Role!
   roles(input: GetRolesApiArgs!): RolePaginate!
+  scan(id: Int!): Scan!
+  scans(input: GetScansArgs!): ScanPaginate!
   seminar(id: Int!): Seminar!
   seminarApi(slug: String!): Seminar!
   seminars(input: GetSeminarsArgs!): SeminarPaginate!
@@ -2099,6 +2123,29 @@ type Role {
 type RolePaginate {
   count: Float!
   roles: [Role!]
+}
+
+type Scan {
+  created: DateTime
+  id: Float!
+
+  """Organizer of the attendee"""
+  scanby: User
+  seminar: Seminar
+
+  """Site of the item"""
+  site: Site
+  type: String!
+  updated: DateTime
+
+  """Organizer of the attendee"""
+  user: User
+  workshop: Workshop
+}
+
+type ScanPaginate {
+  count: Float!
+  scans: [Scan!]
 }
 
 type Seminar {
@@ -2869,6 +2916,20 @@ input UpdateRoleInput {
 
   """Title field (placeholder)"""
   title: String
+}
+
+input UpdateScanInput {
+  id: Int!
+
+  """User of the attendee"""
+  scanby: Float
+  seminar: Float
+  site: Float
+  type: String
+
+  """User of the attendee"""
+  user: Float
+  workshop: Float
 }
 
 input UpdateSeminarInput {

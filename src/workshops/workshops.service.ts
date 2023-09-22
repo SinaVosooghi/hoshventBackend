@@ -98,7 +98,7 @@ export class WorkshopsService {
         ...(siteid && { site: { id: siteid } }),
         ...(user && { site: { id: user.site[0]?.id } }),
       },
-      relations: ['user', 'hall', 'hall.site', 'lecturers', 'services'],
+      relations: ['user', 'hall', 'hall.site', 'lecturers', 'services', 'site'],
       order: { id: 'DESC' },
       take: limit,
       skip: skip,

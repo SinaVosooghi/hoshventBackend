@@ -13,11 +13,14 @@ export class GetAttendeesArgs {
   status: boolean;
 
   @Field({ nullable: true })
-  searchTerm?: number;
+  searchTerm?: string;
 
   @Field({ nullable: true })
   siteid?: number;
 
   @Field({ nullable: true })
-  event?: number;
+  w?: number;
+
+  @Field({ nullable: true })
+  s?: number;
 }

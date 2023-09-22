@@ -15,8 +15,8 @@ import { GetTimelinsArgs } from './dto/get-items.args';
 import * as moment from 'moment';
 import { Bulkaction } from './dto/bulk-action';
 import { GetUserTimelineArgs } from './dto/get-user.args';
-import { ServiceTypes } from 'src/payment/entities/payment.entity';
 import { ManualCheckinInput } from './dto/manual-checkin-input';
+import { ScansService } from 'src/scans/scans.service';
 
 @Injectable()
 export class TimelinesService {
@@ -25,6 +25,7 @@ export class TimelinesService {
     private readonly timelimeRepository: Repository<Timeline>,
     @InjectRepository(Attendee)
     private readonly attendeeRepository: Repository<Attendee>,
+    private readonly scanService: ScansService,
   ) {}
 
   async create(createTimelineInput: CreateTimelineInput, user: User) {
@@ -129,7 +130,6 @@ export class TimelinesService {
     user: User,
   ) {
     const params = new URLSearchParams(url);
-    console.log(params);
     const userId = parseInt(params.get('u'));
     const workshopId = parseInt(params.get('w'));
     const seminarId = parseInt(params.get('s'));
@@ -156,8 +156,8 @@ export class TimelinesService {
       }
 
       attendee = await this.attendeeRepository.findOne({
-        where: { user: { id: userId }, workshop: { id: workshopId } },
-        relations: ['site', 'user', 'workshop'],
+        where: { user: { id: userId }, seminar: { id: seminarId } },
+        relations: ['site', 'user', 'seminar'],
       });
 
       if (!attendee) {
@@ -166,8 +166,6 @@ export class TimelinesService {
     }
 
     const id = seminar ?? workshop;
-
-    console.log(attendee);
 
     if (checkin) {
       await this.checkin(
@@ -237,6 +235,7 @@ export class TimelinesService {
   async checkin(aid: number, id: number, type: string, user: User) {
     const attendee = await this.attendeeRepository.findOne({
       where: { id: aid },
+      relations: ['site', 'user'],
     });
 
     if (!attendee) {
@@ -251,7 +250,15 @@ export class TimelinesService {
       scannedby: user,
     });
 
-    await this.timelimeRepository.save(item);
+    await this.scanService.create({
+      site: attendee.site,
+      user: attendee.user,
+      [type]: id,
+      type: 'checkout',
+      scanby: user,
+    });
+
+    await await this.timelimeRepository.save(item);
     return true;
   }
 
@@ -287,6 +294,13 @@ export class TimelinesService {
         checkout: new Date(),
         site: attendee.site,
         scannedby: user,
+      });
+      await this.scanService.create({
+        site: attendee.site,
+        user: attendee.user,
+        [type]: id,
+        type: 'checkout',
+        scanby: user,
       });
       await this.timelimeRepository.save(item);
       return true;

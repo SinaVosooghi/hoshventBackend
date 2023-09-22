@@ -10,10 +10,18 @@ import { Attendee } from 'src/atendees/entities/attendee.entity';
 import { AttendeesService } from 'src/atendees/atendees.service';
 import { SitesModule } from 'src/sites/sites.module';
 import { Site } from 'src/sites/entities/site.entity';
+import { Seminar } from 'src/seminars/entities/seminar.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Workshop, User, Service, Attendee, Site]),
+    TypeOrmModule.forFeature([
+      Workshop,
+      User,
+      Service,
+      Attendee,
+      Site,
+      Seminar,
+    ]),
   ],
   providers: [
     WorkshopsResolver,

@@ -339,10 +339,11 @@ export class UsersService {
     return `/users.xlsx`;
   }
 
-  async uploadUsersCsv({ csv }: UploadUsersPdfInput) {
+  async uploadUsersCsv({ csv }: UploadUsersPdfInput, user: User) {
     let file = null;
     const imageUpload = await csvUploader(csv);
     file = imageUpload.csv;
+    const siteId = user.site[0]?.id;
 
     const csvFile = readFileSync(`./files/csv/${file}`);
     const csvData = csvFile.toString();
@@ -358,6 +359,8 @@ export class UsersService {
       complete: (results) => results.data,
     });
 
+    console.log(siteId);
+
     if (parsedCSV.data.length > 0) {
       parsedCSV.data?.map(async (item) => {
         if (item.mobilenumber && item.usertype) {
@@ -368,7 +371,9 @@ export class UsersService {
             });
             if (!user) {
               const saltOrRounds = 10;
-              const hash = await bcrypt.hash(item.mobilenumber, saltOrRounds);
+              const hash = item.password
+                ? await bcrypt.hash(item.password, saltOrRounds)
+                : null;
 
               const newUser = await this.userRepository.create({
                 lastName: item.lastname,
@@ -377,8 +382,13 @@ export class UsersService {
                 mobilenumber: item.mobilenumber,
                 username: item.username,
                 usertype: item.usertype,
-                password: hash,
+                password: hash ?? null,
+                gender: item.gender ?? null,
+                category: item.category ?? null,
+                role: item.role ?? null,
+                siteid: siteId ?? null,
               });
+
               await this.userRepository.save(newUser);
             }
           }

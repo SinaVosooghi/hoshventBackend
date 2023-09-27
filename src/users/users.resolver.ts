@@ -15,9 +15,12 @@ export class UsersResolver {
   constructor(private readonly userService: UsersService) {}
 
   @Mutation(() => Boolean)
-  // @UseGuards(GqlAuthGuard)
-  uploadUsersCsv(@Args('input') uploadUsersPdfInput: UploadUsersPdfInput) {
-    return this.userService.uploadUsersCsv(uploadUsersPdfInput);
+  @UseGuards(GqlAuthGuard)
+  uploadUsersCsv(
+    @Args('input') uploadUsersPdfInput: UploadUsersPdfInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.userService.uploadUsersCsv(uploadUsersPdfInput, user);
   }
 
   @Mutation(() => User)

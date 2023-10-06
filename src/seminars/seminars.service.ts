@@ -162,6 +162,12 @@ export class SeminarsService {
       .of(seminarItem)
       .loadMany();
 
+    const actualRelationshipsServices = await this.seminarRepository
+      .createQueryBuilder()
+      .relation(Seminar, 'services')
+      .of(seminarItem)
+      .loadMany();
+
     await this.seminarRepository
       .createQueryBuilder()
       .relation(Seminar, 'lecturers')
@@ -170,11 +176,15 @@ export class SeminarsService {
 
     await this.seminarRepository
       .createQueryBuilder()
-      .relation(Seminar, 'lecturers')
+      .relation(Seminar, 'services')
       .of(seminarItem)
-      .addAndRemove(services, actualRelationships);
+      .addAndRemove(services, actualRelationshipsServices);
 
     delete updateSeminarInput.lecturers;
+    delete updateSeminarInput.services;
+
+    console.log(updateSeminarInput);
+
     const seminar = await this.seminarRepository
       .createQueryBuilder()
       .update()
@@ -208,7 +218,7 @@ export class SeminarsService {
     const foundAttendee = await this.attendeeRepository.findOne({
       where: {
         user: { id: user?.id },
-        seminar: { id: seminar.id },
+        seminar: { id: seminar?.id },
       },
     });
 

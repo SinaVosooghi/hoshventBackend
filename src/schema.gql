@@ -92,6 +92,9 @@ type Brand {
   """Image of the course"""
   image: String
 
+  """Description of the Brand"""
+  link: String
+
   """Site of the item"""
   site: Site
 
@@ -357,6 +360,7 @@ input CreateBrandInput {
 
   """Image of the Service"""
   image: Upload
+  link: String
 
   """Status of the brand"""
   status: Boolean
@@ -2525,6 +2529,7 @@ input UpdateBrandInput {
 
   """Image of the Service"""
   image: Upload
+  link: String
 
   """Status of the brand"""
   status: Boolean

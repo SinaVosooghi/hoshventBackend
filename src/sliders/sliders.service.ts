@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { IsNull, Like, Repository } from 'typeorm';
 import { CreateSliderInput } from './dto/create-slider.input';
 import { GetSlidersArgs } from './dto/get-sliders.args';
 import { UpdateSliderInput } from './dto/update-slider.input';
@@ -45,7 +45,7 @@ export class SlidersService {
   }
 
   async findAll(
-    { skip, limit, searchTerm, status, featured }: GetSlidersArgs,
+    { skip, limit, searchTerm, status, featured, site }: GetSlidersArgs,
     user: User,
   ) {
     const [result, total] = await this.slidersRepository.findAndCount({
@@ -54,8 +54,10 @@ export class SlidersService {
         ...(status && { status: status }),
         ...(featured && { featured: featured }),
         ...(user && { site: { id: user.site[0]?.id } }),
+        ...(site === null && { site: IsNull() }),
       },
       order: { id: 'DESC' },
+      relations: ['site'],
       take: limit,
       skip: skip,
     });

@@ -8,7 +8,6 @@ import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { sendSMS } from 'src/utils/sendSMS';
 import { MailService } from 'src/mail/mail.service';
-import { registerFieldsType } from 'src/sites/entities/site.entity';
 import { SitesService } from 'src/sites/sites.service';
 
 @Injectable()
@@ -84,21 +83,21 @@ export class AuthService {
     await this.userService.updateUserToken(user.id, AT);
     const foundUser = await this.userService.findOne(user.id);
 
-    // if (user.usertype === 'tenant' || user.usertype === 'user') {
-    //   const message = `${user.firstName} ${user.lastName} گرامی،
-    //   با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
-    //   https://hoshvent.com`;
-    //   await sendSMS({
-    //     to: user.mobilenumber,
-    //     message,
-    //   });
+    if (user.usertype === 'tenant' || user.usertype === 'user') {
+      const message = `${user.firstName} ${user.lastName} گرامی،
+      با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
+      https://hoshvent.com`;
+      await sendSMS({
+        to: user.mobilenumber,
+        message,
+      });
 
-    //   await this.mailService.sendCustom(
-    //     user,
-    //     message,
-    //     'به سرویس رویداد خوش آمدید',
-    //   );
-    // }
+      await this.mailService.sendCustom(
+        user,
+        message,
+        'به سرویس رویداد خوش آمدید',
+      );
+    }
 
     return {
       type: user.usertype,

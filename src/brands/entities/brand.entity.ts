@@ -30,6 +30,13 @@ export class Brand {
   body: string;
 
   @Column({ nullable: true })
+  @Field(() => String, {
+    description: 'Description of the Brand',
+    nullable: true,
+  })
+  link: string;
+
+  @Column({ nullable: true })
   @Field(() => String, { description: 'Image of the course', nullable: true })
   image: string;
 

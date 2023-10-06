@@ -98,7 +98,10 @@ export class CategoriesService {
 
     const category = await this.categoryRepository
       .createQueryBuilder('category')
-      .update({ ...updateCategoryInput, ...(image && { image: image }) })
+      .update({
+        ...updateCategoryInput,
+        ...(image && { image: image }),
+      })
       .where({ id: id })
       .returning('*')
       .execute();

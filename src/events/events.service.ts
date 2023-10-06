@@ -15,6 +15,7 @@ import { fileUploader } from 'src/utils/fileUploader';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
 import { BuyEventInput } from './dto/buy-event.input';
 import { AttendeesService } from 'src/atendees/atendees.service';
+import { SitesService } from 'src/sites/sites.service';
 
 @Injectable()
 export class EventsService {
@@ -24,6 +25,7 @@ export class EventsService {
     @InjectRepository(Attendee)
     private readonly attendeeRepository: Repository<Attendee>,
     private readonly attendeeService: AttendeesService,
+    private readonly siteService: SitesService,
   ) {}
 
   async create(createEventInput: CreateEventInput, user: User): Promise<Event> {
@@ -39,12 +41,19 @@ export class EventsService {
       pdf = fileUpload.image;
     }
 
+    const site = await this.siteService.findOne(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      parseInt(createEventInput.site),
+    );
+
     const item = await this.eventRepository.create({
       ...createEventInput,
       image,
       user: user,
-      ...(user && { slug: `${user.site[0].slug}-${createEventInput.slug}` }),
+      ...(user && { slug: `${site?.id}-${createEventInput.slug}` }),
       ...(user && { site: { id: user.site[0]?.id } }),
+      ...(site && { site }),
       pdf,
     });
 

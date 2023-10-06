@@ -13,6 +13,11 @@ export class CreateBrandInput {
   })
   body: string;
 
+  @Field(() => String, {
+    nullable: true,
+  })
+  link: string;
+
   @Field(() => Number, { nullable: true })
   brand: Brand;
 

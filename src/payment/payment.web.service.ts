@@ -196,13 +196,14 @@ export class PaymentWebService {
     } else {
       const siteId = input.site;
       newArray.map(async (event) => {
-        if (event.type === 'Workshop') {
+        if (event.type === 'workshop') {
           const buy = await this.workshopsService.checkBuyWorkshop(
             event.id,
             user,
           );
+
           if (buy) {
-            const workshop = await this.workshopRepository.findOneBy(event.id);
+            const workshop = await this.workshopsService.findOne(event.id);
             await this.attendeeService.create({
               user: user,
               status: true,
@@ -217,7 +218,7 @@ export class PaymentWebService {
             user,
           );
           if (buy) {
-            const seminar = await this.seminarRepository.findOneBy(event.id);
+            const seminar = await this.seminarsService.findOne(event.id);
 
             await this.attendeeService.create({
               user: user,

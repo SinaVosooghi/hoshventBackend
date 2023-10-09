@@ -52,4 +52,13 @@ export class SeminarsResolver {
   removeSeminar(@Args('id', { type: () => Int }) id: number) {
     return this.seminarsService.remove(id);
   }
+
+  @Query(() => String, { name: 'seminarsPdf' })
+  @UseGuards(GqlAuthGuard)
+  usersPdf(
+    @Args('input') getUsersApiArgs: GetSeminarsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.seminarsService.getPdf(getUsersApiArgs, user);
+  }
 }

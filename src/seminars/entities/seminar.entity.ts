@@ -18,6 +18,7 @@ import {
 import { Site } from 'src/sites/entities/site.entity';
 import { Service } from 'src/services/entities/services.entity';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { Scan } from 'src/scans/entities/scan.entity';
 
 @ObjectType()
 @Entity()
@@ -73,6 +74,16 @@ export class Seminar {
   @JoinTable()
   @Field(() => [Service], { nullable: true })
   services: Service[];
+
+  @OneToMany(() => Scan, (scan) => scan.seminar, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn()
+  @Field(() => [Scan], {
+    nullable: true,
+  })
+  scans: Scan[];
 
   @OneToMany(() => Attendee, (attendee) => attendee.seminar, {
     nullable: true,

@@ -1400,6 +1400,7 @@ input GetRolesApiArgs {
 }
 
 input GetScansArgs {
+  all: Boolean! = false
   limit: Float
   siteid: Float
   skip: Float!
@@ -1408,6 +1409,7 @@ input GetScansArgs {
 input GetSeminarsArgs {
   category: String
   featured: Boolean
+  hall: Float
   isDeleted: Boolean
   limit: Float
   price: String
@@ -1492,6 +1494,7 @@ input GetUsersApiArgs {
 input GetWorkshopsArgs {
   category: String
   featured: Boolean
+  hall: Float
   isDeleted: Boolean
   limit: Float
   price: String
@@ -2076,6 +2079,7 @@ type Query {
   seminarApi(slug: String!): Seminar!
   seminars(input: GetSeminarsArgs!): SeminarPaginate!
   seminarsApi(input: GetSeminarsArgs!): SeminarPaginate!
+  seminarsPdf(input: GetSeminarsArgs!): String!
   service(id: Int!): Service!
   services(input: GetServicesArgs!): ServicePaginate!
   servicesApi(input: GetServicesArgs!): ServicePaginate!
@@ -2099,6 +2103,7 @@ type Query {
   workshopApi(slug: String!): Workshop!
   workshops(input: GetWorkshopsArgs!): WorkshopPaginate!
   workshopsApi(input: GetWorkshopsArgs!): WorkshopPaginate!
+  workshopsPdf(input: GetWorkshopsArgs!): String!
 }
 
 type Role {
@@ -2136,6 +2141,7 @@ type Scan {
   """Organizer of the attendee"""
   scanby: User
   seminar: Seminar
+  senmiarstimeline: [Scan!]
 
   """Site of the item"""
   site: Site
@@ -2145,6 +2151,7 @@ type Scan {
   """Organizer of the attendee"""
   user: User
   workshop: Workshop
+  workshopstimeline: [Scan!]
 }
 
 type ScanPaginate {
@@ -2183,6 +2190,7 @@ type Seminar {
 
   """Price of the workshop"""
   price: Float
+  scans: [Scan!]
 
   """Body SEO of the workshop"""
   seobody: String
@@ -3393,6 +3401,7 @@ type Workshop {
 
   """Price of the workshop"""
   price: Float
+  scans: [Scan!]
 
   """Body SEO of the workshop"""
   seobody: String

@@ -52,4 +52,13 @@ export class WorkshopsResolver {
   removeWorkshop(@Args('id', { type: () => Int }) id: number) {
     return this.workshopsService.remove(id);
   }
+
+  @Query(() => String, { name: 'workshopsPdf' })
+  @UseGuards(GqlAuthGuard)
+  usersPdf(
+    @Args('input') getUsersApiArgs: GetWorkshopsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.workshopsService.getPdf(getUsersApiArgs, user);
+  }
 }

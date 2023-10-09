@@ -11,4 +11,7 @@ export class GetScansArgs {
 
   @Field({ nullable: true })
   siteid?: number;
+
+  @Field({ defaultValue: false })
+  all: boolean;
 }

@@ -300,18 +300,26 @@ export class UsersService {
     return user;
   }
 
-  async getPdf({
-    skip,
-    limit,
-    searchTerm,
-    role,
-    status,
-    usertype,
-  }: GetUsersApiArgs) {
+  async getPdf(
+    {
+      skip,
+      limit,
+      searchTerm,
+      role,
+      status,
+      usertype,
+      category,
+      siteid,
+    }: GetUsersApiArgs,
+    user: User,
+  ) {
     const path = './files';
     const [result] = await this.userRepository.findAndCount({
       where: {
         firstName: searchTerm ? Like(`%${searchTerm}%`) : null,
+        ...(category && { category: { id: category } }),
+        ...(siteid && { site: { id: siteid } }),
+        ...(user && { siteid: { id: user.site[0]?.id } }),
         role: {
           id: role,
         },
@@ -358,8 +366,6 @@ export class UsersService {
       transformHeader: (header) => header.toLowerCase().replace('#', '').trim(),
       complete: (results) => results.data,
     });
-
-    console.log(siteId);
 
     if (parsedCSV.data.length > 0) {
       parsedCSV.data?.map(async (item) => {

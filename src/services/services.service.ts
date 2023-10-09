@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { In, Like, Repository } from 'typeorm';
+import { In, IsNull, Like, Repository } from 'typeorm';
 import { CreateServiceInput } from './dto/create-service.input';
 import { imageUploader } from 'src/utils/imageUploader';
 import { Service } from './entities/services.entity';
@@ -57,6 +57,7 @@ export class ServicesService {
         ...(status === false && { status: false }),
         ...(user && { site: { id: user.site[0]?.id } }),
         ...(siteid && { site: { id: siteid } }),
+        ...(siteid === null && { site: IsNull() }),
       },
       relations: ['user'],
       take: limit,

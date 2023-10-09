@@ -35,4 +35,7 @@ export class GetSeminarsArgs {
 
   @Field({ nullable: true })
   siteid?: number;
+
+  @Field({ nullable: true })
+  hall?: number;
 }

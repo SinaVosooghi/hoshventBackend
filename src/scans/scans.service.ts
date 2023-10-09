@@ -31,19 +31,29 @@ export class ScansService {
     }
   }
 
-  async findAll({ skip, limit, siteid }: GetScansArgs, user: User) {
+  async findAll({ skip, limit, siteid, all }: GetScansArgs, user: User) {
     const [result, total] = await this.scanRepository.findAndCount({
       where: {
-        ...(user && user.usertype !== 'tenant' && { scanby: { id: user.id } }),
-        ...(siteid && { site: { id: siteid } }),
-        ...(user.site[0] && { site: { id: user.site[0].id } }),
+        ...(user &&
+          user.usertype !== 'tenant' &&
+          !all && { scanby: { id: user.id } }),
+        ...(siteid && !all && { site: { id: siteid } }),
+        ...(user.site[0] && !all && { site: { id: user.site[0].id } }),
       },
-      relations: ['workshop', 'seminar', 'user', 'scanby'],
+      relations: [
+        'workshop',
+        'seminar',
+        'user',
+        'scanby',
+        'senmiarstimeline',
+        'workshopstimeline',
+      ],
       order: { id: 'DESC' },
       take: limit,
       skip: skip,
     });
 
+    console.log(result);
     return { scans: result, count: total };
   }
 

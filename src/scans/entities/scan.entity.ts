@@ -1,6 +1,7 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Site } from 'src/sites/entities/site.entity';
+import { Timeline } from 'src/timelines/entities/timeline.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import {
@@ -8,6 +9,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -46,6 +48,18 @@ export class Scan {
     nullable: true,
   })
   site: Site;
+
+  @OneToMany(() => Scan, (timeline) => timeline.workshop, {
+    nullable: true,
+  })
+  @Field(() => [Scan], { nullable: true })
+  workshopstimeline: Scan[];
+
+  @OneToMany(() => Scan, (timeline) => timeline.seminar, {
+    nullable: true,
+  })
+  @Field(() => [Scan], { nullable: true })
+  senmiarstimeline: Scan[];
 
   @ManyToOne(() => Workshop, (workshop) => workshop.id, {
     onDelete: 'SET NULL',

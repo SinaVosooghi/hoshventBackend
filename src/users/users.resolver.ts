@@ -61,7 +61,10 @@ export class UsersResolver {
 
   @Query(() => String, { name: 'usersPdf' })
   @UseGuards(GqlAuthGuard)
-  usersPdf(@Args('input') getUsersApiArgs: GetUsersApiArgs) {
-    return this.userService.getPdf(getUsersApiArgs);
+  usersPdf(
+    @Args('input') getUsersApiArgs: GetUsersApiArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.userService.getPdf(getUsersApiArgs, user);
   }
 }

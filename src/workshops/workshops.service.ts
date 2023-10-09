@@ -15,6 +15,8 @@ import { Service } from 'src/services/entities/services.entity';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
 import { AttendeesService } from 'src/atendees/atendees.service';
 
+import * as XLSX from 'xlsx';
+
 @Injectable()
 export class WorkshopsService {
   constructor(
@@ -82,6 +84,7 @@ export class WorkshopsService {
       featured,
       site,
       price,
+      hall,
       siteid,
     }: GetWorkshopsArgs,
     user: User,
@@ -97,14 +100,72 @@ export class WorkshopsService {
         ...(featured === false && { featured: false }),
         ...(siteid && { site: { id: siteid } }),
         ...(user && { site: { id: user.site[0]?.id } }),
+        ...(hall && { hall: { id: hall } }),
       },
-      relations: ['user', 'hall', 'hall.site', 'lecturers', 'services', 'site'],
+      relations: [
+        'user',
+        'hall',
+        'hall.site',
+        'lecturers',
+        'services',
+        'site',
+        'scans',
+      ],
       order: { id: 'DESC' },
       take: limit,
       skip: skip,
     });
 
     return { workshops: result, count: total };
+  }
+
+  async getPdf(
+    {
+      skip,
+      limit,
+      searchTerm,
+      status,
+      featured,
+      site,
+      price,
+      hall,
+      siteid,
+    }: GetWorkshopsArgs,
+    user: User,
+  ) {
+    const path = './files';
+    const [result] = await this.workshopRepository.findAndCount({
+      where: {
+        title: searchTerm ? Like(`%${searchTerm}%`) : null,
+        status: status,
+        ...(price === 'free' && { price: IsNull() }),
+        ...(price === 'cash' && { price: Not(IsNull()) }),
+        ...(site !== 'all' && { site: { slug: site } }),
+        ...(featured && { featured: true }),
+        ...(featured === false && { featured: false }),
+        ...(siteid && { site: { id: siteid } }),
+        ...(user && { site: { id: user.site[0]?.id } }),
+        ...(hall && { hall: { id: hall } }),
+      },
+      order: { id: 'DESC' },
+      relations: [
+        'user',
+        'hall',
+        'hall.site',
+        'lecturers',
+        'services',
+        'site',
+        'scans',
+      ],
+      take: limit,
+      skip: skip,
+    });
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(result);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Workshops');
+    XLSX.writeFile(workbook, `${path}/workshops.xlsx`);
+    return `/workshops.xlsx`;
   }
 
   async findOne(id: number): Promise<Workshop> {

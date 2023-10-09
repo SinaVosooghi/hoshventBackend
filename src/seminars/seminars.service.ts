@@ -15,6 +15,8 @@ import { Service } from 'src/services/entities/services.entity';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
 import { AttendeesService } from 'src/atendees/atendees.service';
 
+import * as XLSX from 'xlsx';
+
 @Injectable()
 export class SeminarsService {
   constructor(
@@ -84,6 +86,7 @@ export class SeminarsService {
       price,
       site,
       siteid,
+      hall,
     }: GetSeminarsArgs,
     user?: User,
   ) {
@@ -97,8 +100,16 @@ export class SeminarsService {
         ...(featured === false && { featured: false }),
         ...(siteid && { site: { id: siteid } }),
         ...(user && { site: { id: user.site[0]?.id } }),
+        ...(hall && { hall: { id: hall } }),
       },
-      relations: ['user', 'hall', 'hall.site', 'lecturers', 'services'],
+      relations: [
+        'user',
+        'hall',
+        'hall.site',
+        'lecturers',
+        'services',
+        'scans',
+      ],
       order: { id: 'DESC' },
       take: limit,
       skip: skip,
@@ -183,8 +194,6 @@ export class SeminarsService {
     delete updateSeminarInput.lecturers;
     delete updateSeminarInput.services;
 
-    console.log(updateSeminarInput);
-
     const seminar = await this.seminarRepository
       .createQueryBuilder()
       .update()
@@ -261,5 +270,54 @@ export class SeminarsService {
     if (foundAttendee.alreadyBought) throw new Error('Already added');
 
     return true;
+  }
+
+  async getPdf(
+    {
+      skip,
+      limit,
+      searchTerm,
+      status,
+      featured,
+      site,
+      price,
+      hall,
+      siteid,
+    }: GetSeminarsArgs,
+    user: User,
+  ) {
+    const path = './files';
+    const [result] = await this.seminarRepository.findAndCount({
+      where: {
+        title: searchTerm ? Like(`%${searchTerm}%`) : null,
+        status: status,
+        ...(price === 'free' && { price: IsNull() }),
+        ...(price === 'cash' && { price: Not(IsNull()) }),
+        ...(site !== 'all' && { site: { slug: site } }),
+        ...(featured && { featured: true }),
+        ...(featured === false && { featured: false }),
+        ...(siteid && { site: { id: siteid } }),
+        ...(user && { site: { id: user.site[0]?.id } }),
+        ...(hall && { hall: { id: hall } }),
+      },
+      order: { id: 'DESC' },
+      relations: [
+        'user',
+        'hall',
+        'hall.site',
+        'lecturers',
+        'services',
+        'site',
+        'scans',
+      ],
+      take: limit,
+      skip: skip,
+    });
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(result);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Seminars');
+    XLSX.writeFile(workbook, `${path}/seminars.xlsx`);
+    return `/seminars.xlsx`;
   }
 }

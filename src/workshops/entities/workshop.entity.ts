@@ -18,6 +18,8 @@ import {
 import { Site } from 'src/sites/entities/site.entity';
 import { Service } from 'src/services/entities/services.entity';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { Scan } from 'src/scans/entities/scan.entity';
+import { scan } from 'rxjs';
 
 @ObjectType()
 @Entity()
@@ -165,6 +167,16 @@ export class Workshop {
     nullable: true,
   })
   attendees: Attendee[];
+
+  @OneToMany(() => Scan, (scan) => scan.workshop, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn()
+  @Field(() => [Scan], {
+    nullable: true,
+  })
+  scans: Scan[];
 
   @BeforeInsert()
   generateSlug() {

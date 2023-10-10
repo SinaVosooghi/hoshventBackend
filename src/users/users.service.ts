@@ -140,10 +140,17 @@ export class UsersService {
       relations: ['workshops', 'seminars'],
     });
     let image: any = updateUserInput.avatar;
+    const userObject = updateUserInput;
 
     const avatar = null;
     let seminars = [];
     let workshops = [];
+
+    if (updateUserInput.password) {
+      const saltOrRounds = 10;
+      const hash = await bcrypt.hash(updateUserInput.password, saltOrRounds);
+      userObject.password = hash;
+    }
 
     if (typeof updateUserInput.avatar !== 'string' && updateUserInput.avatar) {
       const imageUpload = await imageUploader(updateUserInput.avatar);
@@ -182,13 +189,14 @@ export class UsersService {
       .of(serviceItem)
       .addAndRemove(seminars, actualRelationships);
 
-    delete updateUserInput.seminars;
-    delete updateUserInput.workshops;
+    delete userObject.seminars;
+    delete userObject.workshops;
 
+    console.log(userObject);
     const user = await this.userRepository
       .createQueryBuilder()
       .update()
-      .set({ ...updateUserInput, ...(image && { avatar: image }) })
+      .set({ ...userObject, ...(image && { avatar: image }) })
       .where({ id: updateUserInput.id })
       .returning('*')
       .execute();

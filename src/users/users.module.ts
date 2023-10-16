@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { Category } from 'src/categories/entities/category.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
+import { UserApiResolver } from './user.api.resolver';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { Workshop } from 'src/workshops/entities/workshop.entity';
       signOptions: { expiresIn: '120m' },
     }),
   ],
-  providers: [UsersResolver, UsersService],
+  providers: [UsersResolver, UsersService, UserApiResolver],
   exports: [UsersService],
 })
 export class UsersModule {}

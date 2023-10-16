@@ -53,7 +53,6 @@ export class ScansService {
       skip: skip,
     });
 
-    console.log(result);
     return { scans: result, count: total };
   }
 

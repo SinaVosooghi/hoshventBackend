@@ -1794,6 +1794,7 @@ type Mutation {
   updateSlider(input: UpdateSliderInput!): Slider!
   updateTimeline(updateTimelineInput: UpdateTimelineInput!): Timeline!
   updateUser(input: UpdateUserInput!): User!
+  updateUserApi(input: UpdateUserInput!): User!
   updateWorkshop(input: UpdateWorkshopInput!): Workshop!
   uploadUsersCsv(input: UploadUsersPdfInput!): Boolean!
   verification(input: VerificationInput!): Boolean!
@@ -2095,6 +2096,7 @@ type Query {
   timeline(input: GetUserTimelineArgs!): Attendee!
   timelines(input: GetTimelinsArgs!): TimelinePaginate!
   user(id: Int!): User!
+  userByMobile(mobilenumber: String!): User!
   userEventsApi(input: GetEventsArgs!): AttendeePaginate!
   userTimelines(input: GetTimelinsArgs!): TimelinePaginate!
   users(input: GetUsersApiArgs!): UserPaginate!

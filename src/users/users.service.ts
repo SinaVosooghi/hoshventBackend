@@ -134,6 +134,26 @@ export class UsersService {
     return user;
   }
 
+  async findByMobile(mobilenumber: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { mobilenumber: parseInt(mobilenumber) },
+      relations: [
+        'role',
+        'site',
+        'category',
+        'site.plan',
+        'workshops',
+        'seminars',
+      ],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User #${mobilenumber} not found`);
+    }
+
+    return user;
+  }
+
   async update(id: number, updateUserInput: UpdateUserInput): Promise<User> {
     const serviceItem = await this.userRepository.findOne({
       where: { id: updateUserInput.id },

@@ -23,6 +23,8 @@ export class TimelinesService {
   constructor(
     @InjectRepository(Timeline)
     private readonly timelimeRepository: Repository<Timeline>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Attendee)
     private readonly attendeeRepository: Repository<Attendee>,
     private readonly scanService: ScansService,
@@ -131,17 +133,21 @@ export class TimelinesService {
   ) {
     const params = new URLSearchParams(url);
     const userId = parseInt(params.get('u'));
-    const workshopId = parseInt(params.get('w'));
-    const seminarId = parseInt(params.get('s'));
     let attendee = null;
 
-    if (workshopId) {
-      if (!userId || !workshopId) {
+    const scanningUser = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!scanningUser) throw new NotFoundException(`User #${url} not found`);
+
+    if (workshop) {
+      if (!userId || !workshop) {
         throw new NotFoundException(`Site #${url} not found`);
       }
 
       attendee = await this.attendeeRepository.findOne({
-        where: { user: { id: userId }, workshop: { id: workshopId } },
+        where: { user: { id: userId }, workshop: { id: parseInt(workshop) } },
         relations: ['site', 'user', 'workshop'],
       });
 
@@ -150,13 +156,13 @@ export class TimelinesService {
       }
     }
 
-    if (seminarId) {
-      if (!userId || !seminarId) {
-        throw new NotFoundException(`Site #${url} not found`);
+    if (seminar) {
+      if (!userId || !seminar) {
+        throw new NotFoundException(`User #${url} not found`);
       }
 
       attendee = await this.attendeeRepository.findOne({
-        where: { user: { id: userId }, seminar: { id: seminarId } },
+        where: { user: { id: userId }, seminar: { id: parseInt(seminar) } },
         relations: ['site', 'user', 'seminar'],
       });
 

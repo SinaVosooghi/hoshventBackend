@@ -1,10 +1,9 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
-import { CurrentUser } from 'src/auth/current-user.decorator';
 
 @Resolver(() => User)
 export class UserApiResolver {
@@ -12,10 +11,14 @@ export class UserApiResolver {
 
   @Mutation(() => User, { name: 'updateUserApi' })
   @UseGuards(GqlAuthGuard)
-  updateUser(
-    @Args('input') updateUserInput: UpdateUserInput,
-    @CurrentUser() user: User,
-  ) {
+  updateUser(@Args('input') updateUserInput: UpdateUserInput) {
     return this.userService.updateApi(updateUserInput);
+  }
+
+  @Query(() => User, { name: 'userByMobile' })
+  useByMobile(
+    @Args('mobilenumber', { type: () => String }) mobilenumber: string,
+  ) {
+    return this.userService.findByMobile(mobilenumber);
   }
 }

@@ -36,6 +36,12 @@ export class CreateUserInput {
   })
   postalcode: string;
 
+  @Field(() => String, {
+    description: 'Natinal code of the user',
+    nullable: true,
+  })
+  nationalcode: string;
+
   @Field(() => Number, { description: 'role of the user', nullable: true })
   role: Role;
 

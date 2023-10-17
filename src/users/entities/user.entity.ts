@@ -67,6 +67,10 @@ export class User {
   @Field(() => String, { description: 'Last name of the user' })
   lastName: string;
 
+  @Column({ unique: true, nullable: true })
+  @Field(() => String, { description: 'Natinal code of the user' })
+  nationalcode: string;
+
   @Column({ unique: true })
   @Field(() => String, { description: 'Email of the user' })
   email: string;

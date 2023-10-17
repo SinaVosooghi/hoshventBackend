@@ -101,11 +101,16 @@ export class CreateSiteInput {
   })
   body: string;
 
-  @Field(() => GraphQLUpload, {
-    description: 'Logo of the site',
+  @Field(() => GraphQLUpload, { nullable: true })
+  logo: Promise<FileUpload>;
+
+  @Field(() => GraphQLUpload, { nullable: true })
+  banner: Promise<FileUpload>;
+
+  @Field(() => String, {
     nullable: true,
   })
-  logo: Promise<FileUpload>;
+  isNationalCode: 'ncode' | 'mobile';
 
   @Field(() => Number, {
     description: 'Category of the Site',

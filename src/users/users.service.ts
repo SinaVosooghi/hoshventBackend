@@ -21,6 +21,7 @@ import { csvUploader } from 'src/utils/csvUploader';
 import { readFileSync } from 'fs';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
+import { GetUserMobileApiArgs } from './dto/get-user.args';
 
 @Injectable()
 export class UsersService {
@@ -134,9 +135,15 @@ export class UsersService {
     return user;
   }
 
-  async findByMobile(mobilenumber: string): Promise<User> {
+  async findByMobile({
+    mobilenumber,
+    nationalcode,
+  }: GetUserMobileApiArgs): Promise<User> {
     const user = await this.userRepository.findOne({
-      where: { mobilenumber: parseInt(mobilenumber) },
+      where: {
+        ...(mobilenumber && { mobilenumber: parseInt(mobilenumber) }),
+        ...(nationalcode && { nationalcode: nationalcode }),
+      },
       relations: [
         'role',
         'site',

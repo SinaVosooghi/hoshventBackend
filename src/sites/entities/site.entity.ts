@@ -148,6 +148,10 @@ export class Site {
 
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })
+  banner: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
   cardlayout: string;
 
   @OneToMany(() => Attendee, (attendee) => attendee.site, {
@@ -204,6 +208,12 @@ export class Site {
     nullable: true,
   })
   status: boolean;
+
+  @Column({ nullable: true })
+  @Field(() => String, {
+    nullable: true,
+  })
+  isNationalCode: 'ncode' | 'mobile';
 
   @Column({ nullable: true })
   @Field({ nullable: true })

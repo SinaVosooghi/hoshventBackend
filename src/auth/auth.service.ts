@@ -86,7 +86,9 @@ export class AuthService {
     if (user.usertype === 'tenant' || user.usertype === 'user') {
       const message = `${user.firstName} ${user.lastName} گرامی،
       با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
-      https://hoshvent.com`;
+
+      لینک دانلود کارت ورود:
+      ${user.site[0].domain}/panel`;
       await sendSMS({
         to: user.mobilenumber,
         message,
@@ -150,6 +152,7 @@ export class AuthService {
       email: user.email,
       mobilenumber: user.mobilenumber,
       password: user.password,
+      nationalcode: user.nationalcode,
       usertype: 'user',
       address: '',
       postalcode: '',

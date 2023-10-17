@@ -20,18 +20,27 @@ export class SitesService {
   constructor(
     @InjectRepository(Site)
     private readonly siteRepository: Repository<Site>,
-    private readonly userService: UsersService,
-    private readonly mailService: MailService,
   ) {}
 
   async create(createSiteInput: CreateSiteInput): Promise<Site> {
     let logo = null;
+    let banner = null;
+
     if (createSiteInput.logo) {
       const imageUpload = await imageUploader(createSiteInput.logo);
       logo = imageUpload.image;
     }
 
-    const item = await this.siteRepository.create({ ...createSiteInput, logo });
+    if (createSiteInput.banner) {
+      const imageUpload = await imageUploader(createSiteInput.banner);
+      banner = imageUpload.image;
+    }
+
+    const item = await this.siteRepository.create({
+      ...createSiteInput,
+      logo,
+      banner,
+    });
 
     if (createSiteInput.port === 4040) throw new Error('Port already exist');
     if (createSiteInput.port === 3030) throw new Error('Port already exist');
@@ -260,14 +269,24 @@ export class SitesService {
 
   async update(id: number, updateSiteInput: UpdateSiteInput): Promise<Site> {
     let logo = null;
+    let banner = null;
     if (updateSiteInput.logo) {
       const imageUpload = await imageUploader(updateSiteInput.logo);
       logo = imageUpload.image;
     }
 
+    if (updateSiteInput.banner) {
+      const imageUpload = await imageUploader(updateSiteInput.banner);
+      banner = imageUpload.image;
+    }
+
     const site = await this.siteRepository
       .createQueryBuilder('site')
-      .update({ ...updateSiteInput, ...(logo && { logo: logo }) })
+      .update({
+        ...updateSiteInput,
+        ...(logo && { logo: logo }),
+        ...(banner && { banner: banner }),
+      })
       .where({ id: id })
       .returning('*')
       .execute();

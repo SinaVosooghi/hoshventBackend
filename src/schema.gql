@@ -975,6 +975,7 @@ input CreateShippingInput {
 input CreateSiteInput {
   """Address of website"""
   address: String
+  banner: Upload
 
   """Description of the Site"""
   body: String
@@ -1000,11 +1001,10 @@ input CreateSiteInput {
 
   """Email of the Site"""
   email: String
+  isNationalCode: String
 
   """Language of website"""
   language: String
-
-  """Logo of the site"""
   logo: Upload
 
   """Phonenumber of website"""
@@ -1089,6 +1089,9 @@ input CreateUserInput {
 
   """mobilenumber of the user"""
   mobilenumber: Float!
+
+  """Natinal code of the user"""
+  nationalcode: String
 
   """mobilenumber of the user"""
   password: String!
@@ -1517,6 +1520,11 @@ input GetTimelinsArgs {
   type: String
   user: Float
   workshop: Float
+}
+
+input GetUserMobileApiArgs {
+  mobilenumber: String
+  nationalcode: String
 }
 
 input GetUserTimelineArgs {
@@ -2148,7 +2156,7 @@ type Query {
   timeline(input: GetUserTimelineArgs!): Attendee!
   timelines(input: GetTimelinsArgs!): TimelinePaginate!
   user(id: Int!): User!
-  userByMobile(mobilenumber: String!): User!
+  userByMobile(input: GetUserMobileApiArgs!): User!
   userEventsApi(input: GetEventsArgs!): AttendeePaginate!
   userTimelines(input: GetTimelinsArgs!): TimelinePaginate!
   users(input: GetUsersApiArgs!): UserPaginate!
@@ -2396,6 +2404,7 @@ type Site {
 
   """Attendee of the section"""
   attendees: [Attendee!]
+  banner: String
 
   """Description of the Site"""
   body: String
@@ -2425,6 +2434,7 @@ type Site {
 
   """id of the Site"""
   id: Float!
+  isNationalCode: String
 
   """Language of website"""
   language: String
@@ -3141,6 +3151,7 @@ input UpdateShippingInput {
 input UpdateSiteInput {
   """Address of website"""
   address: String
+  banner: Upload
 
   """Description of the Site"""
   body: String
@@ -3167,11 +3178,10 @@ input UpdateSiteInput {
   """Email of the Site"""
   email: String
   id: Int!
+  isNationalCode: String
 
   """Language of website"""
   language: String
-
-  """Logo of the site"""
   logo: Upload
 
   """Phonenumber of website"""
@@ -3260,6 +3270,9 @@ input UpdateUserInput {
 
   """mobilenumber of the user"""
   mobilenumber: Float
+
+  """Natinal code of the user"""
+  nationalcode: String
 
   """mobilenumber of the user"""
   password: String
@@ -3381,6 +3394,9 @@ type User {
 
   """Mobilenumber of the user"""
   mobilenumber: Float!
+
+  """Natinal code of the user"""
+  nationalcode: String!
 
   """Password of the user"""
   password: String!

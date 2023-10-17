@@ -4,6 +4,7 @@ import { User } from './entities/user.entity';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
+import { GetUserMobileApiArgs } from './dto/get-user.args';
 
 @Resolver(() => User)
 export class UserApiResolver {
@@ -16,9 +17,7 @@ export class UserApiResolver {
   }
 
   @Query(() => User, { name: 'userByMobile' })
-  useByMobile(
-    @Args('mobilenumber', { type: () => String }) mobilenumber: string,
-  ) {
-    return this.userService.findByMobile(mobilenumber);
+  useByMobile(@Args('input') getUser: GetUserMobileApiArgs) {
+    return this.userService.findByMobile(getUser);
   }
 }

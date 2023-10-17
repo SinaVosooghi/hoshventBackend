@@ -162,6 +162,35 @@ type CategoryPaginate {
   count: Float!
 }
 
+type Certificate {
+  created: DateTime
+
+  """id of the Brand"""
+  id: Float!
+
+  """Image of the course"""
+  image: String
+  itemLayout: String
+
+  """Site of the item"""
+  site: Site
+
+  """Status of the plan"""
+  status: Boolean!
+
+  """Title of the Site"""
+  title: String!
+
+  """Level of the user"""
+  type: String
+  updated: DateTime
+}
+
+type CertificatePaginate {
+  certificates: [Certificate!]
+  count: Float!
+}
+
 type Chat {
   """Close of the Chat"""
   closed: Boolean
@@ -390,6 +419,14 @@ input CreateCategoryInput {
   title: String!
 
   """Type of the Category"""
+  type: String!
+}
+
+input CreateCertificateInput {
+  image: Upload
+  itemLayout: String
+  status: Boolean!
+  title: String!
   type: String!
 }
 
@@ -1274,6 +1311,15 @@ input GetCategoriesArgs {
   type: String
 }
 
+input GetCertificatesArgs {
+  featured: Boolean
+  limit: Float
+  searchTerm: String
+  site: String
+  skip: Float!
+  status: Boolean
+}
+
 input GetChatsArgs {
   department: Float
   limit: Float
@@ -1702,6 +1748,7 @@ type Mutation {
   createBlog(input: CreateBlogInput!): Blog!
   createBrand(input: CreateBrandInput!): Brand!
   createCategory(input: CreateCategoryInput!): Category!
+  createCertificate(input: CreateCertificateInput!): Certificate!
   createChat(input: CreateChatInput!): Boolean!
   createComment(input: CreateCommentInput!): Comment!
   createContact(input: CreateContactInput!): Contact!
@@ -1738,6 +1785,7 @@ type Mutation {
   removeBlog(id: Int!): Boolean!
   removeBrand(id: Int!): Boolean!
   removeCategory(id: Int!): Boolean!
+  removeCertificate(id: Int!): Boolean!
   removeChat(id: Int!): Chat!
   removeComment(id: Int!): Boolean!
   removeContact(id: Int!): Boolean!
@@ -1770,6 +1818,7 @@ type Mutation {
   updateBlog(input: UpdateBlogInput!): Blog!
   updateBrand(input: UpdateBrandInput!): Brand!
   updateCategory(input: UpdateCategoryInput!): Category!
+  updateCertificate(input: UpdateCertificateInput!): Certificate!
   updateComment(input: UpdateCommentInput!): Comment!
   updateContact(input: UpdateContactInput!): Contact!
   updateCoupon(input: UpdateCouponInput!): Coupon!
@@ -2027,6 +2076,8 @@ type Query {
   categoriesApi(input: GetCategoriesArgs!): CategoryPaginate!
   category(id: Int!): Category!
   categoryApi(id: Int!): Category!
+  certificate(id: Int!): Certificate!
+  certificates(input: GetCertificatesArgs!): CertificatePaginate!
   chat(id: Int!): Chat!
   chatApi(id: Int!): Chat!
   chats(input: GetChatsArgs!): ChatPaginate!
@@ -2043,6 +2094,7 @@ type Query {
   eventApi(slug: String!): Event!
   events(input: GetEventsArgs!): EventPaginate!
   eventsApi(input: GetEventsArgs!): EventPaginate!
+  getCertificate(type: String!): Certificate!
   getSetting: Setting!
   getSite(id: Int!): Site!
   hall(id: Int!): Hall!
@@ -2570,6 +2622,15 @@ input UpdateCategoryInput {
   title: String
 
   """Type of the Category"""
+  type: String
+}
+
+input UpdateCertificateInput {
+  id: Int!
+  image: Upload
+  itemLayout: String
+  status: Boolean
+  title: String
   type: String
 }
 

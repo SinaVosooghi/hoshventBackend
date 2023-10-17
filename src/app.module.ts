@@ -40,6 +40,7 @@ import { TimelinesModule } from './timelines/timelines.module';
 import { MailModule } from './mail/mail.module';
 import { LikesModule } from './likes/likes.module';
 import { ScansModule } from './scans/scans.module';
+import { CertificatesModule } from './certificates/certificates.module';
 
 @Module({
   imports: [
@@ -93,6 +94,7 @@ import { ScansModule } from './scans/scans.module';
     MailModule,
     LikesModule,
     ScansModule,
+    CertificatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

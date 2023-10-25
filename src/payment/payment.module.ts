@@ -21,6 +21,7 @@ import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { SeminarsModule } from 'src/seminars/seminars.module';
 import { WorkshopsModule } from 'src/workshops/workshops.module';
+import { ServicesModule } from 'src/services/services.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { WorkshopsModule } from 'src/workshops/workshops.module';
     SitesModule,
     SeminarsModule,
     WorkshopsModule,
+    ServicesModule,
   ],
   providers: [
     PaymentResolver,

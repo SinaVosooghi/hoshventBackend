@@ -22,6 +22,7 @@ import { readFileSync } from 'fs';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { GetUserMobileApiArgs } from './dto/get-user.args';
+import { Service } from 'src/services/entities/services.entity';
 
 @Injectable()
 export class UsersService {
@@ -32,6 +33,8 @@ export class UsersService {
     private readonly seminarsRepo: Repository<Seminar>,
     @InjectRepository(Workshop)
     private readonly workshopRepo: Repository<Workshop>,
+    @InjectRepository(Service)
+    private readonly servicesRepo: Repository<Service>,
   ) {}
 
   async create(input: CreateUserInput, user?: User): Promise<User> {
@@ -39,6 +42,7 @@ export class UsersService {
     let avatar = null;
     let seminars = [];
     let workshops = [];
+    let services = [];
 
     if (input.avatar) {
       const imageUpload = await imageUploader(input.avatar);
@@ -63,17 +67,28 @@ export class UsersService {
       });
     }
 
+    if (input.services?.length) {
+      services = await this.servicesRepo.findBy({
+        id: In(input.services),
+      });
+    }
+
+    const siteId = input.siteid?.id ?? input.siteid;
     const userItem = this.userRepository.create({
       ...userObject,
       avatar,
       workshops,
       seminars,
+      services,
       username: input.email,
       ...(user && { siteid: { id: user.site[0]?.id } }),
+      // @ts-ignore
+      ...(input.siteid && { siteid: { id: parseInt(siteId) } }),
     });
 
     try {
-      return await this.userRepository.save(userItem);
+      const user = await this.userRepository.save(userItem);
+      return user;
     } catch (err) {
       if (err.code === '23505') {
         throw new ConflictException('Duplicate error');
@@ -104,7 +119,7 @@ export class UsersService {
         usertype,
         ...(category && { category: { id: category } }),
         ...(user && { siteid: { id: user.site[0]?.id } }),
-        ...(siteid && { site: { id: siteid } }),
+        ...(siteid && { siteid: { id: siteid } }),
       },
       relations: ['role', 'category'],
       order: { id: 'DESC' },
@@ -125,6 +140,7 @@ export class UsersService {
         'site.plan',
         'workshops',
         'seminars',
+        'services',
       ],
     });
 
@@ -169,9 +185,9 @@ export class UsersService {
     let image: any = updateUserInput.avatar;
     const userObject = updateUserInput;
 
-    const avatar = null;
     let seminars = [];
     let workshops = [];
+    let services = [];
 
     if (updateUserInput.password) {
       const saltOrRounds = 10;
@@ -192,6 +208,10 @@ export class UsersService {
       id: In(updateUserInput.workshops),
     });
 
+    services = await this.servicesRepo.findBy({
+      id: In(updateUserInput.services),
+    });
+
     const actualRelationships = await this.userRepository
       .createQueryBuilder()
       .relation(User, 'seminars')
@@ -201,6 +221,12 @@ export class UsersService {
     const actualRelationshipsW = await this.userRepository
       .createQueryBuilder()
       .relation(User, 'workshops')
+      .of(serviceItem)
+      .loadMany();
+
+    const actualRelationshipsServices = await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'services')
       .of(serviceItem)
       .loadMany();
 
@@ -216,10 +242,16 @@ export class UsersService {
       .of(serviceItem)
       .addAndRemove(seminars, actualRelationships);
 
+    await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'services')
+      .of(serviceItem)
+      .addAndRemove(services, actualRelationshipsServices);
+
     delete userObject.seminars;
     delete userObject.workshops;
+    delete userObject.services;
 
-    console.log(userObject);
     const user = await this.userRepository
       .createQueryBuilder()
       .update()
@@ -362,15 +394,6 @@ export class UsersService {
         usertype,
       },
       order: { id: 'DESC' },
-      select: [
-        'id',
-        'username',
-        'email',
-        'firstName',
-        'lastName',
-        'mobilenumber',
-        'usertype',
-      ],
       take: limit,
       skip: skip,
     });
@@ -419,6 +442,8 @@ export class UsersService {
               const newUser = await this.userRepository.create({
                 lastName: item.lastname,
                 firstName: item.firstname,
+                lastNameen: item.lastnameen,
+                firstNameen: item.firstnameen,
                 email: item.username,
                 mobilenumber: item.mobilenumber,
                 username: item.username,
@@ -428,6 +453,7 @@ export class UsersService {
                 category: item.category ?? null,
                 role: item.role ?? null,
                 siteid: siteId ?? null,
+                nationalcode: item.nationalcode ?? null,
               });
 
               await this.userRepository.save(newUser);

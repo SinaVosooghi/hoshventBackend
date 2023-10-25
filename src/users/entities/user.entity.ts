@@ -18,6 +18,7 @@ import { Timeline } from 'src/timelines/entities/timeline.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { GraphQLJSONObject } from 'graphql-type-json';
+import { Service } from 'src/services/entities/services.entity';
 
 @ObjectType()
 @Entity()
@@ -36,7 +37,7 @@ export class User {
   @Field(() => String, { nullable: true })
   gender: 'male' | 'female';
 
-  @Column({ unique: true, nullable: true, type: 'bigint' })
+  @Column({ nullable: true, type: 'bigint' })
   @Field(() => Number, { description: 'Mobilenumber of the user' })
   mobilenumber: number;
 
@@ -67,11 +68,22 @@ export class User {
   @Field(() => String, { description: 'Last name of the user' })
   lastName: string;
 
-  @Column({ unique: true, nullable: true })
+  @Column({ nullable: true })
+  @Field(() => String, {
+    description: 'First name of the user',
+    nullable: true,
+  })
+  firstNameen: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, { description: 'Last name of the user', nullable: true })
+  lastNameen: string;
+
+  @Column({ nullable: true })
   @Field(() => String, { description: 'Natinal code of the user' })
   nationalcode: string;
 
-  @Column({ unique: true })
+  @Column()
   @Field(() => String, { description: 'Email of the user' })
   email: string;
 
@@ -176,6 +188,13 @@ export class User {
     nullable: true,
   })
   workshops?: Workshop[];
+
+  @ManyToMany(() => Service)
+  @JoinTable()
+  @Field(() => [Service], {
+    nullable: true,
+  })
+  services?: Service[];
 
   @Column({
     type: 'jsonb',

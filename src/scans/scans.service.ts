@@ -47,6 +47,8 @@ export class ScansService {
         'scanby',
         'senmiarstimeline',
         'workshopstimeline',
+        'service',
+        'servicesTimeline',
       ],
       order: { id: 'DESC' },
       take: limit,
@@ -59,7 +61,7 @@ export class ScansService {
   async findOne(id: number): Promise<Scan> {
     const scan = await this.scanRepository.findOne({
       where: { id: id },
-      relations: ['workshop', 'seminar'],
+      relations: ['workshop', 'seminar', 'service'],
     });
     if (!scan) {
       throw new NotFoundException(`Scan #${id} not found`);

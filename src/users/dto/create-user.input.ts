@@ -24,6 +24,15 @@ export class CreateUserInput {
   @Field(() => String, { description: 'last name of the user' })
   lastName: string;
 
+  @Field(() => String, {
+    description: 'first name of the user',
+    nullable: true,
+  })
+  firstNameen?: string;
+
+  @Field(() => String, { description: 'last name of the user', nullable: true })
+  lastNameen?: string;
+
   @Field(() => String, { description: 'email of the user' })
   email: string;
 
@@ -96,6 +105,11 @@ export class CreateUserInput {
     nullable: true,
   })
   workshops?: [Workshop];
+
+  @Field(() => [Number], {
+    nullable: true,
+  })
+  services?: [Workshop];
 
   @Field(() => GraphQLJSONObject, { nullable: true })
   registerFields?: registerFieldsType;

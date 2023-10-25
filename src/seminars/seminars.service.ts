@@ -242,7 +242,7 @@ export class SeminarsService {
     };
   }
 
-  async buySeminar(id: number, user: User, services: any) {
+  async buySeminar(id: number, user: User) {
     if (!id) return false;
     const foundAttendee = await this.checkOne(id, user);
 
@@ -257,7 +257,6 @@ export class SeminarsService {
       status: true,
       site: user?.site[0]?.id,
       seminar: seminar,
-      services,
     });
 
     return true;

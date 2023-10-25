@@ -11,12 +11,17 @@ import { imageUploader } from 'src/utils/imageUploader';
 import { Service } from './entities/services.entity';
 import { GetServicesArgs } from './dto/get-items.args';
 import { UpdateServiceInput } from './dto/update-items.input';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { AttendeesService } from 'src/atendees/atendees.service';
 
 @Injectable()
 export class ServicesService {
   constructor(
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
+    @InjectRepository(Attendee)
+    private readonly attendeeRepository: Repository<Attendee>,
+    private readonly attendeeService: AttendeesService,
   ) {}
 
   async create(
@@ -130,6 +135,60 @@ export class ServicesService {
       .set({ ...service, image: null })
       .where({ id: id })
       .execute();
+
+    return true;
+  }
+
+  async checkOne(id: number, user: User) {
+    // Check course
+    const service = await this.serviceRepository.findOne({
+      where: { id: id },
+      relations: ['attendees'],
+    });
+
+    const foundAttendee = await this.attendeeRepository.findOne({
+      where: {
+        user: { id: user.id },
+        service: { id: service.id },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service #${id} not found`);
+    }
+
+    return {
+      alreadyBought: foundAttendee ? true : false,
+      outOfCapacity:
+        service.quantity && service?.attendees.length >= service.quantity,
+    };
+  }
+
+  async checkBuyService(id: number, user: User) {
+    if (!id) return false;
+    const foundAttendee = await this.checkOne(id, user);
+
+    if (foundAttendee.alreadyBought) throw new Error('Already added');
+
+    return true;
+  }
+
+  async buyService(id: number, user: User) {
+    if (!id) return false;
+    const foundAttendee = await this.checkOne(id, user);
+
+    if (foundAttendee.alreadyBought) throw new Error('Already added');
+
+    const service = await this.serviceRepository.findOne({
+      where: { id: id },
+    });
+
+    await this.attendeeService.create({
+      user: user,
+      status: true,
+      site: user?.site[0]?.id,
+      service,
+    });
 
     return true;
   }

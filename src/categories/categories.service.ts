@@ -11,12 +11,19 @@ import { UpdateCategoryInput } from './dto/update-category.input';
 import { Category } from './entities/category.entity';
 import { imageUploader } from 'src/utils/imageUploader';
 import { User } from 'src/users/entities/user.entity';
+import { Service } from 'src/services/entities/services.entity';
+import { AttendeesService } from 'src/atendees/atendees.service';
+import { ServicesService } from 'src/services/services.service';
 
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly attendeeService: AttendeesService,
+    private readonly serviceService: ServicesService,
   ) {}
 
   async create(
@@ -91,10 +98,17 @@ export class CategoriesService {
     updateCategoryInput: UpdateCategoryInput,
   ): Promise<Category> {
     let image = null;
+    const services = updateCategoryInput.services;
+    delete updateCategoryInput.services;
     if (updateCategoryInput.image) {
       const imageUpload = await imageUploader(updateCategoryInput.image);
       image = imageUpload.image;
     }
+
+    const foundCategory = await this.categoryRepository.findOne({
+      where: { id: id },
+      relations: ['site'],
+    });
 
     const category = await this.categoryRepository
       .createQueryBuilder('category')
@@ -109,6 +123,25 @@ export class CategoriesService {
     if (!category) {
       throw new NotFoundException(`Role #${id} not found`);
     }
+
+    if (services && services.length > 0) {
+      const users = await this.userRepository.find({
+        where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
+      });
+
+      services.map(async (service) => {
+        const serviceItem = await this.serviceService.findOne(service);
+        users.map(async (user) => {
+          await this.attendeeService.create({
+            user: user,
+            status: true,
+            service: serviceItem,
+            site: foundCategory.site,
+          });
+        });
+      });
+    }
+
     return category.raw[0];
   }
 

@@ -7,6 +7,9 @@ export class CreateCategoryInput {
   @Field(() => String, { description: 'Title of the Category' })
   title: string;
 
+  @Field(() => String, { description: 'Title of the Category', nullable: true })
+  titleen: string;
+
   @Field(() => String, { description: 'Title of the Category' })
   slug: string;
 
@@ -36,4 +39,7 @@ export class CreateCategoryInput {
 
   @Field(() => Boolean, { description: 'Is course featured', nullable: true })
   featured: boolean;
+
+  @Field(() => [Number], { nullable: true })
+  services?: [number];
 }

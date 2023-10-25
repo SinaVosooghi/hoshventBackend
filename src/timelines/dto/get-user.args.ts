@@ -13,5 +13,8 @@ export class GetUserTimelineArgs {
   seminar?: string;
 
   @Field({ nullable: true })
+  service?: string;
+
+  @Field({ nullable: true })
   checkin?: boolean;
 }

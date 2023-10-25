@@ -1,5 +1,4 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { ServiceTypes } from 'src/payment/entities/payment.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -13,6 +12,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { GraphQLJSONObject } from 'graphql-type-json';
+import { Service } from 'src/services/entities/services.entity';
 
 @ObjectType()
 @Entity()
@@ -26,13 +26,6 @@ export class Attendee {
   @Column()
   @Field(() => Boolean, { description: 'Status of the attendee' })
   status: boolean;
-
-  @Column({
-    type: 'jsonb',
-    nullable: true,
-  })
-  @Field(() => [GraphQLJSONObject], { nullable: true })
-  services: [ServiceTypes];
 
   @ManyToOne(() => User, (user) => user.id, { nullable: true })
   @Field(() => User, {
@@ -84,4 +77,13 @@ export class Attendee {
     nullable: true,
   })
   seminar: Seminar;
+
+  @ManyToOne(() => Service, (service) => service.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Service, {
+    nullable: true,
+  })
+  service: Service;
 }

@@ -1,5 +1,6 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
+import { Service } from 'src/services/entities/services.entity';
 import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
@@ -59,6 +60,16 @@ export class Timeline {
     nullable: true,
   })
   workshop: Workshop;
+
+  @ManyToOne(() => Service, (service) => service.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Service, {
+    description: 'Site of the item',
+    nullable: true,
+  })
+  service: Service;
 
   @ManyToOne(() => User, (user) => user.id, {
     nullable: true,

@@ -8,7 +8,7 @@ type Attendee {
   """id of the attendee"""
   id: Float
   seminar: Seminar
-  services: [JSONObject!]
+  service: Service
 
   """Site of the item"""
   site: Site
@@ -151,6 +151,9 @@ type Category {
 
   """Title of the Category"""
   title: String!
+
+  """Title of the Category"""
+  titleen: String
 
   """Type of the Category"""
   type: String!
@@ -336,7 +339,7 @@ type CouponPaginate {
 
 input CreateAtendeeInput {
   seminar: Float
-  services: String
+  service: Float
   site: Float
 
   """Status of the attendee"""
@@ -408,6 +411,7 @@ input CreateCategoryInput {
 
   """Image of the Service"""
   image: Upload
+  services: [Float!]
 
   """Title of the Category"""
   slug: String!
@@ -417,6 +421,9 @@ input CreateCategoryInput {
 
   """Title of the Category"""
   title: String!
+
+  """Title of the Category"""
+  titleen: String
 
   """Type of the Category"""
   type: String!
@@ -1079,10 +1086,16 @@ input CreateUserInput {
 
   """first name of the user"""
   firstName: String!
+
+  """first name of the user"""
+  firstNameen: String
   gender: String
 
   """last name of the user"""
   lastName: String!
+
+  """last name of the user"""
+  lastNameen: String
 
   """Level of the user"""
   level: String
@@ -1106,6 +1119,7 @@ input CreateUserInput {
   """role of the user"""
   role: Float
   seminars: [Float!]
+  services: [Float!]
 
   """Site of the user"""
   siteid: Float
@@ -1530,6 +1544,7 @@ input GetUserMobileApiArgs {
 input GetUserTimelineArgs {
   checkin: Boolean
   seminar: String
+  service: String
   url: String
   workshop: String
 }
@@ -2142,6 +2157,7 @@ type Query {
   seminarsApi(input: GetSeminarsArgs!): SeminarPaginate!
   seminarsPdf(input: GetSeminarsArgs!): String!
   service(id: Int!): Service!
+  serviceApi(id: Int!): Service!
   services(input: GetServicesArgs!): ServicePaginate!
   servicesApi(input: GetServicesArgs!): ServicePaginate!
   settings: [Setting!]!
@@ -2204,6 +2220,8 @@ type Scan {
   scanby: User
   seminar: Seminar
   senmiarstimeline: [Scan!]
+  service: Service
+  servicesTimeline: [Scan!]
 
   """Site of the item"""
   site: Site
@@ -2290,6 +2308,9 @@ type SeminarPaginate {
 }
 
 type Service {
+  """Attendee of the service"""
+  attendees: [Attendee!]
+
   """body of the service"""
   body: String!
   created: DateTime
@@ -2527,6 +2548,9 @@ type Timeline {
   seminar: Seminar
 
   """Site of the item"""
+  service: Service
+
+  """Site of the item"""
   site: Site
   updated: DateTime
 
@@ -2546,7 +2570,7 @@ type TimelinePaginate {
 input UpdateAttendeeInput {
   id: Int!
   seminar: Float
-  services: String
+  service: Float
   site: Float
 
   """Status of the attendee"""
@@ -2621,6 +2645,7 @@ input UpdateCategoryInput {
 
   """Image of the Service"""
   image: Upload
+  services: [Float!]
 
   """Title of the Category"""
   slug: String
@@ -2630,6 +2655,9 @@ input UpdateCategoryInput {
 
   """Title of the Category"""
   title: String
+
+  """Title of the Category"""
+  titleen: String
 
   """Type of the Category"""
   type: String
@@ -3259,11 +3287,17 @@ input UpdateUserInput {
 
   """first name of the user"""
   firstName: String
+
+  """first name of the user"""
+  firstNameen: String
   gender: String
   id: Int!
 
   """last name of the user"""
   lastName: String
+
+  """last name of the user"""
+  lastNameen: String
 
   """Level of the user"""
   level: String
@@ -3287,6 +3321,7 @@ input UpdateUserInput {
   """role of the user"""
   role: Float
   seminars: [Float!]
+  services: [Float!]
 
   """Site of the user"""
   siteid: Float
@@ -3381,6 +3416,9 @@ type User {
 
   """First name of the user"""
   firstName: String!
+
+  """First name of the user"""
+  firstNameen: String
   gender: String
 
   """Id of the user"""
@@ -3388,6 +3426,9 @@ type User {
 
   """Last name of the user"""
   lastName: String!
+
+  """Last name of the user"""
+  lastNameen: String
 
   """Level of the user"""
   level: String
@@ -3411,6 +3452,7 @@ type User {
   """Role of the user"""
   role: Role
   seminars: [Seminar!]
+  services: [Service!]
 
   """Site of the user"""
   site: [Site!]
@@ -3520,7 +3562,6 @@ type WorkshopPaginate {
 type productOptions {
   id: Float
   qty: Float
-  services: String
   title: String
   type: String
 }

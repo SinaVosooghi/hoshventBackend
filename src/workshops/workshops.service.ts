@@ -294,7 +294,7 @@ export class WorkshopsService {
     };
   }
 
-  async buyWorkshop(id: number, user: User, services: any) {
+  async buyWorkshop(id: number, user: User) {
     if (!id) return false;
     const foundAttendee = await this.checkOne(id, user);
 
@@ -309,7 +309,6 @@ export class WorkshopsService {
       status: true,
       site: user?.site[0]?.id,
       workshop: workshop,
-      services,
     });
 
     return true;

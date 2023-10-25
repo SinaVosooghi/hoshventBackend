@@ -12,4 +12,9 @@ export class ServicesApiResolver {
   findAll(@Args('input') getServicesArgs: GetServicesArgs) {
     return this.servicesService.findAll(getServicesArgs);
   }
+
+  @Query(() => Service, { name: 'serviceApi' })
+  findOne(@Args('id', { type: () => Int }) id: number) {
+    return this.servicesService.findOne(id);
+  }
 }

@@ -150,6 +150,8 @@ export class AuthService {
     const createdUser = await this.userService.create({
       firstName: user.firstName,
       lastName: user.lastName,
+      firstNameen: user.firstNameen,
+      lastNameen: user.lastNameen,
       email: user.email,
       mobilenumber: user.mobilenumber,
       password: user.password,

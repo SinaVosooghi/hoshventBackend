@@ -9,10 +9,11 @@ import { Category } from 'src/categories/entities/category.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { UserApiResolver } from './user.api.resolver';
+import { Service } from 'src/services/entities/services.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Category, Seminar, Workshop]),
+    TypeOrmModule.forFeature([User, Category, Seminar, Workshop, Service]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: 'SECRET',

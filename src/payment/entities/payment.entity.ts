@@ -11,21 +11,6 @@ import {
 } from 'typeorm';
 
 @ObjectType()
-export class ServiceTypes {
-  @Field(() => Number, { nullable: true })
-  id: number;
-
-  @Field(() => String, { nullable: true })
-  title: string;
-
-  @Field(() => String, { nullable: true })
-  price: string;
-
-  @Field(() => Boolean, { defaultValue: false })
-  scanned: boolean;
-}
-
-@ObjectType()
 export class productOptions {
   @Field(() => Number, { nullable: true })
   id: number;
@@ -33,14 +18,11 @@ export class productOptions {
   @Field(() => String, { nullable: true })
   title: string;
 
-  @Field(() => String, { nullable: true })
-  services: [ServiceTypes];
-
   @Field(() => Number, { nullable: true })
   qty: number;
 
   @Field(() => String, { nullable: true })
-  type: 'Workshop' | 'Seminar';
+  type: 'Workshop' | 'Seminar' | 'Service';
 }
 
 @ObjectType()

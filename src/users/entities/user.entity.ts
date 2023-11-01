@@ -92,6 +92,14 @@ export class User {
   avatar?: string;
 
   @Column({ nullable: true })
+  @Field(() => String, { description: 'Title of the user', nullable: true })
+  title?: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, { description: 'Title of the user', nullable: true })
+  titleen?: string;
+
+  @Column({ nullable: true })
   @Field(() => String, { description: 'Address of the user', nullable: true })
   address: string;
 

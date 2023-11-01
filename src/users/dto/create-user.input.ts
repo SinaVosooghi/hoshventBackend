@@ -116,4 +116,10 @@ export class CreateUserInput {
 
   @Field(() => String, { nullable: true })
   gender?: 'male' | 'female';
+
+  @Field(() => String, { description: 'Title of the user', nullable: true })
+  title?: string;
+
+  @Field(() => String, { description: 'Title of the user', nullable: true })
+  titleen?: string;
 }

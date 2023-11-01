@@ -35,7 +35,7 @@ export class UsersService {
     private readonly workshopRepo: Repository<Workshop>,
     @InjectRepository(Service)
     private readonly servicesRepo: Repository<Service>,
-  ) {}
+  ) { }
 
   async create(input: CreateUserInput, user?: User): Promise<User> {
     const userObject = input;
@@ -454,6 +454,8 @@ export class UsersService {
                 role: item.role ?? null,
                 siteid: siteId ?? null,
                 nationalcode: item.nationalcode ?? null,
+                title: item.title ?? null,
+                titleen: item.titleen ?? null,
               });
 
               await this.userRepository.save(newUser);

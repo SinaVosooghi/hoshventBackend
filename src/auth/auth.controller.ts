@@ -14,7 +14,7 @@ export class AuthController {
   async login(@Req() req: Request): Promise<{ access_token: string }> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return await this.authService.login(req.user as User);
+    return await this.authService.login(req.user as User, req.body);
   }
 
   @UseGuards(LocalAuthGuard)

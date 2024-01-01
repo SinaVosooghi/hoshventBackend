@@ -29,7 +29,10 @@ export class AuthService {
     return isMatch ? user : null;
   }
 
-  async login(user: User): Promise<{
+  async login(
+    user: User,
+    body: { s: number },
+  ): Promise<{
     access_token: string;
     type: string;
     firstName: string;
@@ -45,7 +48,17 @@ export class AuthService {
     const AT = this.jwtService.sign(payload);
 
     await this.userService.updateUserToken(user.id, AT);
-    const foundUser = await this.userService.findOne(user.id);
+    const foundUser = await this.userRepository.findOne({
+      where: { id: user.id },
+      relations: ['siteid'],
+    });
+
+    if (foundUser.siteid.id !== body.s) {
+      throw new HttpException(
+        'You do not have access to this page!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
 
     return {
       type: user.usertype,

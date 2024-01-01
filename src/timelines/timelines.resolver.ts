@@ -12,8 +12,6 @@ import { GetTimelinsArgs } from './dto/get-items.args';
 import { TimelinePaginate } from './entities/timelinePagintate';
 import { Bulkaction } from './dto/bulk-action';
 import { GetUserTimelineArgs } from './dto/get-user.args';
-import { ServiceTypes } from 'src/payment/entities/payment.entity';
-import { GraphQLJSONObject } from 'graphql-type-json';
 import { ManualCheckinInput } from './dto/manual-checkin-input';
 
 @Resolver(() => Timeline)

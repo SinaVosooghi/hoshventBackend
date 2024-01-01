@@ -8,7 +8,7 @@ import { CreateTimelineInput } from './dto/create-timeline.input';
 import { UpdateTimelineInput } from './dto/update-timeline.input';
 import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Timeline } from './entities/timeline.entity';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
 import { GetTimelinsArgs } from './dto/get-items.args';
@@ -17,10 +17,13 @@ import { Bulkaction } from './dto/bulk-action';
 import { GetUserTimelineArgs } from './dto/get-user.args';
 import { ManualCheckinInput } from './dto/manual-checkin-input';
 import { ScansService } from 'src/scans/scans.service';
+import { Scan } from 'src/scans/entities/scan.entity';
 
 @Injectable()
 export class TimelinesService {
   constructor(
+    @InjectRepository(Scan)
+    private readonly scanRepository: Repository<Scan>,
     @InjectRepository(Timeline)
     private readonly timelimeRepository: Repository<Timeline>,
     @InjectRepository(User)
@@ -104,7 +107,7 @@ export class TimelinesService {
         ...(workshop && { workshop: { id: workshop } }),
       },
       order: { id: 'DESC' },
-      relations: ['user', 'seminar', 'workshop'],
+      relations: ['user', 'seminar', 'workshop', 'service'],
       take: limit,
       skip: skip,
     });
@@ -128,7 +131,7 @@ export class TimelinesService {
   }
 
   async findOne(
-    { url, seminar, workshop, checkin }: GetUserTimelineArgs,
+    { url, seminar, workshop, checkin, service }: GetUserTimelineArgs,
     user: User,
   ) {
     const params = new URLSearchParams(url);
@@ -171,15 +174,46 @@ export class TimelinesService {
       }
     }
 
-    const id = seminar ?? workshop;
+    if (service) {
+      if (!userId || !service) {
+        throw new NotFoundException(`User #${url} not found`);
+      }
+
+      attendee = await this.attendeeRepository.findOne({
+        where: { user: { id: userId }, service: { id: parseInt(service) } },
+        relations: ['site', 'user', 'service'],
+      });
+
+      if (!attendee) {
+        throw new NotFoundException(`Event #${url} not found`);
+      }
+    }
+
+    const id = seminar ?? workshop ?? service;
+    let type: 'seminar' | 'service' | 'workshop' = 'seminar';
+    if (seminar) type = 'seminar';
+    if (workshop) type = 'workshop';
+    if (service) type = 'service';
+
+    const timeline = await this.timelimeRepository.findOne({
+      where: {
+        // @ts-ignore
+        user: { id: parseInt(userId) },
+        [type]: { id: parseInt(id) },
+        checkin: Not(IsNull()),
+        checkout: IsNull(),
+      },
+    });
+
+    if (!checkin) {
+      await this.checkout(attendee.id, parseInt(id), type, user);
+    }
 
     if (checkin) {
-      await this.checkin(
-        attendee.id,
-        parseInt(id),
-        seminar ? 'seminar' : 'workshop',
-        user,
-      );
+      if (timeline) {
+        throw new NotFoundException(`Already checkin`);
+      }
+      await this.checkin(attendee.id, parseInt(id), type, user);
     }
 
     try {
@@ -206,21 +240,6 @@ export class TimelinesService {
     const attendee = await this.attendeeRepository.findOne({
       where: { id: aid },
     });
-
-    const prevServices = [...attendee.services];
-    const objIndex = prevServices.findIndex((obj) => obj.id == service);
-
-    if (prevServices[objIndex].scanned)
-      throw new NotFoundException(`Already added`);
-
-    prevServices[objIndex].scanned = true;
-
-    await this.attendeeRepository
-      .createQueryBuilder('Attendee')
-      .update({ services: prevServices })
-      .where({ id: aid })
-      .returning('*')
-      .execute();
 
     if (!attendee) {
       throw new NotFoundException(`Attendee #${id} not found`);

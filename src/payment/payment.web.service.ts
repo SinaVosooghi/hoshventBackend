@@ -21,6 +21,7 @@ import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { WorkshopsService } from 'src/workshops/workshops.service';
 import { SeminarsService } from 'src/seminars/seminars.service';
+import { ServicesService } from 'src/services/services.service';
 @Injectable()
 export class PaymentWebService {
   private readonly logger = new Logger(PaymentWebService.name);
@@ -43,6 +44,7 @@ export class PaymentWebService {
     private readonly httpService: HttpService,
     private readonly seminarsService: SeminarsService,
     private readonly workshopsService: WorkshopsService,
+    private readonly serviceService: ServicesService,
   ) {}
 
   async doPayment(input: CreatePaymentInput, user: User) {
@@ -54,6 +56,8 @@ export class PaymentWebService {
     const site = await this.siteService.findOne(input.site.id);
     let workshops = [];
     let seminars = [];
+    let services = [];
+
     if (input.coupon) {
       coupon = await this.couponService.findOne(input.coupon);
     }
@@ -70,6 +74,12 @@ export class PaymentWebService {
       })
       .map((j) => j.id);
 
+    const serviceIds = input.products
+      .filter((i) => {
+        return i.type === 'Service' ? i.id : null;
+      })
+      .map((j) => j.id);
+
     if (workshopIds.length) {
       workshops = await this.workshopRepository.find({
         where: { id: In(workshopIds) },
@@ -82,15 +92,17 @@ export class PaymentWebService {
       });
     }
 
+    if (serviceIds) {
+      services = await this.serviceRepository.find({
+        where: { id: In(serviceIds) },
+      });
+    }
+
     const newWorkshopArray = workshops.map((p) => {
       return {
         id: p.id,
         workshop: p.id,
         quantity: input.products.find((r) => r.id == p.id).qty,
-        services: input.products.find((r) => r.id == p.id).services,
-        servicesTotal: input.products
-          .find((r) => r.id == p.id)
-          .services?.reduce((prev: any, curr: any) => prev + curr.price, 0),
         type: 'workshop',
         price: p.offprice ?? p.price,
       };
@@ -101,23 +113,31 @@ export class PaymentWebService {
         id: p.id,
         seminar: p.id,
         quantity: input.products.find((r) => r.id == p.id).qty,
-        services: input.products.find((r) => r.id == p.id).services,
-        servicesTotal: input.products
-          .find((r) => r.id == p.id)
-          .services?.reduce((prev: any, curr: any) => prev + curr.price, 0),
         type: 'seminar',
         price: p.offprice ?? p.price,
       };
     });
 
-    const newArray = [...newWorkshopArray, ...newSeminarArray];
+    const newServiceArray = services.map((p: Service) => {
+      return {
+        id: p.id,
+        service: p.id,
+        quantity: 1,
+        type: 'service',
+        price: p.price,
+      };
+    });
+
+    const newArray = [
+      ...newWorkshopArray,
+      ...newSeminarArray,
+      ...newServiceArray,
+    ];
 
     let total = 0;
     total = Math.ceil(
       newArray
-        ?.map((item: any) => {
-          return item?.price + item.servicesTotal;
-        })
+        ?.map((item: any) => item?.price * item.quantity)
         .reduce((prev: any, curr: any) => prev + curr, 0),
     );
 
@@ -209,10 +229,9 @@ export class PaymentWebService {
               status: true,
               workshop,
               site: siteId,
-              services: event.services,
             });
           }
-        } else {
+        } else if (event.type === 'seminar') {
           const buy = await this.seminarsService.checkBuySeminar(
             event.id,
             user,
@@ -225,7 +244,18 @@ export class PaymentWebService {
               status: true,
               seminar,
               site: siteId,
-              services: event.services,
+            });
+          }
+        } else if (event.type === 'service') {
+          const buy = await this.serviceService.checkBuyService(event.id, user);
+          if (buy) {
+            const service = await this.serviceService.findOne(event.id);
+
+            await this.attendeeService.create({
+              user: user,
+              status: true,
+              service,
+              site: siteId,
             });
           }
         }
@@ -245,6 +275,7 @@ export class PaymentWebService {
 
     let workshops = [];
     let seminars = [];
+    let services = [];
 
     if (!paymentRecord) {
       throw new NotFoundException();
@@ -302,6 +333,12 @@ export class PaymentWebService {
         })
         .map((j) => j.id);
 
+      const serviceIds = paymentRecord.products
+        .filter((i) => {
+          return i.type === 'Service' ? i.id : null;
+        })
+        .map((j) => j.id);
+
       if (workshopIds.length) {
         workshops = await this.workshopRepository.find({
           where: { id: In(workshopIds) },
@@ -314,15 +351,17 @@ export class PaymentWebService {
         });
       }
 
+      if (serviceIds.length) {
+        services = await this.serviceRepository.find({
+          where: { id: In(serviceIds) },
+        });
+      }
+
       const newWorkshopArray = workshops.map((p) => {
         return {
           id: p.id,
           workshop: p.id,
           quantity: paymentRecord.products.find((r) => r.id == p.id).qty,
-          servicesTotal: paymentRecord.products
-            .find((r) => r.id == p.id)
-            .services?.reduce((prev: any, curr: any) => prev + curr.price, 0),
-          services: paymentRecord.products.find((r) => r.id == p.id).services,
           type: 'workshop',
           price: p.offprice ?? p.price,
         };
@@ -333,23 +372,30 @@ export class PaymentWebService {
           id: p.id,
           seminar: p.id,
           quantity: paymentRecord.products.find((r) => r.id == p.id).qty,
-          services: paymentRecord.products.find((r) => r.id == p.id).services,
-          servicesTotal: paymentRecord.products
-            .find((r) => r.id == p.id)
-            .services?.reduce((prev: any, curr: any) => prev + curr.price, 0),
           type: 'seminar',
           price: p.offprice ?? p.price,
         };
       });
 
-      const newArray = [...newWorkshopArray, ...newSeminarArray];
+      const newServicesArray = services.map((p) => {
+        return {
+          id: p.id,
+          service: p.id,
+          quantity: paymentRecord.products.find((r) => r.id == p.id).qty,
+          type: 'service',
+          price: p.offprice ?? p.price,
+        };
+      });
+
+      const newArray = [
+        ...newWorkshopArray,
+        ...newSeminarArray,
+        ...newServicesArray,
+      ];
+
       newArray.map(async (event) => {
         if (event.type === 'workshop') {
-          const buy = await this.workshopsService.buyWorkshop(
-            event.id,
-            user,
-            event.services,
-          );
+          const buy = await this.workshopsService.buyWorkshop(event.id, user);
           if (buy) {
             await this.paymentRepository
               .createQueryBuilder('payment')
@@ -367,11 +413,25 @@ export class PaymentWebService {
             return false;
           }
         } else if (event.type === 'seminar') {
-          const buy = await this.seminarsService.buySeminar(
-            event.id,
-            user,
-            event.services,
-          );
+          const buy = await this.seminarsService.buySeminar(event.id, user);
+          if (buy) {
+            await this.paymentRepository
+              .createQueryBuilder('payment')
+              .update({
+                refid: ref_id,
+                approve: true,
+                paymentMethodId: card_pan,
+                status: message,
+                statusCode: code,
+              })
+              .where({ id: paymentRecord.id })
+              .returning('*')
+              .execute();
+          } else {
+            return false;
+          }
+        } else if (event.type === 'service') {
+          const buy = await this.serviceService.buyService(event.id, user);
           if (buy) {
             await this.paymentRepository
               .createQueryBuilder('payment')

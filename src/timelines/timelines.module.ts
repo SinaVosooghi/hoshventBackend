@@ -7,10 +7,11 @@ import { Attendee } from 'src/atendees/entities/attendee.entity';
 import { AttendeesModule } from 'src/atendees/atendees.module';
 import { ScansModule } from 'src/scans/scans.module';
 import { User } from 'src/users/entities/user.entity';
+import { Scan } from 'src/scans/entities/scan.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Timeline, Attendee, User]),
+    TypeOrmModule.forFeature([Timeline, Attendee, User, Scan]),
     AttendeesModule,
     ScansModule,
   ],

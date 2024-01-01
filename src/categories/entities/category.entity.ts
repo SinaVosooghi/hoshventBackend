@@ -24,6 +24,10 @@ export class Category {
   @Field(() => String, { description: 'Title of the Category' })
   title: string;
 
+  @Column({ nullable: true })
+  @Field(() => String, { description: 'Title of the Category', nullable: true })
+  titleen: string;
+
   @Column({ unique: true })
   @Field(() => String, { description: 'Slug of the Category' })
   slug: string;

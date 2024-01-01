@@ -102,6 +102,7 @@ export class AuthService {
 
       لینک دانلود کارت ورود:
       ${user.site[0].domain}/panel`;
+
       await sendSMS({
         to: user.mobilenumber,
         message,
@@ -162,6 +163,8 @@ export class AuthService {
     const createdUser = await this.userService.create({
       firstName: user.firstName,
       lastName: user.lastName,
+      firstNameen: user.firstNameen,
+      lastNameen: user.lastNameen,
       email: user.email,
       mobilenumber: user.mobilenumber,
       password: user.password,
@@ -188,14 +191,17 @@ export class AuthService {
     if (createdUser.usertype === 'tenant' || createdUser.usertype === 'user') {
       const message = `${createdUser.firstName} ${createdUser.lastName} گرامی،
       با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
-      https://hoshvent.com`;
+
+      لینک دانلود کارت ورود:
+      ${site?.domain}/panel`;
+
       await sendSMS({
         to: createdUser.mobilenumber,
         message,
       });
 
       await this.mailService.sendCustom(
-        createdUser,
+        user,
         message,
         'به سرویس رویداد خوش آمدید',
       );

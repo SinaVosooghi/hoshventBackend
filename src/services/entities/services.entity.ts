@@ -4,15 +4,18 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Site } from 'src/sites/entities/site.entity';
 import { Event } from 'src/events/entities/event.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
 
 @ObjectType()
 @Entity()
@@ -119,4 +122,15 @@ export class Service {
     nullable: true,
   })
   end_date: Date;
+
+  @OneToMany(() => Attendee, (attendee) => attendee.service, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn()
+  @Field(() => [Attendee], {
+    description: 'Attendee of the service',
+    nullable: true,
+  })
+  attendees: Attendee[];
 }

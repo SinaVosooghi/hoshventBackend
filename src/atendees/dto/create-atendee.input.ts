@@ -1,6 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { ServiceTypes } from 'src/payment/entities/payment.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
+import { Service } from 'src/services/entities/services.entity';
 import { Site } from 'src/sites/entities/site.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
@@ -25,6 +25,6 @@ export class CreateAtendeeInput {
   @Field(() => Number, { nullable: true })
   seminar?: Seminar;
 
-  @Field(() => String, { nullable: true })
-  services?: [ServiceTypes];
+  @Field(() => Number, { nullable: true })
+  service?: Service;
 }

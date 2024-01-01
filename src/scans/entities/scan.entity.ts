@@ -1,5 +1,6 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
+import { Service } from 'src/services/entities/services.entity';
 import { Site } from 'src/sites/entities/site.entity';
 import { Timeline } from 'src/timelines/entities/timeline.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -61,6 +62,12 @@ export class Scan {
   @Field(() => [Scan], { nullable: true })
   senmiarstimeline: Scan[];
 
+  @OneToMany(() => Scan, (timeline) => timeline.service, {
+    nullable: true,
+  })
+  @Field(() => [Scan], { nullable: true })
+  servicesTimeline: Scan[];
+
   @ManyToOne(() => Workshop, (workshop) => workshop.id, {
     onDelete: 'SET NULL',
     nullable: true,
@@ -69,6 +76,15 @@ export class Scan {
     nullable: true,
   })
   workshop: Workshop;
+
+  @ManyToOne(() => Service, (service) => service.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @Field(() => Service, {
+    nullable: true,
+  })
+  service: Service;
 
   @ManyToOne(() => Seminar, (seminar) => seminar.id, {
     onDelete: 'SET NULL',

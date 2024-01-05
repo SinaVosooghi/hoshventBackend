@@ -411,6 +411,7 @@ input CreateCategoryInput {
 
   """Image of the Service"""
   image: Upload
+  seminars: [Float!]
   services: [Float!]
 
   """Title of the Category"""
@@ -427,6 +428,7 @@ input CreateCategoryInput {
 
   """Type of the Category"""
   type: String!
+  workshops: [Float!]
 }
 
 input CreateCertificateInput {
@@ -1126,6 +1128,12 @@ input CreateUserInput {
 
   """status of the user"""
   status: Boolean
+
+  """Title of the user"""
+  title: String
+
+  """Title of the user"""
+  titleen: String
 
   """username of the user"""
   username: String
@@ -2645,6 +2653,7 @@ input UpdateCategoryInput {
 
   """Image of the Service"""
   image: Upload
+  seminars: [Float!]
   services: [Float!]
 
   """Title of the Category"""
@@ -2661,6 +2670,7 @@ input UpdateCategoryInput {
 
   """Type of the Category"""
   type: String
+  workshops: [Float!]
 }
 
 input UpdateCertificateInput {
@@ -3329,6 +3339,12 @@ input UpdateUserInput {
   """status of the user"""
   status: Boolean
 
+  """Title of the user"""
+  title: String
+
+  """Title of the user"""
+  titleen: String
+
   """username of the user"""
   username: String
 
@@ -3465,6 +3481,12 @@ type User {
 
   """Message of chats"""
   timelines: [Timeline!]
+
+  """Title of the user"""
+  title: String
+
+  """Title of the user"""
+  titleen: String
   updated: DateTime
 
   """Username of the user"""

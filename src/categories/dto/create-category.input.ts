@@ -42,4 +42,14 @@ export class CreateCategoryInput {
 
   @Field(() => [Number], { nullable: true })
   services?: [number];
+
+  @Field(() => [Number], {
+    nullable: true,
+  })
+  seminars?: [number];
+
+  @Field(() => [Number], {
+    nullable: true,
+  })
+  workshops?: [number];
 }

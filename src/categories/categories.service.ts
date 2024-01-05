@@ -4,26 +4,35 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { CreateCategoryInput } from './dto/create-category.input';
 import { GetCategoriesArgs } from './dto/get-categories.args';
 import { UpdateCategoryInput } from './dto/update-category.input';
 import { Category } from './entities/category.entity';
 import { imageUploader } from 'src/utils/imageUploader';
 import { User } from 'src/users/entities/user.entity';
-import { Service } from 'src/services/entities/services.entity';
 import { AttendeesService } from 'src/atendees/atendees.service';
 import { ServicesService } from 'src/services/services.service';
+import { Seminar } from 'src/seminars/entities/seminar.entity';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
+import { SeminarsService } from 'src/seminars/seminars.service';
+import { WorkshopsService } from 'src/workshops/workshops.service';
 
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(Seminar)
+    private readonly seminarsRepo: Repository<Seminar>,
+    @InjectRepository(Workshop)
+    private readonly workshopRepo: Repository<Workshop>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly attendeeService: AttendeesService,
     private readonly serviceService: ServicesService,
+    private readonly seminarService: SeminarsService,
+    private readonly WorkshopService: WorkshopsService,
   ) {}
 
   async create(
@@ -98,6 +107,9 @@ export class CategoriesService {
     updateCategoryInput: UpdateCategoryInput,
   ): Promise<Category> {
     let image = null;
+    let seminars = [];
+    let workshops = [];
+
     const services = updateCategoryInput.services;
     delete updateCategoryInput.services;
     if (updateCategoryInput.image) {
@@ -109,6 +121,29 @@ export class CategoriesService {
       where: { id: id },
       relations: ['site'],
     });
+
+    seminars = await this.seminarsRepo.findBy({
+      id: In(updateCategoryInput.seminars),
+    });
+
+    workshops = await this.workshopRepo.findBy({
+      id: In(updateCategoryInput.workshops),
+    });
+
+    if (updateCategoryInput.seminars?.length) {
+      seminars = await this.seminarsRepo.findBy({
+        id: In(updateCategoryInput.seminars),
+      });
+    }
+
+    if (updateCategoryInput.workshops?.length) {
+      workshops = await this.workshopRepo.findBy({
+        id: In(updateCategoryInput.workshops),
+      });
+    }
+
+    delete updateCategoryInput.seminars;
+    delete updateCategoryInput.workshops;
 
     const category = await this.categoryRepository
       .createQueryBuilder('category')
@@ -122,6 +157,42 @@ export class CategoriesService {
 
     if (!category) {
       throw new NotFoundException(`Role #${id} not found`);
+    }
+
+    if (workshops && workshops.length > 0) {
+      const users = await this.userRepository.find({
+        where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
+      });
+
+      workshops.map(async (workshop) => {
+        const workshopItem = await this.WorkshopService.findOne(workshop);
+        users.map(async (user) => {
+          await this.attendeeService.create({
+            user: user,
+            status: true,
+            workshop: workshopItem,
+            site: foundCategory.site,
+          });
+        });
+      });
+    }
+
+    if (seminars && seminars.length > 0) {
+      const users = await this.userRepository.find({
+        where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
+      });
+
+      seminars.map(async (seminar) => {
+        const seminarItem = await this.seminarService.findOne(seminar);
+        users.map(async (user) => {
+          await this.attendeeService.create({
+            user: user,
+            status: true,
+            seminar: seminarItem,
+            site: foundCategory.site,
+          });
+        });
+      });
     }
 
     if (services && services.length > 0) {

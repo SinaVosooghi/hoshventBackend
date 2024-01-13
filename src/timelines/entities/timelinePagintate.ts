@@ -5,6 +5,7 @@ import { Timeline } from './timeline.entity';
 export class TimelinePaginate {
   @Field(() => [Timeline], { nullable: true })
   timelines: [Timeline];
+
   @Field(() => Number)
   count: number;
 

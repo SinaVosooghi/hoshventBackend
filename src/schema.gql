@@ -3590,6 +3590,7 @@ type productOptions {
 
 type registerFieldsType {
   order: Float
+  required: Boolean!
   title: String
   type: String
   value: String

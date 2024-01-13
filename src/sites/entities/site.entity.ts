@@ -25,6 +25,9 @@ export class registerFieldsType {
   @Field(() => String, { nullable: true })
   type: string;
 
+  @Field(() => Boolean, { defaultValue: false })
+  required: boolean;
+
   @Field(() => String, { nullable: true })
   value: string;
 }

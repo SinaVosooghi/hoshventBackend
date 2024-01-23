@@ -150,7 +150,6 @@ export class PaymentWebService {
       amount = amount - discountPrice;
     }
 
-    console.log(`${site.domain}/validate`);
     if (amount > 0) {
       const requestConfig: AxiosRequestConfig = {
         headers: {
@@ -165,6 +164,8 @@ export class PaymentWebService {
           currency: 'IRT',
         },
       };
+
+      console.log(requestConfig);
 
       const { data } = await lastValueFrom(
         this.httpService

@@ -150,7 +150,7 @@ export class PaymentWebService {
       amount = amount - discountPrice;
     }
 
-    console.log(`https://${site.domain}/validate`);
+    console.log(`${site.domain}/validate`);
     if (amount > 0) {
       const requestConfig: AxiosRequestConfig = {
         headers: {
@@ -160,7 +160,7 @@ export class PaymentWebService {
         params: {
           merchant_id: 'a20335fe-fb44-11e9-8f7a-000c295eb8fc',
           amount: Math.round(amount),
-          callback_url: `https://${site.domain}/validate`,
+          callback_url: `${site.domain}/validate`,
           description: `خرید  ${site.title}`,
           currency: 'IRT',
         },

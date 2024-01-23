@@ -218,8 +218,8 @@ export class Site {
   })
   isNationalCode: 'ncode' | 'mobile';
 
-  @Column({ nullable: true })
-  @Field({ nullable: true })
+  @Column({ nullable: true, default: 9 })
+  @Field({ nullable: true, defaultValue: 9 })
   tax: number;
 
   @CreateDateColumn({

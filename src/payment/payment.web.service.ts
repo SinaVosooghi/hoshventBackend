@@ -159,7 +159,7 @@ export class PaymentWebService {
         params: {
           merchant_id: 'a20335fe-fb44-11e9-8f7a-000c295eb8fc',
           amount: Math.round(amount),
-          callback_url: `http://localhost:4040/validate`,
+          callback_url: `https://hoshvent.com/validate`,
           description: `خرید  ${site.title}`,
           currency: 'IRT',
         },

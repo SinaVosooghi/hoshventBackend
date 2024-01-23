@@ -178,13 +178,11 @@ export class PaymentWebService {
               throw 'An error happened!';
             }),
             map((response) => {
-              console.log(response.data);
               return response.data;
             }),
           ),
       );
 
-      console.log(data);
       if (
         data?.code === 100 &&
         data?.message === 'Success' &&

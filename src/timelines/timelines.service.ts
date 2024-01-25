@@ -200,10 +200,12 @@ export class TimelinesService {
         // @ts-ignore
         user: { id: parseInt(userId) },
         [type]: { id: parseInt(id) },
-        checkin: Not(IsNull()),
-        checkout: IsNull(),
       },
     });
+
+    if (timeline && timeline.checkin !== null && timeline.checkout !== null) {
+      throw new NotFoundException(`Already checkin`);
+    }
 
     if (!checkin) {
       await this.checkout(attendee.id, parseInt(id), type, user);

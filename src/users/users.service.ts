@@ -430,8 +430,15 @@ export class UsersService {
         if (item.mobilenumber && item.usertype) {
           let user = null;
           if (item.mobilenumber) {
-            user = await this.userRepository.findOneBy({
-              mobilenumber: item.mobilenumber,
+            user = await this.userRepository.findOne({
+              where: [
+                {
+                  mobilenumber: item.mobilenumber,
+                },
+                {
+                  email: item.email,
+                },
+              ],
             });
             if (!user) {
               const saltOrRounds = 10;

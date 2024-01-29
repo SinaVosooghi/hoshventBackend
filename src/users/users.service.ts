@@ -440,12 +440,12 @@ export class UsersService {
                 },
               ],
             });
+
             if (!user) {
               const saltOrRounds = 10;
               const hash = item.password
                 ? await bcrypt.hash(item.password, saltOrRounds)
                 : null;
-
               const newUser = await this.userRepository.create({
                 lastName: item.lastname,
                 firstName: item.firstname,
@@ -467,8 +467,35 @@ export class UsersService {
 
               await this.userRepository.save(newUser);
             } else {
-              Object.assign(user, item);
-              await this.userRepository.save(item);
+              const saltOrRounds = 10;
+              const hash = item.password
+                ? await bcrypt.hash(item.password, saltOrRounds)
+                : null;
+              await this.userRepository
+                .createQueryBuilder()
+                .update()
+                .set({
+                  ...user,
+                  lastName: item.lastname,
+                  firstName: item.firstname,
+                  lastNameen: item.lastnameen,
+                  firstNameen: item.firstnameen,
+                  email: item.username,
+                  mobilenumber: item.mobilenumber,
+                  username: item.username,
+                  usertype: item.usertype,
+                  password: hash ?? null,
+                  gender: item.gender ?? null,
+                  category: item.category ?? null,
+                  role: item.role ?? null,
+                  siteid: siteId ?? null,
+                  nationalcode: item.nationalcode ?? null,
+                  title: item.title ?? null,
+                  titleen: item.titleen ?? null,
+                })
+                .where({ id: user.id })
+                .returning('*')
+                .execute();
             }
           }
         } else {

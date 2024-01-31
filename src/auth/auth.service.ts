@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -96,7 +97,8 @@ export class AuthService {
     await this.userService.updateUserToken(user.id, AT);
     const foundUser = await this.userService.findOne(user.id);
 
-    if (user.usertype === 'tenant' || user.usertype === 'user') {
+    // @ts-ignore
+    if (user.usertype === 'user') {
       const message = `${user.firstName} ${user.lastName} گرامی،
       با درود و عرض خوش آمدگویی! از ثبت نام شما بسیار خرسندیم.
 

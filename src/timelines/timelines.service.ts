@@ -201,10 +201,47 @@ export class TimelinesService {
         user: { id: parseInt(userId) },
         [type]: { id: parseInt(id) },
       },
+      order: { id: 'DESC' },
     });
 
-    if (timeline && timeline.checkin !== null && timeline.checkout !== null) {
-      throw new NotFoundException(`Already checkin`);
+    if (timeline.checkin !== null && timeline.checkout !== null) {
+      if (!checkin) {
+        if (timeline.checkout) {
+          throw new NotFoundException(`Already checked out`);
+        }
+        await this.checkout(attendee.id, parseInt(id), type, user);
+      }
+
+      if (checkin) {
+        if (!timeline.checkout) {
+          throw new NotFoundException(`No checked out`);
+        }
+        await this.checkin(attendee.id, parseInt(id), type, user);
+      }
+
+      try {
+        return attendee;
+      } catch (err) {
+        if (err.code === '23505') {
+          throw new ConflictException('Duplicate error');
+        }
+      }
+    }
+
+    if (timeline) {
+      if (checkin) {
+        if (timeline.checkin) {
+          throw new NotFoundException(`Already checkin`);
+        }
+      }
+      if (!checkin) {
+        if (!timeline.checkin) {
+          throw new NotFoundException(`Not checked in`);
+        }
+        if (timeline.checkout) {
+          throw new NotFoundException(`Already checked out`);
+        }
+      }
     }
 
     if (!checkin) {

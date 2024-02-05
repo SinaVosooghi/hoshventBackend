@@ -204,7 +204,7 @@ export class TimelinesService {
       order: { id: 'DESC' },
     });
 
-    if (timeline?.checkin !== null && timeline?.checkout !== null) {
+    if (timeline && timeline?.checkin !== null && timeline?.checkout !== null) {
       if (!checkin) {
         if (timeline.checkout) {
           throw new NotFoundException(`Already checked out`);
@@ -213,7 +213,7 @@ export class TimelinesService {
       }
 
       if (checkin) {
-        if (!timeline.checkout) {
+        if (!timeline?.checkout) {
           throw new NotFoundException(`No checked out`);
         }
         await this.checkin(attendee.id, parseInt(id), type, user);

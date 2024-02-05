@@ -203,7 +203,7 @@ export class TimelinesService {
       },
     });
 
-    if (timeline && timeline.checkin !== null && timeline.checkout !== null) {
+    if (timeline && timeline?.checkin !== null && timeline?.checkout !== null) {
       throw new NotFoundException(`Already checkin`);
     }
 

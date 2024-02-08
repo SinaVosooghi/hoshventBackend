@@ -318,7 +318,7 @@ export class TimelinesService {
       site: attendee.site,
       user: attendee.user,
       [type]: id,
-      type: 'checkout',
+      type: 'checkin',
       scanby: user,
     });
 

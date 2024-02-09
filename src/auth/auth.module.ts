@@ -20,7 +20,7 @@ import { SitesModule } from 'src/sites/sites.module';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: jwtSecret,
-      signOptions: { expiresIn: '120m' },
+      signOptions: { expiresIn: '30d', algorithm: 'HS256' },
     }),
     MailModule,
     SitesModule,

@@ -122,21 +122,21 @@ export class CategoriesService {
       relations: ['site'],
     });
 
-    seminars = await this.seminarsRepo.findBy({
-      id: In(updateCategoryInput.seminars),
-    });
-
-    workshops = await this.workshopRepo.findBy({
-      id: In(updateCategoryInput.workshops),
-    });
-
     if (updateCategoryInput.seminars?.length) {
+      seminars = await this.seminarsRepo.findBy({
+        id: In(updateCategoryInput.seminars),
+      });
+
       seminars = await this.seminarsRepo.findBy({
         id: In(updateCategoryInput.seminars),
       });
     }
 
     if (updateCategoryInput.workshops?.length) {
+      workshops = await this.workshopRepo.findBy({
+        id: In(updateCategoryInput.workshops),
+      });
+
       workshops = await this.workshopRepo.findBy({
         id: In(updateCategoryInput.workshops),
       });

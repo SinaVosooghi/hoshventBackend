@@ -159,37 +159,41 @@ export class SeminarsService {
       image = imageUpload.image;
     }
 
-    lecturers = await this.userRepo.findBy({
-      id: In(updateSeminarInput.lecturers),
-    });
+    if (updateSeminarInput.lecturers.length) {
+      lecturers = await this.userRepo.findBy({
+        id: In(updateSeminarInput.lecturers),
+      });
 
-    services = await this.serviceRepository.findBy({
-      id: In(updateSeminarInput.services),
-    });
+      const actualRelationships = await this.seminarRepository
+        .createQueryBuilder()
+        .relation(Seminar, 'lecturers')
+        .of(seminarItem)
+        .loadMany();
 
-    const actualRelationships = await this.seminarRepository
-      .createQueryBuilder()
-      .relation(Seminar, 'lecturers')
-      .of(seminarItem)
-      .loadMany();
+      await this.seminarRepository
+        .createQueryBuilder()
+        .relation(Seminar, 'lecturers')
+        .of(seminarItem)
+        .addAndRemove(lecturers, actualRelationships);
+    }
 
-    const actualRelationshipsServices = await this.seminarRepository
-      .createQueryBuilder()
-      .relation(Seminar, 'services')
-      .of(seminarItem)
-      .loadMany();
+    if (updateSeminarInput.services?.length) {
+      services = await this.serviceRepository.findBy({
+        id: In(updateSeminarInput.services),
+      });
 
-    await this.seminarRepository
-      .createQueryBuilder()
-      .relation(Seminar, 'lecturers')
-      .of(seminarItem)
-      .addAndRemove(lecturers, actualRelationships);
+      const actualRelationshipsServices = await this.seminarRepository
+        .createQueryBuilder()
+        .relation(Seminar, 'services')
+        .of(seminarItem)
+        .loadMany();
 
-    await this.seminarRepository
-      .createQueryBuilder()
-      .relation(Seminar, 'services')
-      .of(seminarItem)
-      .addAndRemove(services, actualRelationshipsServices);
+      await this.seminarRepository
+        .createQueryBuilder()
+        .relation(Seminar, 'services')
+        .of(seminarItem)
+        .addAndRemove(services, actualRelationshipsServices);
+    }
 
     delete updateSeminarInput.lecturers;
     delete updateSeminarInput.services;

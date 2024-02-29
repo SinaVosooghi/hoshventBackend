@@ -200,54 +200,59 @@ export class UsersService {
       image = imageUpload.image;
     }
 
-    seminars = await this.seminarsRepo.findBy({
-      id: In(updateUserInput.seminars),
-    });
+    if (updateUserInput.workshops?.length) {
+      workshops = await this.workshopRepo.findBy({
+        id: In(updateUserInput.workshops),
+      });
 
-    workshops = await this.workshopRepo.findBy({
-      id: In(updateUserInput.workshops),
-    });
+      const actualRelationshipsW = await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'workshops')
+        .of(serviceItem)
+        .loadMany();
 
-    services = await this.servicesRepo.findBy({
-      id: In(updateUserInput.services),
-    });
+      await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'workshops')
+        .of(serviceItem)
+        .addAndRemove(workshops, actualRelationshipsW);
+    }
 
-    const actualRelationships = await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'seminars')
-      .of(serviceItem)
-      .loadMany();
+    if (updateUserInput.workshops?.length) {
+      seminars = await this.seminarsRepo.findBy({
+        id: In(updateUserInput.seminars),
+      });
 
-    const actualRelationshipsW = await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'workshops')
-      .of(serviceItem)
-      .loadMany();
+      const actualRelationships = await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'seminars')
+        .of(serviceItem)
+        .loadMany();
 
-    const actualRelationshipsServices = await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'services')
-      .of(serviceItem)
-      .loadMany();
+      await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'seminars')
+        .of(serviceItem)
+        .addAndRemove(seminars, actualRelationships);
+    }
 
-    await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'workshops')
-      .of(serviceItem)
-      .addAndRemove(workshops, actualRelationshipsW);
+    if (updateUserInput.services?.length) {
+      services = await this.servicesRepo.findBy({
+        id: In(updateUserInput.services),
+      });
 
-    await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'seminars')
-      .of(serviceItem)
-      .addAndRemove(seminars, actualRelationships);
+      const actualRelationshipsServices = await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'services')
+        .of(serviceItem)
+        .loadMany();
 
-    await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'services')
-      .of(serviceItem)
-      .addAndRemove(services, actualRelationshipsServices);
-
+      await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'services')
+        .of(serviceItem)
+        .addAndRemove(services, actualRelationshipsServices);
+    }
     delete userObject.seminars;
     delete userObject.workshops;
     delete userObject.services;
@@ -282,37 +287,41 @@ export class UsersService {
       image = imageUpload.image;
     }
 
-    seminars = await this.seminarsRepo.findBy({
-      id: In(updateUserInput.seminars),
-    });
+    if (updateUserInput.workshops?.length) {
+      workshops = await this.workshopRepo.findBy({
+        id: In(updateUserInput.workshops),
+      });
 
-    workshops = await this.workshopRepo.findBy({
-      id: In(updateUserInput.workshops),
-    });
+      const actualRelationshipsW = await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'workshops')
+        .of(serviceItem)
+        .loadMany();
 
-    const actualRelationships = await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'seminars')
-      .of(serviceItem)
-      .loadMany();
+      await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'workshops')
+        .of(serviceItem)
+        .addAndRemove(workshops, actualRelationshipsW);
+    }
 
-    const actualRelationshipsW = await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'workshops')
-      .of(serviceItem)
-      .loadMany();
+    if (updateUserInput.seminars?.length) {
+      seminars = await this.seminarsRepo.findBy({
+        id: In(updateUserInput.seminars),
+      });
 
-    await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'workshops')
-      .of(serviceItem)
-      .addAndRemove(workshops, actualRelationshipsW);
+      const actualRelationships = await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'seminars')
+        .of(serviceItem)
+        .loadMany();
 
-    await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'seminars')
-      .of(serviceItem)
-      .addAndRemove(seminars, actualRelationships);
+      await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'seminars')
+        .of(serviceItem)
+        .addAndRemove(seminars, actualRelationships);
+    }
 
     delete updateUserInput.seminars;
     delete updateUserInput.workshops;

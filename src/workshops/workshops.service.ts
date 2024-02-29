@@ -211,37 +211,39 @@ export class WorkshopsService {
       image = imageUpload.image;
     }
 
-    lecturers = await this.userRepo.findBy({
-      id: In(updateWorkshopInput.lecturers),
-    });
+    if (updateWorkshopInput.lecturers.length) {
+      lecturers = await this.userRepo.findBy({
+        id: In(updateWorkshopInput.lecturers),
+      });
+      const actualRelationships = await this.workshopRepository
+        .createQueryBuilder()
+        .relation(Workshop, 'lecturers')
+        .of(workshopItem)
+        .loadMany();
+      await this.workshopRepository
+        .createQueryBuilder()
+        .relation(Workshop, 'lecturers')
+        .of(workshopItem)
+        .addAndRemove(lecturers, actualRelationships);
+    }
 
-    services = await this.serviceRepository.findBy({
-      id: In(updateWorkshopInput.services),
-    });
+    if (updateWorkshopInput.services?.length) {
+      services = await this.serviceRepository.findBy({
+        id: In(updateWorkshopInput.services),
+      });
 
-    const actualRelationships = await this.workshopRepository
-      .createQueryBuilder()
-      .relation(Workshop, 'lecturers')
-      .of(workshopItem)
-      .loadMany();
+      const actualRelationshipsServices = await this.workshopRepository
+        .createQueryBuilder()
+        .relation(Workshop, 'services')
+        .of(workshopItem)
+        .loadMany();
 
-    const actualRelationshipsServices = await this.workshopRepository
-      .createQueryBuilder()
-      .relation(Workshop, 'services')
-      .of(workshopItem)
-      .loadMany();
-
-    await this.workshopRepository
-      .createQueryBuilder()
-      .relation(Workshop, 'lecturers')
-      .of(workshopItem)
-      .addAndRemove(lecturers, actualRelationships);
-
-    await this.workshopRepository
-      .createQueryBuilder()
-      .relation(Workshop, 'services')
-      .of(workshopItem)
-      .addAndRemove(services, actualRelationshipsServices);
+      await this.workshopRepository
+        .createQueryBuilder()
+        .relation(Workshop, 'services')
+        .of(workshopItem)
+        .addAndRemove(services, actualRelationshipsServices);
+    }
 
     delete updateWorkshopInput.lecturers;
     delete updateWorkshopInput.services;

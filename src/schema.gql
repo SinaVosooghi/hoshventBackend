@@ -2128,6 +2128,7 @@ type Query {
   getCertificate(type: String!): Certificate!
   getSetting: Setting!
   getSite(id: Int!): Site!
+  getSites(input: GetSitesArgs!): SitePaginate!
   hall(id: Int!): Hall!
   halls(input: GetHallsArgs!): HallPaginate!
   invoice(id: Int!, read: Boolean! = false): Invoice!

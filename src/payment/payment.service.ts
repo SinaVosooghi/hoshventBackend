@@ -123,7 +123,7 @@ export class PaymentService {
   async findAll({ skip, limit, searchTerm }: GetPaymentsArgs) {
     const [result, total] = await this.paymentRepository.findAndCount({
       where: {
-        refid: searchTerm ? Like(`%${searchTerm}%`) : null,
+        authority: searchTerm ? Like(`%${searchTerm}%`) : null,
       },
       order: { id: 'DESC' },
       relations: ['user'],

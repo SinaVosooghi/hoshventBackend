@@ -1473,8 +1473,11 @@ input GetRolesApiArgs {
 input GetScansArgs {
   all: Boolean! = false
   limit: Float
+  seminar: Float
+  service: Float
   siteid: Float
   skip: Float!
+  workshop: Float
 }
 
 input GetSeminarsArgs {

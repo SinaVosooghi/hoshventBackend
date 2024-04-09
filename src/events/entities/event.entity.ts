@@ -86,10 +86,6 @@ export class Event {
   @Field(() => Category, { description: 'Author of the blog', nullable: true })
   category: Category;
 
-  @OneToMany(() => Hall, (hall) => hall.event, { nullable: true })
-  @Field(() => [Hall], { nullable: true })
-  halls: Hall[];
-
   @Column({ default: true })
   @Field(() => Boolean, { description: 'Status of the blog' })
   status: boolean;

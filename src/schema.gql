@@ -607,14 +607,14 @@ input CreateHallInput {
   """Description of the hall"""
   body: String
 
-  """Event of the hall"""
-  event: Float
-
   """Is hall featured"""
   featured: Boolean!
 
   """Image of the Hall"""
   image: Upload
+
+  """Site of the hall"""
+  site: Float
 
   """Status of the hall"""
   status: Boolean
@@ -1245,7 +1245,6 @@ type Event {
 
   """Featured of the blog"""
   featured: Boolean!
-  halls: [Hall!]
 
   """Id of the blog"""
   id: Float!
@@ -1591,9 +1590,6 @@ type Hall {
   body: String
   created: DateTime
   deletedAt: DateTime
-
-  """Event of the hall"""
-  event: Event
 
   """Is hall featured"""
   featured: Boolean!
@@ -2815,15 +2811,15 @@ input UpdateHallInput {
   """Description of the hall"""
   body: String
 
-  """Event of the hall"""
-  event: Float
-
   """Is hall featured"""
   featured: Boolean
   id: Int!
 
   """Image of the Hall"""
   image: Upload
+
+  """Site of the hall"""
+  site: Float
 
   """Status of the hall"""
   status: Boolean

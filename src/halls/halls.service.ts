@@ -56,7 +56,7 @@ export class HallsService {
         ...(featured && { featured: featured }),
         ...(user && { site: { id: user.site[0]?.id } }),
       },
-      relations: ['user', 'event', 'event.site'],
+      relations: ['user', 'site'],
       order: { id: 'DESC' },
       take: limit,
       skip: skip,
@@ -68,7 +68,7 @@ export class HallsService {
   async findOne(id: number): Promise<Hall> {
     const hall = await this.hallRepository.findOne({
       where: { id: id },
-      relations: ['user', 'event', 'event.site'],
+      relations: ['user', 'site'],
     });
     if (!hall) {
       throw new NotFoundException(`Hall #${id} not found`);

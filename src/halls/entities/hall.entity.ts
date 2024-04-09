@@ -1,15 +1,11 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Event } from 'src/events/entities/event.entity';
-import slugify from 'slugify';
 import { User } from 'src/users/entities/user.entity';
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
   JoinTable,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -46,14 +42,6 @@ export class Hall {
   @Column({ default: false })
   @Field(() => Boolean, { description: 'Is hall featured' })
   featured: boolean;
-
-  @ManyToOne(() => Event, (event) => event.id, {
-    nullable: true,
-    onDelete: 'SET NULL',
-  })
-  @JoinTable()
-  @Field(() => Event, { description: 'Event of the hall', nullable: true })
-  event: Event;
 
   @ManyToOne(() => User, (user) => user.id, { nullable: true })
   @Field(() => User, { description: 'User of the hall', nullable: true })

@@ -64,7 +64,13 @@ export class TimelinesService {
         ...(workshop && { workshop: { id: workshop } }),
       },
       order: { id: 'DESC' },
-      relations: ['user', 'seminar', 'workshop'],
+      relations: [
+        'user',
+        'seminar',
+        'workshop',
+        'workshop.hall',
+        'seminar.hall',
+      ],
       take: limit,
       skip: skip,
     });
@@ -83,7 +89,6 @@ export class TimelinesService {
         totalTime += parseInt(duration);
       }
     });
-
     return { timelines: result, count: total, total: totalTime };
   }
 

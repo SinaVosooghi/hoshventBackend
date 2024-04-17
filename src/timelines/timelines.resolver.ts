@@ -30,6 +30,7 @@ export class TimelinesResolver {
   @Query(() => TimelinePaginate, { name: 'timelines' })
   @UseGuards(GqlAuthGuard)
   findAll(@Args('input') getTimelinsArgs: GetTimelinsArgs) {
+    console.log(12312312);
     return this.timelinesService.findAll(getTimelinsArgs);
   }
 

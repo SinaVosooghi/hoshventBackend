@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { IsNull, Like, Repository } from 'typeorm';
 import { CreateBrandInput } from './dto/create-brand.input';
 import { GetBrandsArgs } from './dto/get-items.args';
 import { UpdateBrandInput } from './dto/update-brand.input';
@@ -45,6 +45,7 @@ export class BrandsService {
     { skip, limit, searchTerm, status, featured, siteid }: GetBrandsArgs,
     user: User,
   ) {
+    console.log(siteid);
     const [result, total] = await this.brandRepository.findAndCount({
       where: {
         title: searchTerm ? Like(`%${searchTerm}%`) : null,
@@ -52,6 +53,7 @@ export class BrandsService {
         ...(featured && { featured: featured }),
         ...(user && { site: { id: user.site[0]?.id } }),
         ...(siteid && { site: { id: siteid } }),
+        ...(siteid === null && { site: IsNull() }),
       },
       order: { id: 'DESC' },
       take: limit,

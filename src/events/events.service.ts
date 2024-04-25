@@ -196,6 +196,8 @@ export class EventsService {
         'workshop.user',
         'seminar',
         'seminar.user',
+        'service',
+        'service.user',
         'user',
       ],
       order: { id: 'ASC' },

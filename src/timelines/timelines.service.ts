@@ -204,10 +204,15 @@ export class TimelinesService {
       where: {
         // @ts-ignore
         user: { id: parseInt(userId) },
+        ...(seminar && { seminar: { id: parseInt(seminar) } }),
+        ...(workshop && { workshop: { id: parseInt(workshop) } }),
+        ...(service && { service: { id: parseInt(service) } }),
         [type]: { id: parseInt(id) },
       },
       order: { id: 'DESC' },
     });
+
+    if (!checkin && !timeline) throw new NotFoundException(`Not checked in`);
 
     if (timeline && timeline?.checkin !== null && timeline?.checkout !== null) {
       if (!checkin) {

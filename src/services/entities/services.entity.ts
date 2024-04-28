@@ -16,6 +16,7 @@ import { Site } from 'src/sites/entities/site.entity';
 import { Event } from 'src/events/entities/event.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { Timeline } from 'src/timelines/entities/timeline.entity';
 
 @ObjectType()
 @Entity()
@@ -133,4 +134,15 @@ export class Service {
     nullable: true,
   })
   attendees: Attendee[];
+
+  @OneToMany(() => Timeline, (timeline) => timeline.service, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn()
+  @Field(() => [Timeline], {
+    description: 'Timeline of the service',
+    nullable: true,
+  })
+  timelines: Timeline[];
 }

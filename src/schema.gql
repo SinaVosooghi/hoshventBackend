@@ -2353,6 +2353,9 @@ type Service {
   """Status of the service"""
   status: Boolean!
 
+  """Timeline of the service"""
+  timelines: [Timeline!]
+
   """title of the service"""
   title: String!
   updated: DateTime

@@ -64,7 +64,7 @@ export class ServicesService {
         ...(siteid && { site: { id: siteid } }),
         ...(siteid === null && { site: IsNull() }),
       },
-      relations: ['user'],
+      relations: ['user', 'attendees'],
       take: limit,
       skip: skip,
       order: {

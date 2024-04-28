@@ -202,13 +202,18 @@ export class CategoriesService {
 
       services.map(async (service) => {
         const serviceItem = await this.serviceService.findOne(service);
+
         users.map(async (user) => {
-          await this.attendeeService.create({
-            user: user,
-            status: true,
-            service: serviceItem,
-            site: foundCategory.site,
-          });
+          try {
+            const a = await this.attendeeService.create({
+              user: user,
+              status: true,
+              service: serviceItem,
+              site: foundCategory.site,
+            });
+          } catch (error) {
+            console.log(error);
+          }
         });
       });
     }

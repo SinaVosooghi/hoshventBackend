@@ -1,18 +1,18 @@
 import {
   ConflictException,
   Injectable,
-  NotFoundException
-} from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
-import { CreateAtendeeInput } from "./dto/create-atendee.input";
-import { GetAttendeesArgs } from "./dto/get-attendees.args";
-import { UpdateAttendeeInput } from "./dto/update-atendee.input";
-import { Attendee } from "./entities/attendee.entity";
-import { Site } from "src/sites/entities/site.entity";
-import { Workshop } from "src/workshops/entities/workshop.entity";
-import { Seminar } from "src/seminars/entities/seminar.entity";
-import { User } from "../users/entities/user.entity";
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { In, Repository } from 'typeorm';
+import { CreateAtendeeInput } from './dto/create-atendee.input';
+import { GetAttendeesArgs } from './dto/get-attendees.args';
+import { UpdateAttendeeInput } from './dto/update-atendee.input';
+import { Attendee } from './entities/attendee.entity';
+import { Site } from 'src/sites/entities/site.entity';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
+import { Seminar } from 'src/seminars/entities/seminar.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class AttendeesService {
@@ -22,9 +22,8 @@ export class AttendeesService {
     @InjectRepository(Workshop)
     private readonly workshopRepository: Repository<Workshop>,
     @InjectRepository(Seminar)
-    private readonly seminarRepository: Repository<Seminar>
-  ) {
-  }
+    private readonly seminarRepository: Repository<Seminar>,
+  ) {}
 
   async create(createAttendeeInput: CreateAtendeeInput): Promise<Attendee> {
     const item = await this.AttendeeRepository.create(createAttendeeInput);
@@ -32,14 +31,16 @@ export class AttendeesService {
     try {
       return await this.AttendeeRepository.save(item);
     } catch (err) {
-      if (err.code === "23505") {
-        throw new ConflictException("Duplicate error");
+      if (err.code === '23505') {
+        throw new ConflictException('Duplicate error');
       }
     }
   }
 
-  async findAll({ skip, limit, status, siteid, w, s }: GetAttendeesArgs, user?: User) {
-
+  async findAll(
+    { skip, limit, status, siteid, w, s }: GetAttendeesArgs,
+    user?: User,
+  ) {
     const [result, total] = await this.AttendeeRepository.findAndCount({
       where: {
         status: status ?? null,
@@ -48,10 +49,10 @@ export class AttendeesService {
         ...(s && { seminar: { id: s } }),
         ...(user && { site: { id: user.site[0]?.id } }),
       },
-      order: { id: "DESC" },
-      relations: ["user"],
+      order: { id: 'DESC' },
+      relations: ['user'],
       take: limit,
-      skip: skip
+      skip: skip,
     });
 
     return { attends: result, count: total };
@@ -62,10 +63,10 @@ export class AttendeesService {
       const workshops = await this.workshopRepository.find({
         where: {
           ...(siteid && { site: { id: siteid } }),
-          ...(w && { id: w })
+          ...(w && { id: w }),
         },
-        relations: ["user"],
-        select: { id: true }
+        relations: ['user'],
+        select: { id: true },
       });
 
       const ids = workshops.map((c) => c.id);
@@ -73,13 +74,13 @@ export class AttendeesService {
         where: {
           status: status ?? null,
           workshop: {
-            id: In(ids)
-          }
+            id: In(ids),
+          },
         },
-        order: { id: "DESC" },
-        relations: ["user", "workshop"],
+        order: { id: 'DESC' },
+        relations: ['user', 'workshop'],
         take: limit,
-        skip: skip
+        skip: skip,
       });
 
       return { attends: result, count: total };
@@ -87,10 +88,10 @@ export class AttendeesService {
       const seminars = await this.seminarRepository.find({
         where: {
           ...(siteid && { site: { id: siteid } }),
-          ...(s && { id: s })
+          ...(s && { id: s }),
         },
-        relations: ["user"],
-        select: { id: true }
+        relations: ['user'],
+        select: { id: true },
       });
 
       const ids = seminars.map((c) => c.id);
@@ -98,13 +99,13 @@ export class AttendeesService {
         where: {
           status: status ?? null,
           seminar: {
-            id: In(ids)
-          }
+            id: In(ids),
+          },
         },
-        order: { id: "DESC" },
-        relations: ["user", "seminar"],
+        order: { id: 'DESC' },
+        relations: ['user', 'seminar'],
         take: limit,
-        skip: skip
+        skip: skip,
       });
 
       return { attends: result, count: total };
@@ -113,12 +114,12 @@ export class AttendeesService {
     const [result, total] = await this.AttendeeRepository.findAndCount({
       where: {
         status: status ?? null,
-        ...(siteid && { site: { id: siteid } })
+        ...(siteid && { site: { id: siteid } }),
       },
-      order: { id: "DESC" },
-      relations: ["user", "seminar", "workshop"],
+      order: { id: 'DESC' },
+      relations: ['user', 'seminar', 'workshop'],
       take: limit,
-      skip: skip
+      skip: skip,
     });
 
     return { attends: result, count: total };
@@ -126,7 +127,7 @@ export class AttendeesService {
 
   async findOne(id: number): Promise<Attendee> {
     const Attendee = await this.AttendeeRepository.findOne({
-      where: { id: id }
+      where: { id: id },
     });
     if (!Attendee) {
       throw new NotFoundException(`Attendee #${id} not found`);
@@ -136,14 +137,14 @@ export class AttendeesService {
 
   async update(
     id: number,
-    updateAttendeeInput: UpdateAttendeeInput
+    updateAttendeeInput: UpdateAttendeeInput,
   ): Promise<Attendee> {
     const Attendee = await this.AttendeeRepository.createQueryBuilder(
-      "Attendee"
+      'Attendee',
     )
       .update(updateAttendeeInput)
       .where({ id: id })
-      .returning("*")
+      .returning('*')
       .execute();
 
     if (!Attendee) {

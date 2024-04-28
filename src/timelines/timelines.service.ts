@@ -18,12 +18,15 @@ import { GetUserTimelineArgs } from './dto/get-user.args';
 import { ManualCheckinInput } from './dto/manual-checkin-input';
 import { ScansService } from 'src/scans/scans.service';
 import { Scan } from 'src/scans/entities/scan.entity';
+import { Service } from 'src/services/entities/services.entity';
 
 @Injectable()
 export class TimelinesService {
   constructor(
     @InjectRepository(Scan)
     private readonly scanRepository: Repository<Scan>,
+    @InjectRepository(Service)
+    private readonly serviceRepo: Repository<Service>,
     @InjectRepository(Timeline)
     private readonly timelimeRepository: Repository<Timeline>,
     @InjectRepository(User)
@@ -199,6 +202,35 @@ export class TimelinesService {
     if (seminar) type = 'seminar';
     if (workshop) type = 'workshop';
     if (service) type = 'service';
+
+    if (type === 'service') {
+      const serviceItem = await this.serviceRepo.findOne({
+        where: { id: parseInt(service) },
+      });
+
+      const timeline = await this.timelimeRepository.find({
+        where: {
+          // @ts-ignore
+          user: { id: parseInt(userId) },
+          ...(service && { service: { id: parseInt(service) } }),
+          [type]: { id: parseInt(id) },
+        },
+        order: { id: 'DESC' },
+      });
+
+      if (timeline.length === serviceItem.perperson)
+        throw new NotFoundException(`Over limit`);
+
+      await this.checkin(attendee.id, parseInt(id), 'service', user);
+
+      try {
+        return attendee;
+      } catch (err) {
+        if (err.code === '23505') {
+          throw new ConflictException('Duplicate error');
+        }
+      }
+    }
 
     const timeline = await this.timelimeRepository.findOne({
       where: {

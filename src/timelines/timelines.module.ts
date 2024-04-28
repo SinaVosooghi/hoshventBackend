@@ -8,10 +8,11 @@ import { AttendeesModule } from 'src/atendees/atendees.module';
 import { ScansModule } from 'src/scans/scans.module';
 import { User } from 'src/users/entities/user.entity';
 import { Scan } from 'src/scans/entities/scan.entity';
+import { Service } from 'src/services/entities/services.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Timeline, Attendee, User, Scan]),
+    TypeOrmModule.forFeature([Timeline, Attendee, User, Scan, Service]),
     AttendeesModule,
     ScansModule,
   ],

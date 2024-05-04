@@ -218,7 +218,7 @@ export class TimelinesService {
         order: { id: 'DESC' },
       });
 
-      if (timeline.length === serviceItem.perperson)
+      if (timeline.length >= serviceItem.perperson)
         throw new NotFoundException(`Over limit`);
 
       await this.checkin(attendee.id, parseInt(id), 'service', user);

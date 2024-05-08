@@ -136,6 +136,8 @@ export class UsersService {
       relations: [
         'role',
         'site',
+        'siteid',
+        'siteid.plan',
         'category',
         'site.plan',
         'workshops',

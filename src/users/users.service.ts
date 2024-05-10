@@ -136,6 +136,8 @@ export class UsersService {
       relations: [
         'role',
         'site',
+        'siteid',
+        'siteid.plan',
         'category',
         'site.plan',
         'workshops',
@@ -200,41 +202,37 @@ export class UsersService {
       image = imageUpload.image;
     }
 
-    if (updateUserInput.workshops?.length) {
-      workshops = await this.workshopRepo.findBy({
-        id: In(updateUserInput.workshops),
-      });
+    workshops = await this.workshopRepo.findBy({
+      id: In(updateUserInput.workshops),
+    });
 
-      const actualRelationshipsW = await this.userRepository
-        .createQueryBuilder()
-        .relation(User, 'workshops')
-        .of(serviceItem)
-        .loadMany();
+    const actualRelationshipsW = await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'workshops')
+      .of(serviceItem)
+      .loadMany();
 
-      await this.userRepository
-        .createQueryBuilder()
-        .relation(User, 'workshops')
-        .of(serviceItem)
-        .addAndRemove(workshops, actualRelationshipsW);
-    }
+    await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'workshops')
+      .of(serviceItem)
+      .addAndRemove(workshops, actualRelationshipsW);
 
-    if (updateUserInput.workshops?.length) {
-      seminars = await this.seminarsRepo.findBy({
-        id: In(updateUserInput.seminars),
-      });
+    seminars = await this.seminarsRepo.findBy({
+      id: In(updateUserInput.seminars),
+    });
 
-      const actualRelationships = await this.userRepository
-        .createQueryBuilder()
-        .relation(User, 'seminars')
-        .of(serviceItem)
-        .loadMany();
+    const actualRelationships = await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'seminars')
+      .of(serviceItem)
+      .loadMany();
 
-      await this.userRepository
-        .createQueryBuilder()
-        .relation(User, 'seminars')
-        .of(serviceItem)
-        .addAndRemove(seminars, actualRelationships);
-    }
+    await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'seminars')
+      .of(serviceItem)
+      .addAndRemove(seminars, actualRelationships);
 
     if (updateUserInput.services?.length) {
       services = await this.servicesRepo.findBy({

@@ -393,6 +393,14 @@ export class TimelinesService {
         .where({ id: timeline.id })
         .returning('*')
         .execute();
+
+      await this.scanService.create({
+        site: attendee.site,
+        user: attendee.user,
+        [type]: id,
+        type: 'checkout',
+        scanby: user,
+      });
       return true;
     } else {
       const item = await this.timelimeRepository.create({

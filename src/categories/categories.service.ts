@@ -164,7 +164,8 @@ export class CategoriesService {
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
       });
 
-      workshops.map(async (workshop) => {
+      console.log(workshops);
+      for (const workshop of workshops) {
         const workshopItem = await this.WorkshopService.findOne(workshop);
         const attendeePromises = users.map(async (user) => {
           try {
@@ -180,15 +181,16 @@ export class CategoriesService {
         });
 
         await Promise.all(attendeePromises);
-      });
+      }
     }
+
+    console.log(seminars);
 
     if (seminars && seminars.length > 0) {
       const users = await this.userRepository.find({
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
       });
-
-      seminars.map(async (seminar) => {
+      for (const seminar of seminars) {
         const seminarItem = await this.seminarService.findOne(seminar);
 
         const attendeePromises = users.map(async (user) => {
@@ -205,7 +207,7 @@ export class CategoriesService {
         });
 
         await Promise.all(attendeePromises);
-      });
+      }
     }
 
     if (services && services.length > 0) {

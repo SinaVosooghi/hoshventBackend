@@ -54,6 +54,7 @@ export class AuthService {
       relations: ['siteid'],
     });
 
+    console.log(foundUser?.siteid?.id, body.s);
     if (foundUser?.siteid?.id !== body.s) {
       throw new HttpException(
         'You do not have access to this page!',

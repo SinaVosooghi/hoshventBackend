@@ -203,9 +203,8 @@ export class CategoriesService {
 
       console.log(users[users.length - 1]);
 
-      services.map(async (service) => {
+      for (const service of services) {
         const serviceItem = await this.serviceService.findOne(service);
-
         const attendeePromises = users.map(async (user) => {
           console.log(user.id);
           try {
@@ -221,7 +220,7 @@ export class CategoriesService {
         });
 
         await Promise.all(attendeePromises);
-      });
+      }
     }
 
     return category.raw[0];

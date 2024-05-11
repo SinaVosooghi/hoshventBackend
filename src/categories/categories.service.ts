@@ -206,10 +206,11 @@ export class CategoriesService {
       services.map(async (service) => {
         const serviceItem = await this.serviceService.findOne(service);
 
-        users.map(async (user) => {
+        const attendeePromises = users.map(async (user) => {
+          console.log(user.id);
           try {
             await this.attendeeService.create({
-              user: user,
+              user,
               status: true,
               service: serviceItem,
               site: foundCategory.site,
@@ -218,6 +219,8 @@ export class CategoriesService {
             console.log(error);
           }
         });
+
+        await Promise.all(attendeePromises);
       });
     }
 

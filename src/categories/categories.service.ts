@@ -164,9 +164,10 @@ export class CategoriesService {
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
       });
 
-      console.log(workshops);
       for (const workshop of workshops) {
-        const workshopItem = await this.WorkshopService.findOne(workshop);
+        const workshopItem = await this.workshopRepo.findOne({
+          where: { id: workshop.id },
+        });
         const attendeePromises = users.map(async (user) => {
           try {
             await this.attendeeService.create({
@@ -184,15 +185,14 @@ export class CategoriesService {
       }
     }
 
-    console.log(seminars);
-
     if (seminars && seminars.length > 0) {
       const users = await this.userRepository.find({
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
       });
       for (const seminar of seminars) {
-        const seminarItem = await this.seminarService.findOne(seminar);
-
+        const seminarItem = await this.seminarsRepo.findOne({
+          where: { id: seminar.id },
+        });
         const attendeePromises = users.map(async (user) => {
           try {
             await this.attendeeService.create({

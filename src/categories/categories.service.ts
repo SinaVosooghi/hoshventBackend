@@ -196,6 +196,7 @@ export class CategoriesService {
     }
 
     if (services && services.length > 0) {
+      console.log(id, foundCategory.site.id);
       const users = await this.userRepository.find({
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
       });
@@ -207,7 +208,7 @@ export class CategoriesService {
 
         users.map(async (user) => {
           try {
-            const a = await this.attendeeService.create({
+            await this.attendeeService.create({
               user: user,
               status: true,
               service: serviceItem,

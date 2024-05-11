@@ -166,14 +166,20 @@ export class CategoriesService {
 
       workshops.map(async (workshop) => {
         const workshopItem = await this.WorkshopService.findOne(workshop);
-        users.map(async (user) => {
-          await this.attendeeService.create({
-            user: user,
-            status: true,
-            workshop: workshopItem,
-            site: foundCategory.site,
-          });
+        const attendeePromises = users.map(async (user) => {
+          try {
+            await this.attendeeService.create({
+              user,
+              status: true,
+              workshop: workshopItem,
+              site: foundCategory.site,
+            });
+          } catch (error) {
+            console.log(error);
+          }
         });
+
+        await Promise.all(attendeePromises);
       });
     }
 
@@ -184,14 +190,21 @@ export class CategoriesService {
 
       seminars.map(async (seminar) => {
         const seminarItem = await this.seminarService.findOne(seminar);
-        users.map(async (user) => {
-          await this.attendeeService.create({
-            user: user,
-            status: true,
-            seminar: seminarItem,
-            site: foundCategory.site,
-          });
+
+        const attendeePromises = users.map(async (user) => {
+          try {
+            await this.attendeeService.create({
+              user,
+              status: true,
+              seminar: seminarItem,
+              site: foundCategory.site,
+            });
+          } catch (error) {
+            console.log(error);
+          }
         });
+
+        await Promise.all(attendeePromises);
       });
     }
 
@@ -201,12 +214,9 @@ export class CategoriesService {
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
       });
 
-      console.log(users[users.length - 1]);
-
       for (const service of services) {
         const serviceItem = await this.serviceService.findOne(service);
         const attendeePromises = users.map(async (user) => {
-          console.log(user.id);
           try {
             await this.attendeeService.create({
               user,

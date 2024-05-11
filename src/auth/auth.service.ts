@@ -135,6 +135,8 @@ export class AuthService {
     type: string;
     firstName: string;
     lastName: string;
+    firstNameen: string;
+    lastNameen: string;
     uid: number;
     site: any;
   }> {

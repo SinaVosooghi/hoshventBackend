@@ -23,18 +23,23 @@ import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { GetUserMobileApiArgs } from './dto/get-user.args';
 import { Service } from 'src/services/entities/services.entity';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { AttendeesService } from 'src/atendees/atendees.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Attendee)
+    private readonly attendeeRepository: Repository<Attendee>,
     @InjectRepository(Seminar)
     private readonly seminarsRepo: Repository<Seminar>,
     @InjectRepository(Workshop)
     private readonly workshopRepo: Repository<Workshop>,
     @InjectRepository(Service)
     private readonly servicesRepo: Repository<Service>,
+    private readonly attendeeService: AttendeesService,
   ) {}
 
   async create(input: CreateUserInput, user?: User): Promise<User> {
@@ -180,16 +185,12 @@ export class UsersService {
   }
 
   async update(id: number, updateUserInput: UpdateUserInput): Promise<User> {
-    const serviceItem = await this.userRepository.findOne({
-      where: { id: updateUserInput.id },
-      relations: ['workshops', 'seminars'],
-    });
-    let image: any = updateUserInput.avatar;
-    const userObject = updateUserInput;
-
-    let seminars = [];
-    let workshops = [];
-    let services = [];
+    const {
+      workshops: workshopIds = [],
+      seminars: seminarIds = [],
+      services: serviceIds = [],
+      ...userObject
+    } = updateUserInput;
 
     if (updateUserInput.password) {
       const saltOrRounds = 10;
@@ -197,76 +198,109 @@ export class UsersService {
       userObject.password = hash;
     }
 
+    let image: any = updateUserInput.avatar;
     if (typeof updateUserInput.avatar !== 'string' && updateUserInput.avatar) {
       const imageUpload = await imageUploader(updateUserInput.avatar);
       image = imageUpload.image;
     }
 
-    workshops = await this.workshopRepo.findBy({
-      id: In(updateUserInput.workshops),
+    const workshops = await this.workshopRepo.findByIds(workshopIds);
+    const seminars = await this.seminarsRepo.findByIds(seminarIds);
+    const services = await this.servicesRepo.findByIds(serviceIds);
+
+    // Find user by id with relations
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['workshops', 'seminars', 'services'],
     });
 
-    const actualRelationshipsW = await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'workshops')
-      .of(serviceItem)
-      .loadMany();
-
-    await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'workshops')
-      .of(serviceItem)
-      .addAndRemove(workshops, actualRelationshipsW);
-
-    seminars = await this.seminarsRepo.findBy({
-      id: In(updateUserInput.seminars),
-    });
-
-    const actualRelationships = await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'seminars')
-      .of(serviceItem)
-      .loadMany();
-
-    await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'seminars')
-      .of(serviceItem)
-      .addAndRemove(seminars, actualRelationships);
-
-    if (updateUserInput.services?.length) {
-      services = await this.servicesRepo.findBy({
-        id: In(updateUserInput.services),
+    if (
+      user.usertype !== 'instructor' &&
+      user.usertype !== 'super' &&
+      user.usertype !== 'tenant'
+    ) {
+      const existingAttendees = await this.attendeeRepository.find({
+        where: { user: { id } },
+        relations: ['workshop', 'seminar', 'service'],
       });
 
-      const actualRelationshipsServices = await this.userRepository
-        .createQueryBuilder()
-        .relation(User, 'services')
-        .of(serviceItem)
-        .loadMany();
+      const removedWorkshopIds = existingAttendees
+        // @ts-ignore
+        .filter((att) => att.workshop && !workshopIds.includes(att.workshop))
+        .map((att) => att.workshop?.id);
 
-      await this.userRepository
-        .createQueryBuilder()
-        .relation(User, 'services')
-        .of(serviceItem)
-        .addAndRemove(services, actualRelationshipsServices);
+      const removedSeminarIds = existingAttendees
+        // @ts-ignore
+        .filter((att) => att.seminar && !seminarIds.includes(att.seminar.id))
+        .map((att) => att.seminar?.id);
+      const removedServiceIds = existingAttendees
+        // @ts-ignore
+        .filter((att) => att.service && !serviceIds.includes(att.service.id))
+        .map((att) => att.service?.id);
+
+      await Promise.all([
+        this.removeAttendees(id, 'workshop', removedWorkshopIds),
+        this.removeAttendees(id, 'seminar', removedSeminarIds),
+        this.removeAttendees(id, 'service', removedServiceIds),
+      ]);
+
+      await Promise.all([
+        ...workshops.map((workshop) =>
+          this.createAttendee(user, workshop, 'workshop'),
+        ),
+        ...seminars.map((seminar) =>
+          this.createAttendee(user, seminar, 'seminar'),
+        ),
+        ...services.map((service) =>
+          this.createAttendee(user, service, 'service'),
+        ),
+      ]);
     }
-    delete userObject.seminars;
-    delete userObject.workshops;
-    delete userObject.services;
 
-    const user = await this.userRepository
-      .createQueryBuilder()
-      .update()
-      .set({ ...userObject, ...(image && { avatar: image }) })
-      .where({ id: updateUserInput.id })
-      .returning('*')
-      .execute();
+    // Update workshops
+    user.workshops = workshops;
 
-    if (!user) {
-      throw new NotFoundException(`user #${updateUserInput.id} not found`);
+    // Update seminars
+    user.seminars = seminars;
+
+    // Update services
+    user.services = services;
+
+    // Save user entity
+    const updatedUser = await this.userRepository.save(user);
+
+    // Update user object with new avatar
+    if (image) {
+      updatedUser.avatar = image;
     }
-    return user.raw[0];
+
+    return updatedUser;
+  }
+
+  async removeAttendees(
+    userId: number,
+    eventType: string,
+    eventIds: number[],
+  ): Promise<void> {
+    if (eventIds.length > 0) {
+      const attendeesToDelete = await this.attendeeRepository.find({
+        where: { user: { id: userId }, [eventType]: In(eventIds) },
+      });
+      await this.attendeeRepository.remove(attendeesToDelete);
+    }
+  }
+
+  async createAttendee(
+    user: User,
+    event: Workshop | Seminar | Service,
+    type: 'workshop' | 'seminar' | 'service',
+  ): Promise<Attendee> {
+    return this.attendeeService.create({
+      user,
+      status: true,
+      [type]: event,
+      site: user.site,
+    });
   }
 
   async updateApi(updateUserInput: UpdateUserInput): Promise<User> {

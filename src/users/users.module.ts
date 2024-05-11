@@ -10,15 +10,25 @@ import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { UserApiResolver } from './user.api.resolver';
 import { Service } from 'src/services/entities/services.entity';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { AttendeesModule } from 'src/atendees/atendees.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Category, Seminar, Workshop, Service]),
+    TypeOrmModule.forFeature([
+      User,
+      Category,
+      Seminar,
+      Workshop,
+      Service,
+      Attendee,
+    ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: 'SECRET',
       signOptions: { expiresIn: '120m' },
     }),
+    AttendeesModule,
   ],
   providers: [UsersResolver, UsersService, UserApiResolver],
   exports: [UsersService],

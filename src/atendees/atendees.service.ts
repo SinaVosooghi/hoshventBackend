@@ -50,7 +50,7 @@ export class AttendeesService {
         ...(user && { site: { id: user.site[0]?.id } }),
       },
       order: { id: 'DESC' },
-      relations: ['user'],
+      relations: ['user', 'user.category'],
       take: limit,
       skip: skip,
     });

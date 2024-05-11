@@ -216,6 +216,8 @@ export class AuthService {
       type: createdUser.usertype,
       firstName: createdUser.firstName,
       lastName: createdUser.lastName,
+      firstNameen: createdUser.firstNameen,
+      lastNameen: createdUser.lastNameen,
       uid: createdUser.id,
       access_token: AT,
       site: createdUser.site,

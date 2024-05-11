@@ -65,7 +65,7 @@ export class Category {
   @Field(() => Boolean, { description: 'Is category featured' })
   featured: boolean;
 
-  @OneToOne(() => Category, (category) => category.id, {
+  @ManyToOne(() => Category, (category) => category.id, {
     nullable: true,
     onDelete: 'SET NULL',
   })

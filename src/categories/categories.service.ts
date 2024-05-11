@@ -211,7 +211,6 @@ export class CategoriesService {
     }
 
     if (services && services.length > 0) {
-      console.log(id, foundCategory.site.id);
       const users = await this.userRepository.find({
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
       });

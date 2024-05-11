@@ -201,6 +201,8 @@ export class CategoriesService {
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
       });
 
+      console.log(users.length);
+
       services.map(async (service) => {
         const serviceItem = await this.serviceService.findOne(service);
 

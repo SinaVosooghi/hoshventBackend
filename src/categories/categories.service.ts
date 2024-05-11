@@ -15,8 +15,6 @@ import { AttendeesService } from 'src/atendees/atendees.service';
 import { ServicesService } from 'src/services/services.service';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
-import { SeminarsService } from 'src/seminars/seminars.service';
-import { WorkshopsService } from 'src/workshops/workshops.service';
 
 @Injectable()
 export class CategoriesService {
@@ -31,8 +29,6 @@ export class CategoriesService {
     private readonly userRepository: Repository<User>,
     private readonly attendeeService: AttendeesService,
     private readonly serviceService: ServicesService,
-    private readonly seminarService: SeminarsService,
-    private readonly WorkshopService: WorkshopsService,
   ) {}
 
   async create(
@@ -162,6 +158,7 @@ export class CategoriesService {
     if (workshops && workshops.length > 0) {
       const users = await this.userRepository.find({
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
+        relations: ['workshops', 'seminars', 'services'],
       });
 
       for (const workshop of workshops) {
@@ -176,6 +173,14 @@ export class CategoriesService {
               workshop: workshopItem,
               site: foundCategory.site,
             });
+            if (!user.workshops.some((s) => s.id === workshopItem.id)) {
+              user.workshops.push(workshopItem);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+          try {
+            await this.userRepository.save(user);
           } catch (error) {
             console.log(error);
           }
@@ -188,6 +193,7 @@ export class CategoriesService {
     if (seminars && seminars.length > 0) {
       const users = await this.userRepository.find({
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
+        relations: ['workshops', 'seminars', 'services'],
       });
       for (const seminar of seminars) {
         const seminarItem = await this.seminarsRepo.findOne({
@@ -201,6 +207,15 @@ export class CategoriesService {
               seminar: seminarItem,
               site: foundCategory.site,
             });
+
+            if (!user.seminars.some((s) => s.id === seminarItem.id)) {
+              user.seminars.push(seminarItem);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+          try {
+            await this.userRepository.save(user);
           } catch (error) {
             console.log(error);
           }
@@ -213,6 +228,7 @@ export class CategoriesService {
     if (services && services.length > 0) {
       const users = await this.userRepository.find({
         where: { category: { id: id }, siteid: { id: foundCategory.site.id } },
+        relations: ['workshops', 'seminars', 'services'],
       });
 
       for (const service of services) {
@@ -225,6 +241,16 @@ export class CategoriesService {
               service: serviceItem,
               site: foundCategory.site,
             });
+
+            if (!user.services.some((s) => s.id === serviceItem.id)) {
+              user.services.push(serviceItem);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+
+          try {
+            await this.userRepository.save(user);
           } catch (error) {
             console.log(error);
           }

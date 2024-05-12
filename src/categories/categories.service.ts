@@ -15,10 +15,13 @@ import { AttendeesService } from 'src/atendees/atendees.service';
 import { ServicesService } from 'src/services/services.service';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
 
 @Injectable()
 export class CategoriesService {
   constructor(
+    @InjectRepository(Attendee)
+    private readonly attendeeRepository: Repository<Attendee>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(Seminar)
@@ -166,15 +169,21 @@ export class CategoriesService {
           where: { id: workshop.id },
         });
         const attendeePromises = users.map(async (user) => {
+          const existingAttendee = await this.attendeeRepository.findOne({
+            where: { user: { id: user.id }, workshop: { id: workshopItem.id } },
+          });
+
           try {
-            await this.attendeeService.create({
-              user,
-              status: true,
-              workshop: workshopItem,
-              site: foundCategory.site,
-            });
-            if (!user.workshops.some((s) => s.id === workshopItem.id)) {
-              user.workshops.push(workshopItem);
+            if (!existingAttendee) {
+              await this.attendeeService.create({
+                user,
+                status: true,
+                workshop: workshopItem,
+                site: foundCategory.site,
+              });
+              if (!user.workshops.some((s) => s.id === workshopItem.id)) {
+                user.workshops.push(workshopItem);
+              }
             }
           } catch (error) {
             console.log(error);
@@ -199,17 +208,24 @@ export class CategoriesService {
         const seminarItem = await this.seminarsRepo.findOne({
           where: { id: seminar.id },
         });
-        const attendeePromises = users.map(async (user) => {
-          try {
-            await this.attendeeService.create({
-              user,
-              status: true,
-              seminar: seminarItem,
-              site: foundCategory.site,
-            });
 
-            if (!user.seminars.some((s) => s.id === seminarItem.id)) {
-              user.seminars.push(seminarItem);
+        const attendeePromises = users.map(async (user) => {
+          const existingAttendee = await this.attendeeRepository.findOne({
+            where: { user: { id: user.id }, seminar: { id: seminarItem.id } },
+          });
+
+          try {
+            if (!existingAttendee) {
+              await this.attendeeService.create({
+                user,
+                status: true,
+                seminar: seminarItem,
+                site: foundCategory.site,
+              });
+
+              if (!user.seminars.some((s) => s.id === seminarItem.id)) {
+                user.seminars.push(seminarItem);
+              }
             }
           } catch (error) {
             console.log(error);
@@ -234,16 +250,21 @@ export class CategoriesService {
       for (const service of services) {
         const serviceItem = await this.serviceService.findOne(service);
         const attendeePromises = users.map(async (user) => {
+          const existingAttendee = await this.attendeeRepository.findOne({
+            where: { user: { id: user.id }, service: { id: serviceItem.id } },
+          });
           try {
-            await this.attendeeService.create({
-              user,
-              status: true,
-              service: serviceItem,
-              site: foundCategory.site,
-            });
+            if (!existingAttendee) {
+              await this.attendeeService.create({
+                user,
+                status: true,
+                service: serviceItem,
+                site: foundCategory.site,
+              });
 
-            if (!user.services.some((s) => s.id === serviceItem.id)) {
-              user.services.push(serviceItem);
+              if (!user.services.some((s) => s.id === serviceItem.id)) {
+                user.services.push(serviceItem);
+              }
             }
           } catch (error) {
             console.log(error);

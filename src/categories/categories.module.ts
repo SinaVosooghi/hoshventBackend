@@ -11,10 +11,11 @@ import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { SeminarsModule } from 'src/seminars/seminars.module';
 import { WorkshopsModule } from 'src/workshops/workshops.module';
+import { Attendee } from 'src/atendees/entities/attendee.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Category, User, Seminar, Workshop]),
+    TypeOrmModule.forFeature([Category, User, Seminar, Workshop, Attendee]),
     AttendeesModule,
     ServicesModule,
     SeminarsModule,

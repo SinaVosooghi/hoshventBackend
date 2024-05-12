@@ -144,6 +144,7 @@ export class UsersService {
         'siteid',
         'siteid.plan',
         'category',
+        'category.category',
         'site.plan',
         'workshops',
         'seminars',
@@ -171,6 +172,7 @@ export class UsersService {
         'role',
         'site',
         'category',
+        'category.category',
         'site.plan',
         'workshops',
         'seminars',
@@ -265,6 +267,8 @@ export class UsersService {
 
     // Update services
     user.services = services;
+
+    user.category = updateUserInput.category;
 
     // Save user entity
     const updatedUser = await this.userRepository.save(user);

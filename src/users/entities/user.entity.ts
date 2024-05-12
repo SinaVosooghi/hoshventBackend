@@ -80,7 +80,10 @@ export class User {
   lastNameen: string;
 
   @Column({ nullable: true })
-  @Field(() => String, { description: 'Natinal code of the user' })
+  @Field(() => String, {
+    description: 'Natinal code of the user',
+    nullable: true,
+  })
   nationalcode: string;
 
   @Column()

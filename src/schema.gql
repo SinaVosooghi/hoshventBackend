@@ -3456,7 +3456,7 @@ type User {
   mobilenumber: Float!
 
   """Natinal code of the user"""
-  nationalcode: String!
+  nationalcode: String
 
   """Password of the user"""
   password: String!

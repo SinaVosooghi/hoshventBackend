@@ -174,6 +174,8 @@ export class AuthService {
       mobilenumber: user.mobilenumber,
       password: user.password,
       nationalcode: user.nationalcode,
+      title: user.title,
+      titleen: user.titleen,
       usertype: 'user',
       address: '',
       postalcode: '',

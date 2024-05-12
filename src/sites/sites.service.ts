@@ -198,6 +198,8 @@ export class SitesService {
                 await exec(
                   `sudo ln -s /etc/nginx/sites-available/${item.domain}.conf /etc/nginx/sites-enabled/`,
                 );
+
+                await exec(`pm2 save`);
               },
             );
 

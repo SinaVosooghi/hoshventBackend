@@ -177,6 +177,7 @@ export class AuthService {
       title: user.title,
       titleen: user.titleen,
       usertype: 'user',
+      category: user.category,
       address: '',
       postalcode: '',
       role: null,

@@ -9,7 +9,6 @@ import { CreateScanInput } from './dto/create-scan.input';
 import { GetScansArgs } from './dto/get-scans.args';
 import { UpdateScanInput } from './dto/update-scan.input';
 import { Scan } from './entities/scan.entity';
-import { imageUploader } from 'src/utils/imageUploader';
 import { User } from 'src/users/entities/user.entity';
 
 @Injectable()

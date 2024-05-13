@@ -213,7 +213,7 @@ export class UsersService {
     // Find user by id with relations
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['workshops', 'seminars', 'services'],
+      relations: ['workshops', 'seminars', 'services', 'siteid'],
     });
 
     if (
@@ -303,7 +303,7 @@ export class UsersService {
       user,
       status: true,
       [type]: event,
-      site: user.site,
+      site: user.siteid,
     });
   }
 

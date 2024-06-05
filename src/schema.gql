@@ -2159,6 +2159,7 @@ type Query {
   roles(input: GetRolesApiArgs!): RolePaginate!
   scan(id: Int!): Scan!
   scans(input: GetScansArgs!): ScanPaginate!
+  scansPdf(input: GetScansArgs!): String!
   seminar(id: Int!): Seminar!
   seminarApi(slug: String!): Seminar!
   seminars(input: GetSeminarsArgs!): SeminarPaginate!

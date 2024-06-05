@@ -46,4 +46,13 @@ export class ScansResolver {
   removeScan(@Args('id', { type: () => Int }) id: number) {
     return this.scansService.remove(id);
   }
+
+  @Query(() => String, { name: 'scansPdf' })
+  @UseGuards(GqlAuthGuard)
+  usersPdf(
+    @Args('input') getUsersApiArgs: GetScansArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.scansService.getPdf(getUsersApiArgs, user);
+  }
 }

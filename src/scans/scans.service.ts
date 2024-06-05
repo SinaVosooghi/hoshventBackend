@@ -118,6 +118,7 @@ export class ScansService {
         'workshop',
         'seminar',
         'user',
+        'user.category',
         'scanby',
         'senmiarstimeline',
         'workshopstimeline',
@@ -138,11 +139,19 @@ export class ScansService {
       نوع: scan.type === 'checkin' ? 'ورود' : 'خروج',
       'تحویل شده': moment(scan?.updated).locale('fa').format('YYYY/MM/D HH:mm'),
       'ساخته شده': moment(scan?.created).locale('fa').format('YYYY/MM/D HH:mm'),
+      'کاربر (انگلیسی)': scan.user?.firstNameen + ' ' + scan.user?.lastNameen,
+      'دسته بندی': scan.user.category?.title,
+      'شماره تماس': scan.user?.mobilenumber,
+      'کد ملی': scan.user?.nationalcode,
     }));
 
     const wsData = [
       [
         'کاربر',
+        'کاربر (انگلیسی)',
+        'دسته بندی',
+        'شماره تماس',
+        'کد ملی',
         'خدمات',
         'ورکشاپ',
         'رویداد جانبی',
@@ -153,6 +162,10 @@ export class ScansService {
       ],
       ...data.map((user) => [
         user.کاربر,
+        user['کاربر (انگلیسی)'],
+        user['دسته بندی'],
+        user['شماره تماس'],
+        user['کد ملی'],
         user.خدمات,
         user.ورکشاپ,
         user['رویداد جانبی'],

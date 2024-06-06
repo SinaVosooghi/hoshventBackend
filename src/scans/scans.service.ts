@@ -129,8 +129,6 @@ export class ScansService {
       skip: skip,
     });
 
-    console.log(result[0].service.title, result[0].service.id, service);
-
     const data = result.map((scan) => ({
       ID: user.id,
       کاربر: scan.user?.firstName + ' ' + scan.user?.lastName,
@@ -153,7 +151,6 @@ export class ScansService {
       'کد ملی': scan.user?.nationalcode,
     }));
 
-    console.log(data);
     const wsData = [
       [
         'کاربر',
@@ -185,10 +182,11 @@ export class ScansService {
       ]),
     ];
 
+    const timestamp = Date.now();
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(wsData);
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Scans');
-    XLSX.writeFile(workbook, `${path}/scans.xlsx`);
-    return `/scans.xlsx`;
+    XLSX.writeFile(workbook, `${path}/scans-${timestamp}.xlsx`);
+    return `/scans-${timestamp}.xlsx`;
   }
 }

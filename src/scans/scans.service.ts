@@ -129,6 +129,8 @@ export class ScansService {
       skip: skip,
     });
 
+    console.log(result[0].service.title, result[0].service.id, service);
+
     const data = result.map((scan) => ({
       ID: user.id,
       کاربر: scan.user?.firstName + ' ' + scan.user?.lastName,

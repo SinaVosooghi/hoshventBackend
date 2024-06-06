@@ -136,7 +136,13 @@ export class ScansService {
       ورکشاپ: scan.workshop?.title,
       'رویداد جانبی': scan.seminar?.title,
       توسط: scan.scanby?.firstName + ' ' + scan.scanby?.lastName,
-      نوع: scan.type === 'checkin' ? 'ورود' : 'خروج',
+      نوع: scan.service
+        ? scan.type === 'checkin'
+          ? 'دریافت شده'
+          : 'خروج'
+        : scan.type === 'checkin'
+        ? 'ورود'
+        : 'خروج',
       'تحویل شده': moment(scan?.updated).locale('fa').format('YYYY/MM/D HH:mm'),
       'ساخته شده': moment(scan?.created).locale('fa').format('YYYY/MM/D HH:mm'),
       'کاربر (انگلیسی)': scan.user?.firstNameen + ' ' + scan.user?.lastNameen,

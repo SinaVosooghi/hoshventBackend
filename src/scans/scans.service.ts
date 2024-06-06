@@ -153,6 +153,7 @@ export class ScansService {
       'کد ملی': scan.user?.nationalcode,
     }));
 
+    console.log(data);
     const wsData = [
       [
         'کاربر',

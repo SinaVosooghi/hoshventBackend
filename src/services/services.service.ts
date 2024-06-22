@@ -71,7 +71,6 @@ export class ServicesService {
         created: 'DESC',
       },
     });
-
     return { services: result, count: total };
   }
 

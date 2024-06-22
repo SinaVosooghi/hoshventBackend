@@ -59,7 +59,6 @@ export class ServicesService {
       where: {
         ...(searchTerm && { title: Like(`%${searchTerm}%`) }),
         ...(status && { status: true }),
-        ...(status === false && { status: false }),
         ...(user && { site: { id: user.site[0]?.id } }),
       },
       relations: ['user', 'attendees', 'timelines'],

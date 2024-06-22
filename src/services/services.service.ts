@@ -56,9 +56,13 @@ export class ServicesService {
     user?: User,
   ) {
     const [result, total] = await this.serviceRepository.findAndCount({
-      take: 10,
+      take: limit,
       skip: skip,
+      order: {
+        created: 'DESC',
+      },
     });
+
     return { services: result, count: total };
   }
 

@@ -58,10 +58,9 @@ export class ServicesService {
     const [result, total] = await this.serviceRepository.findAndCount({
       where: {
         ...(searchTerm && { title: Like(`%${searchTerm}%`) }),
-        ...(status && { status }),
+        ...(status && { status: true }),
+        ...(status === false && { status: false }),
         ...(user && { site: { id: user.site[0]?.id } }),
-        ...(siteid && { site: { id: siteid } }),
-        ...(siteid === null && { site: IsNull() }),
       },
       relations: ['user', 'attendees', 'timelines'],
       take: limit,

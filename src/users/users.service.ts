@@ -270,13 +270,13 @@ export class UsersService {
 
     user.category = updateUserInput.category;
 
-    // Save user entity
-    const updatedUser = await this.userRepository.save(user);
-
     // Update user object with new avatar
     if (image) {
-      updatedUser.avatar = image;
+      user.avatar = image;
     }
+
+    // Save user entity
+    const updatedUser = await this.userRepository.save(user);
 
     return updatedUser;
   }

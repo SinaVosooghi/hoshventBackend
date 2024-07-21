@@ -97,6 +97,7 @@ export class SeminarsService {
         ...(price === 'free' && { price: IsNull() }),
         ...(price === 'cash' && { price: Not(IsNull()) }),
         ...(site !== 'all' && { site: { slug: site } }),
+        ...(featured && { featured: true }),
         ...(featured === false && { featured: false }),
         ...(siteid && { site: { id: siteid } }),
         ...(user && { site: { id: user.site[0]?.id } }),

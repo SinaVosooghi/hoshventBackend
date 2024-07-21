@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { In, IsNull, Like, Repository } from 'typeorm';
+import { IsNull, Like, Repository } from 'typeorm';
 import { CreateServiceInput } from './dto/create-service.input';
 import { imageUploader } from 'src/utils/imageUploader';
 import { Service } from './entities/services.entity';

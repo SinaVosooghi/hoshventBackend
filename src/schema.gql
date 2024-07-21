@@ -791,6 +791,11 @@ input CreatePlanInput {
   title: String!
 }
 
+input CreatePrintInput {
+  site: Float
+  user: Float
+}
+
 input CreateProductInput {
   """body of the product"""
   body: String
@@ -1452,6 +1457,15 @@ input GetPlansArgs {
   status: Boolean
 }
 
+input GetPrintsArgs {
+  all: Boolean! = false
+  endDate: DateTime
+  limit: Float
+  siteid: Float
+  skip: Float!
+  startDate: DateTime
+}
+
 input GetProductsArgs {
   category: String
   featured: Boolean
@@ -1795,6 +1809,7 @@ type Mutation {
   createOrder(input: CreateOrderInput!): Order!
   createPayment(input: CreatePaymentInput!): Boolean!
   createPlan(input: CreatePlanInput!): Plan!
+  createPrint(input: CreatePrintInput!): Print!
   createProduct(input: CreateProductInput!): Product!
   createRole(input: CreateRoleInput!): Role!
   createScan(input: CreateScanInput!): Scan!
@@ -1832,6 +1847,7 @@ type Mutation {
   removeOrder(id: Int!): Boolean!
   removePayment(id: Int!): Boolean!
   removePlan(id: Int!): Boolean!
+  removePrint(id: Int!): Boolean!
   removeProduct(id: Int!): Boolean!
   removeRole(id: Int!): Boolean!
   removeScan(id: Int!): Boolean!
@@ -2029,6 +2045,19 @@ type PlanPaginate {
   plans: [Plan!]
 }
 
+type Print {
+  created: DateTime
+  id: Float!
+  site: Site
+  updated: DateTime
+  user: User
+}
+
+type PrintPaginate {
+  count: Float!
+  prints: [Print!]
+}
+
 type Product {
   """body of the product"""
   body: String
@@ -2151,6 +2180,8 @@ type Query {
   planApi(slug: String!): Plan!
   plans(input: GetPlansArgs!): PlanPaginate!
   plansApi(input: GetPlansArgs!): PlanPaginate!
+  print(id: Int!): Print!
+  prints(input: GetPrintsArgs!): PrintPaginate!
   product(id: Int!): Product!
   productApi(slug: String!): Product!
   products(input: GetProductsArgs!): ProductPaginate!

@@ -41,6 +41,7 @@ import { MailModule } from './mail/mail.module';
 import { LikesModule } from './likes/likes.module';
 import { ScansModule } from './scans/scans.module';
 import { CertificatesModule } from './certificates/certificates.module';
+import { PrintsModule } from './prints/prints.module';
 
 @Module({
   imports: [
@@ -95,6 +96,7 @@ import { CertificatesModule } from './certificates/certificates.module';
     LikesModule,
     ScansModule,
     CertificatesModule,
+    PrintsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

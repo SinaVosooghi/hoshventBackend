@@ -87,6 +87,7 @@ export class UsersService {
       services,
       username: input.email,
       ...(user && { siteid: { id: user.site[0]?.id } }),
+      ...(input.avatarImage && { avatar: input.avatarImage }),
       // @ts-ignore
       ...(input.siteid && { siteid: { id: parseInt(siteId) } }),
     });

@@ -16,6 +16,7 @@ import { ServicesService } from 'src/services/services.service';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { Attendee } from 'src/atendees/entities/attendee.entity';
+import { UploadImage } from './dto/upload-avatar.input';
 
 @Injectable()
 export class CategoriesService {
@@ -53,6 +54,22 @@ export class CategoriesService {
 
     try {
       return await this.categoryRepository.save(item);
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('Duplicate error');
+      }
+    }
+  }
+
+  async uploadImage(uploadImage: UploadImage): Promise<string> {
+    let image = null;
+    if (uploadImage.image) {
+      const imageUpload = await imageUploader(uploadImage.image);
+      image = imageUpload.image;
+    }
+
+    try {
+      return image;
     } catch (err) {
       if (err.code === '23505') {
         throw new ConflictException('Duplicate error');

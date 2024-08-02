@@ -1,13 +1,13 @@
-import { InputType, Field } from '@nestjs/graphql';
-import { GraphQLUpload } from 'graphql-upload';
+import { Field, InputType } from '@nestjs/graphql';
+import { Site, registerFieldsType } from 'src/sites/entities/site.entity';
+
 import { Category } from 'src/categories/entities/category.entity';
+import { GraphQLJSONObject } from 'graphql-type-json';
+import { GraphQLUpload } from 'graphql-upload';
 import { Role } from 'src/roles/entities/role.entity';
 import { Seminar } from 'src/seminars/entities/seminar.entity';
-import { Site, registerFieldsType } from 'src/sites/entities/site.entity';
-import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { Stream } from 'stream';
-
-import { GraphQLJSONObject } from 'graphql-type-json';
+import { Workshop } from 'src/workshops/entities/workshop.entity';
 
 export interface FileUpload {
   filename: string;
@@ -83,6 +83,12 @@ export class CreateUserInput {
     nullable: true,
   })
   avatar?: Promise<FileUpload>;
+
+  @Field(() => String, {
+    description: 'Image of the user',
+    nullable: true,
+  })
+  avatarImage?: string;
 
   @Field(() => String, { description: 'type of the user' })
   usertype: 'super' | 'tenant' | 'instructor' | 'user' | 'lecturer' | 'guest';

@@ -9,6 +9,7 @@ import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
+import { UploadImage } from './dto/upload-avatar.input';
 
 @Resolver(() => Category)
 export class CategoriesResolver {
@@ -21,6 +22,11 @@ export class CategoriesResolver {
     @CurrentUser() user: User,
   ) {
     return this.categoriesService.create(createCategoryInput, user);
+  }
+
+  @Mutation(() => String)
+  uploadImage(@Args('input') uploadImage: UploadImage) {
+    return this.categoriesService.uploadImage(uploadImage);
   }
 
   @Query(() => CategoryPaginate, { name: 'categories' })

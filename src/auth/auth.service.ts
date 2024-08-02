@@ -165,6 +165,8 @@ export class AuthService {
       );
     }
 
+    console.log(user);
+
     const createdUser = await this.userService.create({
       firstName: user.firstName,
       lastName: user.lastName,
@@ -188,6 +190,7 @@ export class AuthService {
       siteid: site,
       registerFields: user.registerFields,
       gender: user.gender,
+      avatarImage: user.avatar,
     });
 
     const payload = {

@@ -34,6 +34,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Req() req: Request): Promise<{ access_token: string }> {
+    console.log(req.body);
     return await this.authService.register(req.body as User);
   }
 }

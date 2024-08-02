@@ -1085,6 +1085,9 @@ input CreateUserInput {
   """Image of the Event"""
   avatar: Upload
 
+  """Image of the user"""
+  avatarImage: String
+
   """Category of the user"""
   category: Float
 
@@ -1891,6 +1894,7 @@ type Mutation {
   updateUser(input: UpdateUserInput!): User!
   updateUserApi(input: UpdateUserInput!): User!
   updateWorkshop(input: UpdateWorkshopInput!): Workshop!
+  uploadImage(input: UploadImage!): String!
   uploadUsersCsv(input: UploadUsersPdfInput!): Boolean!
   verification(input: VerificationInput!): Boolean!
 }
@@ -3324,6 +3328,9 @@ input UpdateUserInput {
   """Image of the Event"""
   avatar: Upload
 
+  """Image of the user"""
+  avatarImage: String
+
   """Category of the user"""
   category: Float
 
@@ -3439,6 +3446,11 @@ input UpdateWorkshopInput {
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
+
+input UploadImage {
+  """Image of the Service"""
+  image: Upload
+}
 
 input UploadUsersPdfInput {
   """CSV of the users"""

@@ -1,11 +1,11 @@
-import { Logger } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
-import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
+import * as cookieParser from 'cookie-parser';
 
+import { AppModule } from './app.module';
+import { Logger } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { NestFactory } from '@nestjs/core';
 import { graphqlUploadExpress } from 'graphql-upload';
 
 const port = process.env.PORT || 3000;

@@ -115,23 +115,64 @@ export class UsersService {
     }: GetUsersApiArgs,
     user: User,
   ) {
-    const [result, total] = await this.userRepository.findAndCount({
-      where: {
-        firstName: searchTerm ? Like(`%${searchTerm}%`) : null,
-        role: {
-          id: role,
-        },
-        status,
-        usertype,
-        ...(category && { category: { id: category } }),
-        ...(user && { siteid: { id: user.site[0]?.id } }),
-        ...(siteid && { siteid: { id: siteid } }),
-      },
-      relations: ['role', 'category'],
-      order: { id: 'DESC' },
-      take: limit,
-      skip: skip,
-    });
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    if (searchTerm) {
+      queryBuilder.where('user.firstName LIKE :searchTerm', {
+        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      });
+      queryBuilder.where('user.lastName LIKE :searchTerm', {
+        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      });
+      queryBuilder.where('user.firstNameen LIKE :searchTerm', {
+        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      });
+      queryBuilder.where('user.lastNameen LIKE :searchTerm', {
+        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      });
+      queryBuilder.where('user.email LIKE :searchTerm', {
+        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      });
+      queryBuilder.where('CAST(user.nationalcode AS TEXT) LIKE :searchTerm', {
+        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      });
+      queryBuilder.orWhere('CAST(user.mobilenumber AS TEXT) LIKE :searchTerm', {
+        searchTerm: `%${searchTerm}%`,
+      });
+    }
+
+    // Add filters
+    if (role) {
+      queryBuilder.andWhere('user.roleId = :roleId', { roleId: role });
+    }
+    if (status) {
+      queryBuilder.andWhere('user.status = :status', { status });
+    }
+    if (usertype) {
+      queryBuilder.andWhere('user.usertype = :usertype', { usertype });
+    }
+    if (category) {
+      queryBuilder.andWhere('user.categoryId = :categoryId', {
+        categoryId: category,
+      });
+    }
+    if (user && user.site && user.site[0]) {
+      queryBuilder.andWhere('user.siteid = :siteId', {
+        siteId: user.site[0].id,
+      });
+    }
+    if (siteid) {
+      queryBuilder.andWhere('user.siteid = :siteId', { siteId: siteid });
+    }
+
+    // Apply pagination
+    queryBuilder.skip(skip).take(limit);
+
+    // Order results
+    queryBuilder.orderBy('user.id', 'DESC');
+
+    // Execute query
+    const [result, total] = await queryBuilder.getManyAndCount();
 
     return { users: result, count: total };
   }

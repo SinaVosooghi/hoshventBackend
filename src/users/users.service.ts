@@ -118,22 +118,22 @@ export class UsersService {
     const queryBuilder = this.userRepository.createQueryBuilder('user');
 
     if (searchTerm) {
-      queryBuilder.where('user.firstName LIKE :searchTerm', {
-        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      queryBuilder.orWhere('user.firstName LIKE :searchTerm', {
+        searchTerm: `%${searchTerm}%`,
       });
-      queryBuilder.where('user.lastName LIKE :searchTerm', {
-        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      queryBuilder.orWhere('user.lastName LIKE :searchTerm', {
+        searchTerm: `%${searchTerm}%`,
       });
-      queryBuilder.where('user.firstNameen LIKE :searchTerm', {
-        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      queryBuilder.orWhere('user.firstNameen LIKE :searchTerm', {
+        searchTerm: `%${searchTerm}%`,
       });
-      queryBuilder.where('user.lastNameen LIKE :searchTerm', {
-        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      queryBuilder.orWhere('user.lastNameen LIKE :searchTerm', {
+        searchTerm: `%${searchTerm}%`,
       });
-      queryBuilder.where('user.email LIKE :searchTerm', {
-        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+      queryBuilder.orWhere('user.email LIKE :searchTerm', {
+        searchTerm: `%${searchTerm}%`,
       });
-      queryBuilder.where('CAST(user.nationalcode AS TEXT) LIKE :searchTerm', {
+      queryBuilder.orWhere('CAST(user.nationalcode AS TEXT) LIKE :searchTerm', {
         searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
       });
       queryBuilder.orWhere('CAST(user.mobilenumber AS TEXT) LIKE :searchTerm', {

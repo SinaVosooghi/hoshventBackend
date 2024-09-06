@@ -186,21 +186,21 @@ export class User {
   @Field(() => Date, { nullable: true })
   updated: Date;
 
-  @ManyToMany(() => Seminar)
+  @ManyToMany(() => Seminar, { onDelete: 'CASCADE' })
   @JoinTable()
   @Field(() => [Seminar], {
     nullable: true,
   })
   seminars?: Seminar[];
 
-  @ManyToMany(() => Workshop)
+  @ManyToMany(() => Workshop, { onDelete: 'CASCADE' })
   @JoinTable()
   @Field(() => [Workshop], {
     nullable: true,
   })
   workshops?: Workshop[];
 
-  @ManyToMany(() => Service)
+  @ManyToMany(() => Service, { onDelete: 'CASCADE' })
   @JoinTable()
   @Field(() => [Service], {
     nullable: true,

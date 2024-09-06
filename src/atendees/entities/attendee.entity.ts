@@ -11,7 +11,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { GraphQLJSONObject } from 'graphql-type-json';
 import { Service } from 'src/services/entities/services.entity';
 
 @ObjectType()
@@ -27,7 +26,10 @@ export class Attendee {
   @Field(() => Boolean, { description: 'Status of the attendee' })
   status: boolean;
 
-  @ManyToOne(() => User, (user) => user.id, { nullable: true })
+  @ManyToOne(() => User, (user) => user.id, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
   @Field(() => User, {
     description: 'Organizer of the attendee',
     nullable: true,

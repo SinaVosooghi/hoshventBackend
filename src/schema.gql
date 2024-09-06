@@ -2294,6 +2294,9 @@ type Seminar {
   capacity: Float
   created: DateTime
 
+  """Date of soft deletion"""
+  deleted: DateTime
+
   """End date of workshop"""
   end_date: DateTime
 
@@ -3570,6 +3573,9 @@ type Workshop {
   """Capacity of workshop"""
   capacity: Float
   created: DateTime
+
+  """Date of soft deletion"""
+  deleted: DateTime
 
   """End date of workshop"""
   end_date: DateTime

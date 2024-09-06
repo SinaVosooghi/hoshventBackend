@@ -6,6 +6,7 @@ import {
   BeforeInsert,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
@@ -176,6 +177,10 @@ export class Seminar {
   })
   @Field(() => Date, { nullable: true })
   updated: Date;
+
+  @DeleteDateColumn({ nullable: true })
+  @Field(() => Date, { description: 'Date of soft deletion', nullable: true })
+  deleted: Date;
 
   @BeforeInsert()
   generateSlug() {

@@ -525,7 +525,7 @@ export class UsersService {
     });
 
     if (parsedCSV.data.length > 0) {
-      parsedCSV.data?.map(async (item) => {
+      parsedCSV?.data?.map(async (item) => {
         if (item.mobilenumber && item.usertype) {
           let user = null;
           if (item.mobilenumber) {

@@ -258,21 +258,23 @@ export class UsersService {
 
     const removedWorkshopIds = existingAttendees
       // @ts-ignore
-      .filter((att) => att.workshop && !workshopIds.includes(att.workshop.id))
-      .map((att) => att.workshop?.id);
+      ?.filter((att) => att.workshop && !workshopIds.includes(att.workshop.id))
+      ?.map((att) => att.workshop?.id);
 
     const removedSeminarIds = existingAttendees
       // @ts-ignore
-      .filter((att) => att.seminar && !seminarIds.includes(att.seminar.id))
-      .map((att) => att.seminar?.id);
+      ?.filter((att) => att.seminar && !seminarIds.includes(att.seminar.id))
+      ?.map((att) => att.seminar?.id);
     const removedServiceIds = existingAttendees
       // @ts-ignore
-      .filter((att) => att.service && !serviceIds.includes(att.service.id))
-      .map((att) => att.service?.id);
+      ?.filter((att) => att.service && !serviceIds.includes(att.service.id))
+      ?.map((att) => att.service?.id);
 
-    workshops = await this.workshopRepo.findBy({
-      id: In(updateUserInput.workshops),
-    });
+    if (updateUserInput.workshops?.length) {
+      workshops = await this.workshopRepo.findBy({
+        id: In(updateUserInput.workshops),
+      });
+    }
 
     const actualRelationshipsW = await this.userRepository
       .createQueryBuilder()
@@ -286,9 +288,11 @@ export class UsersService {
       .of(serviceItem)
       .addAndRemove(workshops, actualRelationshipsW);
 
-    seminars = await this.seminarsRepo.findBy({
-      id: In(updateUserInput.seminars),
-    });
+    if (updateUserInput.seminars?.length) {
+      seminars = await this.seminarsRepo.findBy({
+        id: In(updateUserInput.seminars),
+      });
+    }
 
     const actualRelationships = await this.userRepository
       .createQueryBuilder()
@@ -302,9 +306,11 @@ export class UsersService {
       .of(serviceItem)
       .addAndRemove(seminars, actualRelationships);
 
-    services = await this.servicesRepo.findBy({
-      id: In(updateUserInput.services),
-    });
+    if (updateUserInput.services?.length) {
+      services = await this.servicesRepo.findBy({
+        id: In(updateUserInput.services),
+      });
+    }
 
     const actualRelationshipsServices = await this.userRepository
       .createQueryBuilder()

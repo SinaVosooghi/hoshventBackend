@@ -156,6 +156,7 @@ export class User {
 
   @OneToMany(() => Timeline, (timeline) => timeline.scannedby, {
     nullable: true,
+    onDelete: 'CASCADE',
   })
   @Field(() => [Timeline], { description: 'Message of chats', nullable: true })
   timelines: Timeline[];

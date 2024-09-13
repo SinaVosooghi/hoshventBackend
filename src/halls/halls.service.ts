@@ -23,15 +23,21 @@ export class HallsService {
 
   async create(createHallInput: CreateHallInput, user: User): Promise<Hall> {
     let image = null;
+    let siteId = (user && user.site[0]?.id) ?? null;
 
     if (createHallInput.image) {
       const imageUpload = await imageUploader(createHallInput.image);
       image = imageUpload.image;
     }
 
+    if (createHallInput.site) {
+      siteId = createHallInput.site;
+    }
+
     const item = await this.hallRepository.create({
       ...createHallInput,
-      ...(user && { site: { id: user.site[0]?.id } }),
+      ...(user && { site: { id: siteId } }),
+
       image,
     });
 
@@ -73,6 +79,7 @@ export class HallsService {
     if (!hall) {
       throw new NotFoundException(`Hall #${id} not found`);
     }
+
     return hall;
   }
 

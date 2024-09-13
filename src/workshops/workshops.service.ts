@@ -45,12 +45,12 @@ export class WorkshopsService {
       image = imageUpload.image;
     }
 
-    if (createWorkshopInput.lecturers.length) {
+    if (createWorkshopInput.lecturers?.length) {
       lecturers = await this.userRepo.findBy({
         id: In(createWorkshopInput.lecturers),
       });
     }
-    if (createWorkshopInput.services.length) {
+    if (createWorkshopInput.services?.length) {
       services = await this.serviceRepository.findBy({
         id: In(createWorkshopInput.services),
       });
@@ -61,7 +61,9 @@ export class WorkshopsService {
       image,
       lecturers,
       services,
-      ...(user && { slug: `${user.site[0].slug}-${createWorkshopInput.slug}` }),
+      ...(user && {
+        slug: `${user.site[0]?.slug}-${createWorkshopInput?.slug}`,
+      }),
       ...(user && { site: { id: user.site[0]?.id } }),
     });
 

@@ -45,13 +45,13 @@ export class SeminarsService {
       image = imageUpload.image;
     }
 
-    if (createSeminarInput.lecturers.length) {
+    if (createSeminarInput.lecturers?.length) {
       lecturers = await this.userRepo.findBy({
         id: In(createSeminarInput.lecturers),
       });
     }
 
-    if (createSeminarInput.services.length) {
+    if (createSeminarInput.services?.length) {
       services = await this.serviceRepository.findBy({
         id: In(createSeminarInput.services),
       });
@@ -62,7 +62,9 @@ export class SeminarsService {
       image,
       lecturers,
       services,
-      ...(user && { slug: `${user.site[0].slug}-${createSeminarInput.slug}` }),
+      ...(user && {
+        slug: `${user.site[0]?.slug}-${createSeminarInput?.slug}`,
+      }),
       ...(user && { site: { id: user.site[0]?.id } }),
     });
 

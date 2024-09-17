@@ -41,6 +41,15 @@ export class UsersResolver {
     return this.userService.findAll(getUsersApiArgs, user);
   }
 
+  @Query(() => UserPaginate, { name: 'allUsers' })
+  @UseGuards(GqlAuthGuard)
+  findAllUsers(
+    @CurrentUser() user: User,
+    @Args('input') getUsersApiArgs: GetUsersApiArgs,
+  ) {
+    return this.userService.findAllUsers(getUsersApiArgs, user);
+  }
+
   @Query(() => User, { name: 'user' })
   @UseGuards(GqlAuthGuard)
   findOne(@Args('id', { type: () => Int }) id: number) {

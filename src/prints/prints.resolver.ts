@@ -6,14 +6,28 @@ import { PrintPaginate } from './entities/paginate';
 import { GetPrintsArgs } from './dto/get-prints.args';
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Resolver(() => Print)
 export class PrintsResolver {
   constructor(private readonly printsService: PrintsService) {}
 
   @Mutation(() => Print)
-  createPrint(@Args('input') createPrintInput: CreatePrintInput) {
-    return this.printsService.create(createPrintInput);
+  createPrint(
+    @Args('input') createPrintInput: CreatePrintInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.printsService.create(createPrintInput, user);
+  }
+
+  @Mutation(() => Print)
+  @UseGuards(GqlAuthGuard)
+  createPrintUser(
+    @Args('input') createPrintInput: CreatePrintInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.printsService.create(createPrintInput, user);
   }
 
   @Query(() => PrintPaginate, { name: 'prints' })

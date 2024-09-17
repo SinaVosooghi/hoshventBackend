@@ -1813,6 +1813,7 @@ type Mutation {
   createPayment(input: CreatePaymentInput!): Boolean!
   createPlan(input: CreatePlanInput!): Plan!
   createPrint(input: CreatePrintInput!): Print!
+  createPrintUser(input: CreatePrintInput!): Print!
   createProduct(input: CreateProductInput!): Product!
   createRole(input: CreateRoleInput!): Role!
   createScan(input: CreateScanInput!): Scan!
@@ -2125,6 +2126,7 @@ type ProductVariationType {
 
 type Query {
   Attendee(id: Int!): Attendee!
+  allUsers(input: GetUsersApiArgs!): UserPaginate!
   attendees(input: GetAttendeesArgs!): AttendeePaginate!
   attendeesApi(input: GetAttendeesArgs!): AttendeePaginate!
   blog(id: Int!): Blog!

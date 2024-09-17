@@ -8,6 +8,7 @@ import { Between, Repository } from 'typeorm';
 import { CreatePrintInput } from './dto/create-print.input';
 import { Print } from './entities/print.entity';
 import { GetPrintsArgs } from './dto/get-prints.args';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class PrintsService {
@@ -16,10 +17,13 @@ export class PrintsService {
     private readonly printRepository: Repository<Print>,
   ) {}
 
-  async create(createPrintInput: CreatePrintInput): Promise<Print> {
+  async create(
+    createPrintInput: CreatePrintInput,
+    user?: User,
+  ): Promise<Print> {
     const obj = {
-      user: { id: createPrintInput.user },
-      site: { id: createPrintInput.site },
+      user: { id: user?.id ?? createPrintInput.user },
+      site: { id: user?.site[0].id ?? createPrintInput.site },
     };
 
     const item = await this.printRepository.create(obj);

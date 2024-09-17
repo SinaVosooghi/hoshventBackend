@@ -117,6 +117,11 @@ export class UsersService {
   ) {
     const queryBuilder = this.userRepository.createQueryBuilder('user');
 
+    queryBuilder
+      .leftJoinAndSelect('user.role', 'role')
+      .leftJoinAndSelect('user.category', 'category')
+      .leftJoinAndSelect('user.site', 'site');
+
     if (searchTerm) {
       queryBuilder.orWhere('user.firstName LIKE :searchTerm', {
         searchTerm: `%${searchTerm}%`,
@@ -175,6 +180,29 @@ export class UsersService {
     const [result, total] = await queryBuilder.getManyAndCount();
 
     return { users: result, count: total };
+  }
+
+  async findAllUsers({ skip, limit, category }: GetUsersApiArgs, user: User) {
+    const [users, count] = await this.userRepository.findAndCount({
+      where: { siteid: { id: user.site[0].id }, category: { id: category } },
+      relations: [
+        'role',
+        'site',
+        'category',
+        'category.category',
+        'site.plan',
+        'workshops',
+        'seminars',
+      ],
+      skip,
+      take: limit,
+      order: {
+        id: 'DESC',
+      },
+    });
+
+
+    return { users, count };
   }
 
   async findOne(id: number): Promise<User> {
@@ -255,20 +283,6 @@ export class UsersService {
       where: { user: { id } },
       relations: ['workshop', 'seminar', 'service'],
     });
-
-    const removedWorkshopIds = existingAttendees
-      // @ts-ignore
-      ?.filter((att) => att.workshop && !workshopIds.includes(att.workshop.id))
-      ?.map((att) => att.workshop?.id);
-
-    const removedSeminarIds = existingAttendees
-      // @ts-ignore
-      ?.filter((att) => att.seminar && !seminarIds.includes(att.seminar.id))
-      ?.map((att) => att.seminar?.id);
-    const removedServiceIds = existingAttendees
-      // @ts-ignore
-      ?.filter((att) => att.service && !serviceIds.includes(att.service.id))
-      ?.map((att) => att.service?.id);
 
     if (updateUserInput.workshops?.length) {
       workshops = await this.workshopRepo.findBy({

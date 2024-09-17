@@ -201,7 +201,6 @@ export class UsersService {
       },
     });
 
-
     return { users, count };
   }
 
@@ -559,6 +558,8 @@ export class UsersService {
                 },
               ],
             });
+
+            console.log(user.firstName, item.firstname);
 
             if (!user) {
               const saltOrRounds = 10;

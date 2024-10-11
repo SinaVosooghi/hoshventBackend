@@ -561,31 +561,37 @@ export class UsersService {
 
             console.log('User:', user);
             console.log('Item:', item);
-            if (!user) {
-              const saltOrRounds = 10;
-              const hash = item.password
-                ? await bcrypt.hash(item.password, saltOrRounds)
-                : null;
-              const newUser = await this.userRepository.create({
-                lastName: item.lastname,
-                firstName: item.firstname,
-                lastNameen: item.lastnameen,
-                firstNameen: item.firstnameen,
-                email: item.email,
-                mobilenumber: item.mobilenumber,
-                username: item.username,
-                usertype: item.usertype,
-                password: hash ?? null,
-                gender: item.gender ?? null,
-                category: item.category ?? null,
-                role: item.role ?? null,
-                siteid: siteId ?? null,
-                nationalcode: item.nationalcode ?? null,
-                title: item.title ?? null,
-                titleen: item.titleen ?? null,
-              });
+            console.log('siteId:', siteId);
 
-              await this.userRepository.save(newUser);
+            if (!user) {
+              try {
+                const saltOrRounds = 10;
+                const hash = item.password
+                  ? await bcrypt.hash(item.password, saltOrRounds)
+                  : null;
+                const newUser = this.userRepository.create({
+                  lastName: item.lastname,
+                  firstName: item.firstname,
+                  lastNameen: item.lastnameen,
+                  firstNameen: item.firstnameen,
+                  email: item.email,
+                  mobilenumber: item.mobilenumber,
+                  username: item.username,
+                  usertype: item.usertype,
+                  password: hash ?? null,
+                  gender: item.gender ?? null,
+                  category: item.category ?? null,
+                  role: item.role ?? null,
+                  siteid: siteId ?? null,
+                  nationalcode: item.nationalcode ?? null,
+                  title: item.title ?? null,
+                  titleen: item.titleen ?? null,
+                });
+                await this.userRepository.save(newUser);
+              } catch (error) {
+                console.error('Error inserting user:', error.message);
+                throw error;
+              }
             } else {
               const saltOrRounds = 10;
               const hash = item.password

@@ -559,8 +559,8 @@ export class UsersService {
               ],
             });
 
-            console.log(user.firstName, item.firstname);
-
+            console.log('User:', user);
+            console.log('Item:', item);
             if (!user) {
               const saltOrRounds = 10;
               const hash = item.password

@@ -559,10 +559,6 @@ export class UsersService {
               ],
             });
 
-            console.log('User:', user);
-            console.log('Item:', item);
-            console.log('siteId:', siteId);
-
             if (!user) {
               try {
                 const saltOrRounds = 10;

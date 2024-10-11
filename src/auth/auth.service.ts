@@ -211,11 +211,11 @@ export class AuthService {
         message,
       });
 
-      await this.mailService.sendCustom(
-        user,
-        message,
-        'به سرویس رویداد خوش آمدید',
-      );
+      // await this.mailService.sendCustom(
+      //   user,
+      //   message,
+      //   'به سرویس رویداد خوش آمدید',
+      // );
     }
 
     return {

@@ -283,6 +283,21 @@ export class UsersService {
       relations: ['workshop', 'seminar', 'service'],
     });
 
+    const removedWorkshopIds = existingAttendees
+      // @ts-ignore
+      ?.filter((att) => att.workshop && !workshopIds.includes(att.workshop.id))
+      ?.map((att) => att.workshop?.id);
+
+    const removedSeminarIds = existingAttendees
+      // @ts-ignore
+      ?.filter((att) => att.seminar && !seminarIds.includes(att.seminar.id))
+      ?.map((att) => att.seminar?.id);
+
+    const removedServiceIds = existingAttendees
+      // @ts-ignore
+      ?.filter((att) => att.service && !serviceIds.includes(att.service.id))
+      ?.map((att) => att.service?.id);
+
     if (updateUserInput.workshops?.length) {
       workshops = await this.workshopRepo.findBy({
         id: In(updateUserInput.workshops),

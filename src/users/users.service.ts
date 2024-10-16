@@ -278,26 +278,6 @@ export class UsersService {
       image = imageUpload.image;
     }
 
-    const existingAttendees = await this.attendeeRepository.find({
-      where: { user: { id } },
-      relations: ['workshop', 'seminar', 'service'],
-    });
-
-    const removedWorkshopIds = existingAttendees
-      // @ts-ignore
-      ?.filter((att) => att.workshop && !workshopIds.includes(att.workshop.id))
-      ?.map((att) => att.workshop?.id);
-
-    const removedSeminarIds = existingAttendees
-      // @ts-ignore
-      ?.filter((att) => att.seminar && !seminarIds.includes(att.seminar.id))
-      ?.map((att) => att.seminar?.id);
-
-    const removedServiceIds = existingAttendees
-      // @ts-ignore
-      ?.filter((att) => att.service && !serviceIds.includes(att.service.id))
-      ?.map((att) => att.service?.id);
-
     if (updateUserInput.workshops?.length) {
       workshops = await this.workshopRepo.findBy({
         id: In(updateUserInput.workshops),
@@ -351,11 +331,56 @@ export class UsersService {
       .relation(User, 'services')
       .of(serviceItem)
       .addAndRemove(services, actualRelationshipsServices);
+
     delete userObject.seminars;
     delete userObject.workshops;
     delete userObject.services;
 
-    const user = await this.userRepository
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['workshops', 'seminars', 'services', 'siteid'],
+    });
+
+    if (user.usertype === 'user') {
+      const existingAttendees = await this.attendeeRepository.find({
+        where: { user: { id } },
+        relations: ['workshop', 'seminar', 'service'],
+      });
+
+      const removedWorkshopIds = existingAttendees
+        // @ts-ignore
+        .filter((att) => att.workshop && !workshops.includes(att.workshop))
+        .map((att) => att.workshop?.id);
+
+      const removedSeminarIds = existingAttendees
+        // @ts-ignore
+        .filter((att) => att.seminar && !seminars.includes(att.seminar.id))
+        .map((att) => att.seminar?.id);
+      const removedServiceIds = existingAttendees
+        // @ts-ignore
+        .filter((att) => att.service && !services.includes(att.service.id))
+        .map((att) => att.service?.id);
+
+      await Promise.all([
+        this.removeAttendees(id, 'workshop', removedWorkshopIds),
+        this.removeAttendees(id, 'seminar', removedSeminarIds),
+        this.removeAttendees(id, 'service', removedServiceIds),
+      ]);
+
+      await Promise.all([
+        ...workshops.map((workshop) =>
+          this.createAttendee(user, workshop, 'workshop'),
+        ),
+        ...seminars.map((seminar) =>
+          this.createAttendee(user, seminar, 'seminar'),
+        ),
+        ...services.map((service) =>
+          this.createAttendee(user, service, 'service'),
+        ),
+      ]);
+    }
+
+    const savedUser = await this.userRepository
       .createQueryBuilder()
       .update()
       .set({ ...userObject, ...(image && { avatar: image }) })
@@ -366,7 +391,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`user #${updateUserInput.id} not found`);
     }
-    return user.raw[0];
+    return savedUser.raw[0];
   }
 
   async removeAttendees(

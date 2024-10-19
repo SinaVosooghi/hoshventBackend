@@ -206,6 +206,8 @@ export class SitesService {
               },
             );
 
+            await exec(`pm2 reload all`);
+
             await exec(`sudo service nginx reload`);
             // exec(
             //   `cd ${dist} && yarn run build`,

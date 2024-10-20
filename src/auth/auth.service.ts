@@ -154,6 +154,18 @@ export class AuthService {
       );
     }
 
+    if (user.nationalcode) {
+      const userWithNationalCode = await this.userRepository.findOneBy({
+        nationalcode: user.nationalcode,
+      });
+
+      if (userWithNationalCode?.siteid?.id === site?.id)
+        throw new HttpException(
+          'Already exist, User with this nationalcode!',
+          HttpStatus.BAD_REQUEST,
+        );
+    }
+
     const userWithMobile = await this.userRepository.findOneBy({
       mobilenumber: user.mobilenumber,
     });
@@ -164,8 +176,6 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    console.log(user);
 
     const createdUser = await this.userService.create({
       firstName: user.firstName,

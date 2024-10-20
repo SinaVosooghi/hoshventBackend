@@ -32,8 +32,11 @@ export class PrintsResolver {
 
   @Query(() => PrintPaginate, { name: 'prints' })
   @UseGuards(GqlAuthGuard)
-  findAll(@Args('input') getPrintsArgs: GetPrintsArgs) {
-    return this.printsService.findAll(getPrintsArgs);
+  findAll(
+    @Args('input') getPrintsArgs: GetPrintsArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.printsService.findAll(getPrintsArgs, user);
   }
 
   @Query(() => Print, { name: 'print' })

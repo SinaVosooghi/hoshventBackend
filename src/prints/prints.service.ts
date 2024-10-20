@@ -37,15 +37,12 @@ export class PrintsService {
     }
   }
 
-  async findAll({
-    skip,
-    limit,
-    siteid,
-    all,
-    startDate,
-    endDate,
-  }: GetPrintsArgs) {
+  async findAll(
+    { skip, limit, siteid, all, startDate, endDate }: GetPrintsArgs,
+    user: User,
+  ) {
     const whereConditions: any = {
+      ...(user && { siteid: { id: user.site[0].id } }),
       ...(startDate && { created: Between(startDate, endDate) }),
       ...(siteid && !all && { site: { id: siteid } }),
     };

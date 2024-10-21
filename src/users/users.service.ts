@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Like, Repository } from 'typeorm';
+import { Brackets, In, Like, Repository } from 'typeorm';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { User } from './entities/user.entity';
@@ -123,27 +123,31 @@ export class UsersService {
       .leftJoinAndSelect('user.site', 'site');
 
     if (searchTerm) {
-      queryBuilder.orWhere('user.firstName LIKE :searchTerm', {
-        searchTerm: `%${searchTerm}%`,
-      });
-      queryBuilder.orWhere('user.lastName LIKE :searchTerm', {
-        searchTerm: `%${searchTerm}%`,
-      });
-      queryBuilder.orWhere('user.firstNameen LIKE :searchTerm', {
-        searchTerm: `%${searchTerm}%`,
-      });
-      queryBuilder.orWhere('user.lastNameen LIKE :searchTerm', {
-        searchTerm: `%${searchTerm}%`,
-      });
-      queryBuilder.orWhere('user.email LIKE :searchTerm', {
-        searchTerm: `%${searchTerm}%`,
-      });
-      queryBuilder.orWhere('CAST(user.nationalcode AS TEXT) LIKE :searchTerm', {
-        searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
-      });
-      queryBuilder.orWhere('CAST(user.mobilenumber AS TEXT) LIKE :searchTerm', {
-        searchTerm: `%${searchTerm}%`,
-      });
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.orWhere('user.firstName LIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          });
+          qb.orWhere('user.lastName LIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          });
+          qb.orWhere('user.firstNameen LIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          });
+          qb.orWhere('user.lastNameen LIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          });
+          qb.orWhere('user.email LIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          });
+          qb.orWhere('CAST(user.nationalcode AS TEXT) LIKE :searchTerm', {
+            searchTerm: `%${searchTerm?.toLocaleLowerCase()}%`,
+          });
+          qb.orWhere('CAST(user.mobilenumber AS TEXT) LIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          });
+        }),
+      );
     }
 
     // Add filters
@@ -161,7 +165,8 @@ export class UsersService {
         categoryId: category,
       });
     }
-    if (user && user.site && user.site[0]) {
+
+    if (user?.site?.[0]) {
       queryBuilder.andWhere('user.siteid = :siteId', {
         siteId: user.site[0].id,
       });

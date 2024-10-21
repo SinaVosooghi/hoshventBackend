@@ -27,7 +27,10 @@ export class Print {
   })
   site: Site;
 
-  @ManyToOne(() => User, (user) => user.id, { nullable: true })
+  @ManyToOne(() => User, (user) => user.id, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @Field(() => User, {
     nullable: true,
   })

@@ -102,7 +102,10 @@ export class Scan {
   })
   scanby: User;
 
-  @ManyToOne(() => User, (user) => user.id, { nullable: true })
+  @ManyToOne(() => User, (user) => user.id, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @Field(() => User, {
     description: 'Organizer of the attendee',
     nullable: true,

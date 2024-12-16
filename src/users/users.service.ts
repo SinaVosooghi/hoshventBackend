@@ -179,7 +179,7 @@ export class UsersService {
     queryBuilder.skip(skip).take(limit);
 
     // Order results
-    queryBuilder.orderBy('user.id', 'DESC');
+    queryBuilder.orderBy('user.updated', 'DESC');
 
     // Execute query
     const [result, total] = await queryBuilder.getManyAndCount();
@@ -189,7 +189,10 @@ export class UsersService {
 
   async findAllUsers({ skip, limit, category }: GetUsersApiArgs, user: User) {
     const [users, count] = await this.userRepository.findAndCount({
-      where: { siteid: { id: user.site[0].id }, category: { id: category } },
+      where: {
+        siteid: user.site[0] && user.site[0].id && { id: user.site[0].id },
+        category: { id: category },
+      },
       relations: [
         'role',
         'site',
@@ -570,6 +573,7 @@ export class UsersService {
 
   async uploadUsersCsv({ csv }: UploadUsersPdfInput, user: User) {
     let file = null;
+    const errors = [];
     const imageUpload = await csvUploader(csv);
     file = imageUpload.csv;
     const siteId = user.site[0]?.id;
@@ -589,27 +593,24 @@ export class UsersService {
     });
 
     if (parsedCSV.data.length > 0) {
-      parsedCSV?.data?.map(async (item) => {
+      for (const item of parsedCSV.data) {
         if (item.mobilenumber && item.usertype) {
-          let user = null;
-          if (item.mobilenumber) {
-            user = await this.userRepository.findOne({
-              where: [
-                {
-                  mobilenumber: item.mobilenumber,
-                },
-                {
-                  email: item.email,
-                },
-              ],
-            });
+          try {
+            let existingUser = null;
+            if (item.mobilenumber) {
+              existingUser = await this.userRepository.findOne({
+                where: [
+                  { mobilenumber: item.mobilenumber },
+                  { email: item.email },
+                ],
+              });
 
-            if (!user) {
-              try {
-                const saltOrRounds = 10;
-                const hash = item.password
-                  ? await bcrypt.hash(item.password, saltOrRounds)
-                  : null;
+              const saltOrRounds = 10;
+              const hash = item.password
+                ? await bcrypt.hash(item.password, saltOrRounds)
+                : null;
+
+              if (!existingUser) {
                 const newUser = this.userRepository.create({
                   lastName: item.lastname,
                   firstName: item.firstname,
@@ -621,54 +622,56 @@ export class UsersService {
                   usertype: item.usertype,
                   password: hash ?? null,
                   gender: item.gender ?? null,
-                  category: item.category ?? null,
-                  role: item.role ?? null,
+                  category:
+                    item.category && item.category.length > 0
+                      ? item.category
+                      : null,
+                  role: item.role && item.role.length > 0 ? item.role : null,
                   siteid: siteId ?? null,
                   nationalcode: item.nationalcode ?? null,
                   title: item.title ?? null,
                   titleen: item.titleen ?? null,
                 });
                 await this.userRepository.save(newUser);
-              } catch (error) {
-                console.error('Error inserting user:', error.message);
-                throw error;
+              } else {
+                await this.userRepository
+                  .createQueryBuilder()
+                  .update()
+                  .set({
+                    ...existingUser,
+                    lastName: item.lastname,
+                    firstName: item.firstname,
+                    lastNameen: item.lastnameen,
+                    firstNameen: item.firstnameen,
+                    email: item.email,
+                    mobilenumber: parseInt(item.mobilenumber, 10),
+                    username: item.username,
+                    usertype: item.usertype,
+                    password: hash ?? null,
+                    gender: item.gender ?? null,
+                    category:
+                      item.category && item.category.length > 0
+                        ? item.category
+                        : null,
+                    role: item.role && item.role.length > 0 ? item.role : null,
+                    siteid: siteId ?? null,
+                    nationalcode: item.nationalcode ?? null,
+                    title: item.title ?? null,
+                    titleen: item.titleen ?? null,
+                    updated: new Date(),
+                  })
+                  .where({ id: existingUser.id })
+                  .execute();
               }
-            } else {
-              const saltOrRounds = 10;
-              const hash = item.password
-                ? await bcrypt.hash(item.password, saltOrRounds)
-                : null;
-              await this.userRepository
-                .createQueryBuilder()
-                .update()
-                .set({
-                  ...user,
-                  lastName: item.lastname,
-                  firstName: item.firstname,
-                  lastNameen: item.lastnameen,
-                  firstNameen: item.firstnameen,
-                  email: item.email,
-                  mobilenumber: item.mobilenumber,
-                  username: item.username,
-                  usertype: item.usertype,
-                  password: hash ?? null,
-                  gender: item.gender ?? null,
-                  category: item.category ?? null,
-                  role: item.role ?? null,
-                  siteid: siteId ?? null,
-                  nationalcode: item.nationalcode ?? null,
-                  title: item.title ?? null,
-                  titleen: item.titleen ?? null,
-                })
-                .where({ id: user.id })
-                .returning('*')
-                .execute();
             }
+          } catch (error) {
+            console.error('Error processing user:', error.message);
+            throw new Error(error.message); // Properly propagate the error
           }
         } else {
-          throw new Error('اطلاعات صحبح نیست');
+          throw new Error('اطلاعات صحیح نیست'); // Invalid input
         }
-      });
+      }
     }
 
     return true;

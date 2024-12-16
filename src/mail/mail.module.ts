@@ -12,11 +12,11 @@ import { JwtModule } from '@nestjs/jwt';
     MailerModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
         transport: {
-          host: 'smtp-relay.sendinblue.com',
+          host: 'smtp-relay.brevo.com',
           port: 587,
           auth: {
-            user: 'amin.pmz@gmail.com',
-            pass: 'DNvwYTWXHS2xFzIc',
+            user: '81e3d4001@smtp-brevo.com',
+            pass: 'WVOqfzPJsYHDywZS',
           },
         },
         defaults: {

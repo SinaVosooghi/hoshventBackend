@@ -21,9 +21,10 @@ export class PrintsService {
     createPrintInput: CreatePrintInput,
     user?: User,
   ): Promise<Print> {
+    console.log('printing', createPrintInput.user);
     const obj = {
       user: { id: user?.id ?? createPrintInput.user },
-      site: { id: user?.site[0].id ?? createPrintInput.site },
+      site: { id: user?.site[0]?.id ?? createPrintInput.site },
     };
 
     const item = await this.printRepository.create(obj);
@@ -42,7 +43,9 @@ export class PrintsService {
     user: User,
   ) {
     const whereConditions: any = {
-      ...(user && { siteid: { id: user.site[0].id } }),
+      ...(user &&
+        user.site[0] &&
+        user.site[0].id && { siteid: { id: user.site[0].id } }),
       ...(startDate && { created: Between(startDate, endDate) }),
       ...(siteid && !all && { site: { id: siteid } }),
     };

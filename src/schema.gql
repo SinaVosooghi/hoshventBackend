@@ -2159,6 +2159,7 @@ type Query {
   eventApi(slug: String!): Event!
   events(input: GetEventsArgs!): EventPaginate!
   eventsApi(input: GetEventsArgs!): EventPaginate!
+  generateBatchCardPdf(data: [UserDataInput!]!): String!
   getCertificate(type: String!): Certificate!
   getSetting: Setting!
   getSite(id: Int!): Site!
@@ -2195,6 +2196,7 @@ type Query {
   role(id: Int!): Role!
   roles(input: GetRolesApiArgs!): RolePaginate!
   scan(id: Int!): Scan!
+  scanTotal(input: GetScansArgs!): String!
   scans(input: GetScansArgs!): ScanPaginate!
   scansPdf(input: GetScansArgs!): String!
   seminar(id: Int!): Seminar!
@@ -3547,6 +3549,14 @@ type User {
   """Type of the user"""
   usertype: String
   workshops: [Workshop!]
+}
+
+input UserDataInput {
+  firstName: String!
+  header: String!
+  lastName: String!
+  qrUrl: String!
+  title: String!
 }
 
 type UserPaginate {

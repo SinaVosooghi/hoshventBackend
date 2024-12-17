@@ -9,6 +9,9 @@ import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
+import * as fs from 'fs-extra';
+import { UserDataInput } from './dto/user-data.input';
+import * as path from 'path';
 
 @Resolver(() => Scan)
 export class ScansResolver {
@@ -54,5 +57,34 @@ export class ScansResolver {
     @CurrentUser() user: User,
   ) {
     return this.scansService.getPdf(getUsersApiArgs, user);
+  }
+
+  @Query(() => String, { name: 'scanTotal' })
+  @UseGuards(GqlAuthGuard)
+  usersTotalTimesPdf(
+    @Args('input') getUsersApiArgs: GetScansArgs,
+    @CurrentUser() user: User,
+  ) {
+    return this.scansService.getTotalTimesPdf(getUsersApiArgs, user);
+  }
+
+  @Query(() => String)
+  async generateBatchCardPdf(
+    @Args('data', { type: () => [UserDataInput] }) data: UserDataInput[], // Ensure proper typing
+  ): Promise<string> {
+    const pdfBuffer = await this.scansService.generateBatchPdf(data);
+
+    const rootDir = process.cwd();
+    const filesDir = path.join(rootDir, 'files');
+
+    // Ensure the "files" directory exists
+    await fs.ensureDir(filesDir);
+
+    // Define the file path inside the "files" directory
+    const fileName = `${Date.now()}-card.pdf`;
+    const filePath = path.join(filesDir, fileName);
+    await fs.writeFile(filePath, pdfBuffer);
+
+    return `${process.env.API_ADDRESS}/${fileName}`;
   }
 }

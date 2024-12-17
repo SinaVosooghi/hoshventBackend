@@ -215,17 +215,13 @@ export class ScansService {
       const user = data[i];
 
       // Add a new page for each user
-      if (i > 0) doc.addPage();
-
-      // Add Header
-      doc
-        //   .fontSize(22)
-        //   .font('Vazir-Bold')
-        //   .text(`${user.header}`, {
-        //     align: 'center',
-        //     features: ['rtla'],
-        //   })
-        .moveDown(3);
+      if (i > 0) {
+        doc.addPage();
+        // Manually adjust the cursor position for fractional "moveDown"
+        doc.y += doc.currentLineHeight() * 1.5; // Adjust for 1.5 line heights
+      } else {
+        doc.moveDown(3); // Move down only on the first page
+      }
 
       // Add title (regular, centered)
 
@@ -236,7 +232,7 @@ export class ScansService {
         .text(`${user.firstName} ${user.lastName}`, {
           align: 'center',
           features: ['rtla'],
-          indent: 5,
+          indent: 6,
         });
       //.moveDown(0.1);
 
@@ -245,14 +241,14 @@ export class ScansService {
         doc
           .fontSize(18)
           .font('Vazir')
-          .text(user.title, { align: 'center', features: ['rtla'], indent: 5 })
+          .text(user.title, { align: 'center', features: ['rtla'], indent: 6 })
           .moveDown(0.5);
       }
 
       // Add QR Code
       if (user.qrUrl) {
         const qrImage = await this.downloadImage(user.qrUrl);
-        doc.image(qrImage, doc.page.width / 2 - 39 + 5, doc.y, {
+        doc.image(qrImage, doc.page.width / 2 - 39 + 6, doc.y, {
           width: 78,
           align: 'center',
         });

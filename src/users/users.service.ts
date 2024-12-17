@@ -610,6 +610,15 @@ export class UsersService {
                 ? await bcrypt.hash(item.password, saltOrRounds)
                 : null;
 
+              const mobilenumber = this.convertPersianNumbersToBigInt(
+                item.mobilenumber,
+                false,
+              );
+              const nationalcode = this.convertPersianNumbersToBigInt(
+                item.nationalcode ?? '',
+                true,
+              );
+
               if (!existingUser) {
                 const newUser = this.userRepository.create({
                   lastName: item.lastname,
@@ -617,7 +626,7 @@ export class UsersService {
                   lastNameen: item.lastnameen,
                   firstNameen: item.firstnameen,
                   email: item.email,
-                  mobilenumber: item.mobilenumber,
+                  mobilenumber: mobilenumber,
                   username: item.username,
                   usertype: item.usertype,
                   password: hash ?? null,
@@ -628,7 +637,7 @@ export class UsersService {
                       : null,
                   role: item.role && item.role.length > 0 ? item.role : null,
                   siteid: siteId ?? null,
-                  nationalcode: item.nationalcode ?? null,
+                  nationalcode: nationalcode ?? null,
                   title: item.title ?? null,
                   titleen: item.titleen ?? null,
                 });
@@ -644,7 +653,7 @@ export class UsersService {
                     lastNameen: item.lastnameen,
                     firstNameen: item.firstnameen,
                     email: item.email,
-                    mobilenumber: parseInt(item.mobilenumber, 10),
+                    mobilenumber: parseInt(mobilenumber + '', 10),
                     username: item.username,
                     usertype: item.usertype,
                     password: hash ?? null,
@@ -655,7 +664,7 @@ export class UsersService {
                         : null,
                     role: item.role && item.role.length > 0 ? item.role : null,
                     siteid: siteId ?? null,
-                    nationalcode: item.nationalcode ?? null,
+                    nationalcode: nationalcode ?? null,
                     title: item.title ?? null,
                     titleen: item.titleen ?? null,
                     updated: new Date(),
@@ -675,5 +684,58 @@ export class UsersService {
     }
 
     return true;
+  }
+
+  private convertPersianNumbersToBigInt(input: string, isString: true): string;
+  private convertPersianNumbersToBigInt(input: string, isString: false): number;
+  private convertPersianNumbersToBigInt(
+    input: string,
+    isString: boolean,
+  ): string | number {
+    const persianToEnglishMap: { [key: string]: string } = {
+      '۰': '0',
+      '۱': '1',
+      '۲': '2',
+      '۳': '3',
+      '۴': '4',
+      '۵': '5',
+      '۶': '6',
+      '۷': '7',
+      '۸': '8',
+      '۹': '9',
+    };
+
+    const englishNumberString = input
+      .replace(/[^\d۰-۹]/g, '')
+      .split('')
+      .map((char) =>
+        persianToEnglishMap[char] !== undefined
+          ? persianToEnglishMap[char]
+          : char,
+      )
+      .join('');
+
+    console.log(englishNumberString, input, input.length);
+    // Ensure the converted string is a valid number for bigint
+    if (!/^\d+$/.test(englishNumberString)) {
+      throw new Error(
+        'Input contains invalid characters that cannot be converted to a number.',
+      );
+    }
+
+    if (isString) {
+      return englishNumberString;
+    }
+
+    const result = Number(englishNumberString);
+
+    // Check for safe number range
+    if (!Number.isSafeInteger(result)) {
+      throw new Error(
+        'Converted number is outside the safe integer range for JavaScript.',
+      );
+    }
+
+    return result;
   }
 }

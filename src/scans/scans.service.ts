@@ -219,13 +219,13 @@ export class ScansService {
 
       // Add Header
       doc
-        .fontSize(22)
-        .font('Vazir-Bold')
-        .text(`${user.header}`, {
-          align: 'center',
-          features: ['rtla'],
-        })
-        .moveDown(2);
+        //   .fontSize(22)
+        //   .font('Vazir-Bold')
+        //   .text(`${user.header}`, {
+        //     align: 'center',
+        //     features: ['rtla'],
+        //   })
+        .moveDown(4);
 
       // Add title (regular, centered)
 
@@ -236,8 +236,8 @@ export class ScansService {
         .text(`${user.firstName} ${user.lastName}`, {
           align: 'center',
           features: ['rtla'],
-        })
-        .moveDown();
+        });
+      //.moveDown(0.1);
 
       // Add title (regular, centered)
       if (user.title) {
@@ -245,14 +245,14 @@ export class ScansService {
           .fontSize(18)
           .font('Vazir')
           .text(user.title, { align: 'center', features: ['rtla'] })
-          .moveDown(2);
+          .moveDown(0.5);
       }
 
       // Add QR Code
       if (user.qrUrl) {
         const qrImage = await this.downloadImage(user.qrUrl);
-        doc.image(qrImage, doc.page.width / 2 - 50, doc.y, {
-          width: 100,
+        doc.image(qrImage, doc.page.width / 2 - 25, doc.y, {
+          width: 50,
           align: 'center',
         });
         fs.remove(qrImage);

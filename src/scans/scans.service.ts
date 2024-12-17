@@ -225,7 +225,7 @@ export class ScansService {
         //     align: 'center',
         //     features: ['rtla'],
         //   })
-        .moveDown(4);
+        .moveDown(3);
 
       // Add title (regular, centered)
 
@@ -236,6 +236,7 @@ export class ScansService {
         .text(`${user.firstName} ${user.lastName}`, {
           align: 'center',
           features: ['rtla'],
+          indent: 5,
         });
       //.moveDown(0.1);
 
@@ -244,15 +245,15 @@ export class ScansService {
         doc
           .fontSize(18)
           .font('Vazir')
-          .text(user.title, { align: 'center', features: ['rtla'] })
+          .text(user.title, { align: 'center', features: ['rtla'], indent: 5 })
           .moveDown(0.5);
       }
 
       // Add QR Code
       if (user.qrUrl) {
         const qrImage = await this.downloadImage(user.qrUrl);
-        doc.image(qrImage, doc.page.width / 2 - 25, doc.y, {
-          width: 50,
+        doc.image(qrImage, doc.page.width / 2 - 39 + 5, doc.y, {
+          width: 78,
           align: 'center',
         });
         fs.remove(qrImage);

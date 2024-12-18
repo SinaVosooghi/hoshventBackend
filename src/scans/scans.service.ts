@@ -238,10 +238,16 @@ export class ScansService {
 
       // Add title (regular, centered)
       if (user.title) {
+        const reversedTitle = this.reverseNumbersInText(user.title);
+
         doc
           .fontSize(18)
           .font('Vazir')
-          .text(user.title, { align: 'center', features: ['rtla'], indent: 6 })
+          .text(reversedTitle, {
+            align: 'center',
+            features: ['rtla'],
+            indent: 6,
+          })
           .moveDown(0.5);
       }
 
@@ -378,5 +384,12 @@ export class ScansService {
     const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((ms % (1000 * 60)) / 1000);
     return `${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  private reverseNumbersInText(text) {
+    const numberPattern = /\d+/g; // Matches sequences of numbers (0–9)
+    return text.replace(numberPattern, (match) =>
+      match.split('').reverse().join(''),
+    );
   }
 }

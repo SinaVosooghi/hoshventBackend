@@ -323,7 +323,13 @@ export class ScansService {
     // Process records and calculate stay times
     const userStayTimes = new Map<
       number,
-      { userId: number; name: string; totalTime: number }
+      {
+        userId: number;
+        name: string;
+        totalTime: number;
+        category: string;
+        nationalCode: string;
+      }
     >();
     const checkinStack = new Map<number, Date[]>(); // To store check-in times per user
 
@@ -336,8 +342,10 @@ export class ScansService {
       if (!userStayTimes.has(userId)) {
         userStayTimes.set(userId, {
           userId,
-          name: record.user.firstName + record.user.lastName,
+          name: record.user.firstName + ' ' + record.user.lastName,
           totalTime: 0,
+          category: record.user.category?.title ?? '',
+          nationalCode: record.user.nationalcode,
         });
         checkinStack.set(userId, []);
       }
@@ -362,11 +370,13 @@ export class ScansService {
     }
 
     const wsNewData = [
-      ['کاربر', 'کل زمان اقامت', 'شناسه کاربر'],
+      ['کاربر', 'شناسه کاربر', 'کد ملی', 'دسته بندی', 'کل زمان اقامت'],
       ...Array.from(userStayTimes.values()).map((user) => [
         user.name, // Persian name or User name
-        this.formatDuration(user.totalTime), // Format the total time for better readability
         user.userId, // User ID
+        user.nationalCode,
+        user.category,
+        this.formatDuration(user.totalTime), // Format the total time for better readability
       ]),
     ];
 

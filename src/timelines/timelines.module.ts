@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TimelinesService } from './timelines.service';
 import { TimelinesResolver } from './timelines.resolver';
 import { Timeline } from './entities/timeline.entity';
@@ -14,8 +14,9 @@ import { Service } from 'src/services/entities/services.entity';
   imports: [
     TypeOrmModule.forFeature([Timeline, Attendee, User, Scan, Service]),
     AttendeesModule,
-    ScansModule,
+    forwardRef(() => ScansModule),
   ],
   providers: [TimelinesResolver, TimelinesService],
+  exports: [TimelinesService],
 })
 export class TimelinesModule {}

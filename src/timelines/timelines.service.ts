@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -33,6 +35,7 @@ export class TimelinesService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Attendee)
     private readonly attendeeRepository: Repository<Attendee>,
+    @Inject(forwardRef(() => ScansService))
     private readonly scanService: ScansService,
   ) {}
 
@@ -348,23 +351,33 @@ export class TimelinesService {
       throw new NotFoundException(`Attendee #${id} not found`);
     }
 
-    const item = await this.timelimeRepository.create({
-      user: attendee.user,
-      [type]: id,
-      checkin: new Date(),
-      site: attendee.site,
-      scannedby: user,
+    const timeline = await this.timelimeRepository.findOne({
+      where: {
+        user: { id: attendee.user.id },
+        [type]: { id: id },
+      },
+      order: { id: 'DESC' },
     });
 
-    await this.scanService.create({
-      site: attendee.site,
-      user: attendee.user,
-      [type]: id,
-      type: 'checkin',
-      scanby: user,
-    });
+    if (!timeline || (timeline.checkin && timeline.checkout)) {
+      const item = await this.timelimeRepository.create({
+        user: attendee.user,
+        [type]: id,
+        checkin: new Date(),
+        site: attendee.site,
+        scannedby: user,
+      });
 
-    await await this.timelimeRepository.save(item);
+      await this.scanService.create({
+        site: attendee.site,
+        user: attendee.user,
+        [type]: id,
+        type: 'checkin',
+        scanby: user,
+      });
+
+      await this.timelimeRepository.save(item);
+    }
     return true;
   }
 
@@ -386,7 +399,7 @@ export class TimelinesService {
       order: { id: 'DESC' },
     });
 
-    if (timeline) {
+    if (timeline && !timeline.checkout) {
       await this.timelimeRepository
         .createQueryBuilder('timeline')
         .update({ checkout: new Date(), scannedby: user })
@@ -441,15 +454,24 @@ export class TimelinesService {
           order: { id: 'DESC' },
         });
 
-        if (timeline) {
-          await this.timelimeRepository
-            .createQueryBuilder('timeline')
-            .update({ checkin: new Date(), scannedby: user })
-            .where({ id: timeline.id })
-            .returning('*')
-            .execute();
-          return true;
-        } else {
+        // if (false) {
+        //   await this.timelimeRepository
+        //     .createQueryBuilder('timeline')
+        //     .update({ checkin: new Date(), scannedby: user })
+        //     .where({ id: timeline.id })
+        //     .returning('*')
+        //     .execute();
+
+        //   await this.scanService.create({
+        //     site: attendee.site,
+        //     user: attendee.user,
+        //     [type]: id,
+        //     type: 'checkin',
+        //     scanby: user,
+        //   });
+        //   return true;
+        // }
+        if (!timeline || (timeline.checkin && timeline.checkout)) {
           const item = await this.timelimeRepository.create({
             user: attendee.user,
             [type]: actionId,
@@ -458,6 +480,13 @@ export class TimelinesService {
             scannedby: user,
           });
           await this.timelimeRepository.save(item);
+          await this.scanService.create({
+            site: attendee.site,
+            user: attendee.user,
+            [type]: id,
+            type: 'checkin',
+            scanby: user,
+          });
           return true;
         }
       });
@@ -485,6 +514,10 @@ export class TimelinesService {
           },
           order: { id: 'DESC' },
         });
+
+        if (timeline.checkout) {
+          return true;
+        }
 
         if (timeline) {
           await this.timelimeRepository

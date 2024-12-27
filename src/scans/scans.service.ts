@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,6 +12,7 @@ import { GetScansArgs } from './dto/get-scans.args';
 import { UpdateScanInput } from './dto/update-scan.input';
 import { Scan } from './entities/scan.entity';
 import { User } from 'src/users/entities/user.entity';
+import { TimelinesService } from 'src/timelines/timelines.service';
 import * as XLSX from 'xlsx';
 import * as moment from 'jalali-moment';
 import * as PDFDocument from 'pdfkit';
@@ -29,6 +32,8 @@ export class ScansService {
   constructor(
     @InjectRepository(Scan)
     private readonly scanRepository: Repository<Scan>,
+    @Inject(forwardRef(() => TimelinesService))
+    private readonly timelinesService: TimelinesService,
   ) {}
 
   async create(createScanInput: CreateScanInput): Promise<Scan> {
@@ -139,6 +144,8 @@ export class ScansService {
       take: limit,
       skip: skip,
     });
+
+    console.log(result);
 
     const data = result.map((scan) => ({
       ID: user.id,
@@ -333,39 +340,36 @@ export class ScansService {
     >();
     const checkinStack = new Map<number, Date[]>(); // To store check-in times per user
 
+    console.log(result);
+
     for (const record of result) {
       const userId = record.user?.id;
 
       if (!userId) continue;
 
-      // Initialize user in the map if not already present
+      const userTimelines = await this.timelinesService.userTimelines(
+        {
+          skip: 0,
+          limit: 10000,
+          type: 'site',
+          featured: true,
+          status: true,
+          user: record.user.id,
+          ...(workshop && { workshop }),
+          ...(seminar && { seminar }),
+        },
+        user,
+      );
+
       if (!userStayTimes.has(userId)) {
         userStayTimes.set(userId, {
           userId,
           name: record.user.firstName + ' ' + record.user.lastName,
-          totalTime: 0,
+          totalTime: userTimelines.total,
           category: record.user.category?.title ?? '',
           nationalCode: record.user.nationalcode,
         });
         checkinStack.set(userId, []);
-      }
-
-      // Handle check-in
-      if (record.type === 'checkin') {
-        checkinStack.get(userId).push(record.created);
-      }
-
-      // Handle check-out
-      else if (record.type === 'checkout') {
-        const checkinTimes = checkinStack.get(userId);
-        if (checkinTimes && checkinTimes.length > 0) {
-          const checkinTime = checkinTimes.shift(); // Match with the earliest check-in
-          const checkoutTime = record.created;
-
-          // Calculate duration and add to total time
-          const duration = checkoutTime.getTime() - checkinTime.getTime();
-          userStayTimes.get(userId).totalTime += duration;
-        }
       }
     }
 
@@ -385,7 +389,6 @@ export class ScansService {
     const worksheet = XLSX.utils.json_to_sheet(wsNewData);
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Scans');
     XLSX.writeFile(workbook, `${path}/scans-${timestamp}.xlsx`);
-    console.log(`/scans-${timestamp}.xlsx`);
     return `/scans-${timestamp}.xlsx`;
   }
 

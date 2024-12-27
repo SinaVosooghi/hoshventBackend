@@ -8,7 +8,4 @@ export class GetUserMobileApiArgs {
 
   @Field({ nullable: true })
   mobilenumber?: string;
-
-  @Field({ nullable: true })
-  siteid?: number;
 }

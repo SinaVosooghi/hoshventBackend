@@ -179,7 +179,7 @@ export class UsersService {
     queryBuilder.skip(skip).take(limit);
 
     // Order results
-    queryBuilder.orderBy('user.updated', 'DESC');
+    queryBuilder.orderBy('user.id', 'DESC');
 
     // Execute query
     const [result, total] = await queryBuilder.getManyAndCount();
@@ -189,10 +189,7 @@ export class UsersService {
 
   async findAllUsers({ skip, limit, category }: GetUsersApiArgs, user: User) {
     const [users, count] = await this.userRepository.findAndCount({
-      where: {
-        siteid: user.site[0] && user.site[0].id && { id: user.site[0].id },
-        category: { id: category },
-      },
+      where: { siteid: { id: user.site[0].id }, category: { id: category } },
       relations: [
         'role',
         'site',
@@ -239,11 +236,13 @@ export class UsersService {
   async findByMobile({
     mobilenumber,
     nationalcode,
+    siteid,
   }: GetUserMobileApiArgs): Promise<User> {
     const user = await this.userRepository.findOne({
       where: {
         ...(mobilenumber && { mobilenumber: parseInt(mobilenumber) }),
         ...(nationalcode && { nationalcode: nationalcode }),
+        ...(siteid && { siteid: { id: siteid } }),
       },
       relations: [
         'role',
@@ -573,7 +572,6 @@ export class UsersService {
 
   async uploadUsersCsv({ csv }: UploadUsersPdfInput, user: User) {
     let file = null;
-    const errors = [];
     const imageUpload = await csvUploader(csv);
     file = imageUpload.csv;
     const siteId = user.site[0]?.id;
@@ -593,149 +591,88 @@ export class UsersService {
     });
 
     if (parsedCSV.data.length > 0) {
-      for (const item of parsedCSV.data) {
+      parsedCSV?.data?.map(async (item) => {
         if (item.mobilenumber && item.usertype) {
-          try {
-            let existingUser = null;
-            if (item.mobilenumber) {
-              existingUser = await this.userRepository.findOne({
-                where: [
-                  { mobilenumber: item.mobilenumber },
-                  { email: item.email },
-                ],
-              });
+          let user = null;
+          if (item.mobilenumber) {
+            user = await this.userRepository.findOne({
+              where: [
+                {
+                  mobilenumber: item.mobilenumber,
+                },
+                {
+                  email: item.email,
+                },
+              ],
+            });
 
-              const saltOrRounds = 10;
-              const hash = item.password
-                ? await bcrypt.hash(item.password, saltOrRounds)
-                : null;
-
-              const mobilenumber = this.convertPersianNumbersToBigInt(
-                item.mobilenumber,
-                false,
-              );
-              const nationalcode = this.convertPersianNumbersToBigInt(
-                item.nationalcode ?? '',
-                true,
-              );
-
-              if (!existingUser) {
+            if (!user) {
+              try {
+                const saltOrRounds = 10;
+                const hash = item.password
+                  ? await bcrypt.hash(item.password, saltOrRounds)
+                  : null;
                 const newUser = this.userRepository.create({
                   lastName: item.lastname,
                   firstName: item.firstname,
                   lastNameen: item.lastnameen,
                   firstNameen: item.firstnameen,
                   email: item.email,
-                  mobilenumber: mobilenumber,
+                  mobilenumber: item.mobilenumber,
                   username: item.username,
                   usertype: item.usertype,
                   password: hash ?? null,
                   gender: item.gender ?? null,
-                  category:
-                    item.category && item.category.length > 0
-                      ? item.category
-                      : null,
-                  role: item.role && item.role.length > 0 ? item.role : null,
+                  category: item.category ?? null,
+                  role: item.role ?? null,
                   siteid: siteId ?? null,
-                  nationalcode: nationalcode ?? null,
+                  nationalcode: item.nationalcode ?? null,
                   title: item.title ?? null,
                   titleen: item.titleen ?? null,
                 });
                 await this.userRepository.save(newUser);
-              } else {
-                await this.userRepository
-                  .createQueryBuilder()
-                  .update()
-                  .set({
-                    ...existingUser,
-                    lastName: item.lastname,
-                    firstName: item.firstname,
-                    lastNameen: item.lastnameen,
-                    firstNameen: item.firstnameen,
-                    email: item.email,
-                    mobilenumber: parseInt(mobilenumber + '', 10),
-                    username: item.username,
-                    usertype: item.usertype,
-                    password: hash ?? null,
-                    gender: item.gender ?? null,
-                    category:
-                      item.category && item.category.length > 0
-                        ? item.category
-                        : null,
-                    role: item.role && item.role.length > 0 ? item.role : null,
-                    siteid: siteId ?? null,
-                    nationalcode: nationalcode ?? null,
-                    title: item.title ?? null,
-                    titleen: item.titleen ?? null,
-                    updated: new Date(),
-                  })
-                  .where({ id: existingUser.id })
-                  .execute();
+              } catch (error) {
+                console.error('Error inserting user:', error.message);
+                throw error;
               }
+            } else {
+              const saltOrRounds = 10;
+              const hash = item.password
+                ? await bcrypt.hash(item.password, saltOrRounds)
+                : null;
+              await this.userRepository
+                .createQueryBuilder()
+                .update()
+                .set({
+                  ...user,
+                  lastName: item.lastname,
+                  firstName: item.firstname,
+                  lastNameen: item.lastnameen,
+                  firstNameen: item.firstnameen,
+                  email: item.email,
+                  mobilenumber: item.mobilenumber,
+                  username: item.username,
+                  usertype: item.usertype,
+                  password: hash ?? null,
+                  gender: item.gender ?? null,
+                  category: item.category ?? null,
+                  role: item.role ?? null,
+                  siteid: siteId ?? null,
+                  nationalcode: item.nationalcode ?? null,
+                  title: item.title ?? null,
+                  titleen: item.titleen ?? null,
+                })
+                .where({ id: user.id })
+                .returning('*')
+                .execute();
             }
-          } catch (error) {
-            console.error('Error processing user:', error.message);
-            throw new Error(error.message); // Properly propagate the error
           }
         } else {
-          throw new Error('اطلاعات صحیح نیست'); // Invalid input
+          throw new Error('اطلاعات صحبح نیست');
         }
-      }
+      });
     }
 
     return true;
-  }
-
-  private convertPersianNumbersToBigInt(input: string, isString: true): string;
-  private convertPersianNumbersToBigInt(input: string, isString: false): number;
-  private convertPersianNumbersToBigInt(
-    input: string,
-    isString: boolean,
-  ): string | number {
-    const persianToEnglishMap: { [key: string]: string } = {
-      '۰': '0',
-      '۱': '1',
-      '۲': '2',
-      '۳': '3',
-      '۴': '4',
-      '۵': '5',
-      '۶': '6',
-      '۷': '7',
-      '۸': '8',
-      '۹': '9',
-    };
-
-    const englishNumberString = input
-      .replace(/[^\d۰-۹]/g, '')
-      .split('')
-      .map((char) =>
-        persianToEnglishMap[char] !== undefined
-          ? persianToEnglishMap[char]
-          : char,
-      )
-      .join('');
-
-    console.log(englishNumberString, input, input.length);
-    // Ensure the converted string is a valid number for bigint
-    if (!/^\d+$/.test(englishNumberString)) {
-      throw new Error(
-        'Input contains invalid characters that cannot be converted to a number.',
-      );
-    }
-
-    if (isString) {
-      return englishNumberString;
-    }
-
-    const result = Number(englishNumberString);
-
-    // Check for safe number range
-    if (!Number.isSafeInteger(result)) {
-      throw new Error(
-        'Converted number is outside the safe integer range for JavaScript.',
-      );
-    }
-
-    return result;
   }
 }

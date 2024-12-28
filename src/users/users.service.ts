@@ -245,7 +245,7 @@ export class UsersService {
     const user = await this.userRepository.findOne({
       where: {
         ...(mobilenumber && { mobilenumber: parseInt(mobilenumber) }),
-        ...(nationalcode && { nationalcode: '' + parseInt(nationalcode, 10) }),
+        ...(nationalcode && { nationalcode: nationalcode }),
         ...(siteid && { siteid: { id: siteid } }),
       },
       relations: [

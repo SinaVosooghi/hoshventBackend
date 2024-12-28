@@ -241,10 +241,11 @@ export class UsersService {
     nationalcode,
     siteid,
   }: GetUserMobileApiArgs): Promise<User> {
+    console.log(mobilenumber);
     const user = await this.userRepository.findOne({
       where: {
-        ...(mobilenumber && { mobilenumber: mobilenumber }),
-        ...(nationalcode && { nationalcode: nationalcode }),
+        ...(mobilenumber && { mobilenumber: parseInt(mobilenumber) }),
+        ...(nationalcode && { nationalcode: '' + parseInt(nationalcode, 10) }),
         ...(siteid && { siteid: { id: siteid } }),
       },
       relations: [

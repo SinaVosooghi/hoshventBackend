@@ -1566,6 +1566,7 @@ input GetTimelinsArgs {
 input GetUserMobileApiArgs {
   mobilenumber: String
   nationalcode: String
+  siteid: Float
 }
 
 input GetUserTimelineArgs {

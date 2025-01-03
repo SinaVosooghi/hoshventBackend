@@ -360,7 +360,7 @@ export class TimelinesService {
     });
 
     if (!timeline || (timeline.checkin && timeline.checkout)) {
-      const item = await this.timelimeRepository.create({
+      const item = this.timelimeRepository.create({
         user: attendee.user,
         [type]: id,
         checkin: new Date(),
@@ -377,6 +377,10 @@ export class TimelinesService {
       });
 
       await this.timelimeRepository.save(item);
+    } else {
+      throw new Error(
+        `There is already checkin record without checkout for user ${attendee.user.id}`,
+      );
     }
     return true;
   }
@@ -416,129 +420,46 @@ export class TimelinesService {
       });
       return true;
     } else {
-      const item = await this.timelimeRepository.create({
-        user: attendee.user,
-        checkout: new Date(),
-        site: attendee.site,
-        scannedby: user,
-      });
-      await this.scanService.create({
-        site: attendee.site,
-        user: attendee.user,
-        [type]: id,
-        type: 'checkout',
-        scanby: user,
-      });
-      await this.timelimeRepository.save(item);
-      return true;
+      throw new NotFoundException(
+        `No checkin record found for user ${attendee.user.id}`,
+      );
     }
   }
 
   async bulkCheckin({ ids, type, actionId }: Bulkaction, user: User) {
+    const errors = [];
+
     if (ids) {
-      ids.map(async (id) => {
-        const attendee = await this.attendeeRepository.findOne({
-          where: { id: id },
-          relations: ['site', 'user'],
-        });
-
-        if (!attendee) {
-          throw new NotFoundException(`Attendee #${id} not found`);
-        }
-
-        const timeline = await this.timelimeRepository.findOne({
-          where: {
-            user: { id: attendee.user.id },
-            [type]: { id: actionId },
-          },
-          order: { id: 'DESC' },
-        });
-
-        // if (false) {
-        //   await this.timelimeRepository
-        //     .createQueryBuilder('timeline')
-        //     .update({ checkin: new Date(), scannedby: user })
-        //     .where({ id: timeline.id })
-        //     .returning('*')
-        //     .execute();
-
-        //   await this.scanService.create({
-        //     site: attendee.site,
-        //     user: attendee.user,
-        //     [type]: id,
-        //     type: 'checkin',
-        //     scanby: user,
-        //   });
-        //   return true;
-        // }
-        if (!timeline || (timeline.checkin && timeline.checkout)) {
-          const item = await this.timelimeRepository.create({
-            user: attendee.user,
-            [type]: actionId,
-            checkin: new Date(),
-            site: attendee.site,
-            scannedby: user,
-          });
-          await this.timelimeRepository.save(item);
-          await this.scanService.create({
-            site: attendee.site,
-            user: attendee.user,
-            [type]: id,
-            type: 'checkin',
-            scanby: user,
-          });
-          return true;
+      ids.map(async (aid) => {
+        try {
+          await this.checkin(aid, actionId, type, user);
+        } catch (e) {
+          errors.push(e);
         }
       });
+    }
+
+    if (errors.length) {
+      return false;
     }
 
     return true;
   }
 
   async bulkcheckout({ ids, type, actionId }: Bulkaction, user: User) {
+    const errors = [];
     if (ids) {
-      ids.map(async (id) => {
-        const attendee = await this.attendeeRepository.findOne({
-          where: { id: id },
-          relations: ['site', 'user'],
-        });
-
-        if (!attendee) {
-          throw new NotFoundException(`Attendee #${id} not found`);
-        }
-
-        const timeline = await this.timelimeRepository.findOne({
-          where: {
-            user: { id: attendee.user.id },
-            [type]: { id: actionId },
-          },
-          order: { id: 'DESC' },
-        });
-
-        if (timeline.checkout) {
-          return true;
-        }
-
-        if (timeline) {
-          await this.timelimeRepository
-            .createQueryBuilder('timeline')
-            .update({ checkout: new Date(), scannedby: user })
-            .where({ id: timeline.id })
-            .returning('*')
-            .execute();
-          return true;
-        } else {
-          const item = await this.timelimeRepository.create({
-            user: attendee.user,
-            [type]: actionId,
-            checkout: new Date(),
-            site: attendee.site,
-            scannedby: user,
-          });
-          await this.timelimeRepository.save(item);
-          return true;
+      ids.map(async (aid) => {
+        try {
+          await this.checkout(aid, actionId, type, user);
+        } catch (e) {
+          errors.push(e);
         }
       });
+    }
+
+    if (errors.length) {
+      return false;
     }
 
     return true;

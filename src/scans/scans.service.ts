@@ -145,8 +145,6 @@ export class ScansService {
       skip: skip,
     });
 
-    console.log(result);
-
     const data = result.map((scan) => ({
       ID: user.id,
       کاربر: scan.user?.firstName + ' ' + scan.user?.lastName,
@@ -161,8 +159,16 @@ export class ScansService {
         : scan.type === 'checkin'
         ? 'ورود'
         : 'خروج',
-      'تحویل شده': moment(scan?.updated).locale('fa').format('YYYY/MM/D HH:mm'),
-      'ساخته شده': moment(scan?.created).locale('fa').format('YYYY/MM/D HH:mm'),
+      'تحویل شده': moment(scan?.updated)
+        .locale('fa')
+        .add(3, 'hours') // Add hours for your time zone difference
+        .add(30, 'minutes') // Add minutes if needed
+        .format('YYYY/MM/D HH:mm'),
+      'ساخته شده': moment(scan?.created)
+        .locale('fa')
+        .add(3, 'hours') // Add hours for your time zone difference
+        .add(30, 'minutes') // Add minutes if needed
+        .format('YYYY/MM/D HH:mm'),
       'کاربر (انگلیسی)': scan.user?.firstNameen + ' ' + scan.user?.lastNameen,
       'دسته بندی': scan.user.category?.title,
       'شماره تماس': scan.user?.mobilenumber,
@@ -340,10 +346,14 @@ export class ScansService {
     >();
     const checkinStack = new Map<number, Date[]>(); // To store check-in times per user
 
-    console.log(result);
+    const uniqueUsers = Array.from(
+      new Map(
+        result.map((scan) => [scan.user.id, scan.user]), // Map by user.id
+      ).values(),
+    );
 
-    for (const record of result) {
-      const userId = record.user?.id;
+    for (const record of uniqueUsers) {
+      const userId = record.id;
 
       if (!userId) continue;
 
@@ -354,23 +364,21 @@ export class ScansService {
           type: 'site',
           featured: true,
           status: true,
-          user: record.user.id,
+          user: userId,
           ...(workshop && { workshop }),
           ...(seminar && { seminar }),
         },
         user,
       );
 
-      if (!userStayTimes.has(userId)) {
-        userStayTimes.set(userId, {
-          userId,
-          name: record.user.firstName + ' ' + record.user.lastName,
-          totalTime: userTimelines.total,
-          category: record.user.category?.title ?? '',
-          nationalCode: record.user.nationalcode,
-        });
-        checkinStack.set(userId, []);
-      }
+      userStayTimes.set(userId, {
+        userId,
+        name: record.firstName + ' ' + record.lastName,
+        totalTime: userTimelines.total,
+        category: record.category?.title ?? '',
+        nationalCode: record.nationalcode,
+      });
+      checkinStack.set(userId, []);
     }
 
     const wsNewData = [
@@ -392,11 +400,13 @@ export class ScansService {
     return `/scans-${timestamp}.xlsx`;
   }
 
-  private formatDuration(ms: number): string {
-    const hours = Math.floor(ms / (1000 * 60 * 60));
-    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
-    return `${hours}h ${minutes}m ${seconds}s`;
+  private formatDuration(totalMinutes: number): string {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(
+      2,
+      '0',
+    )}`;
   }
 
   private reverseNumbersInText(text) {

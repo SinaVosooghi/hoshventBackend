@@ -11,7 +11,7 @@ import { Like, Repository } from 'typeorm';
 import { GetSitesArgs } from './dto/get-items';
 import { UsersService } from 'src/users/users.service';
 import { imageUploader } from 'src/utils/imageUploader';
-import { writeFile, cp } from 'fs';
+import { writeFile, cp, writeFileSync } from 'fs';
 import { exec } from 'child_process';
 import { MailService } from 'src/mail/mail.service';
 
@@ -51,7 +51,7 @@ export class SitesService {
     if (createSiteInput.port === 443) throw new Error('Port already exist');
 
     if (process.env.NODE_ENV === 'production') {
-      await writeFile(
+      writeFileSync(
         `/etc/nginx/sites-available/${item.domain}.conf`,
         `
       server {
@@ -72,13 +72,6 @@ export class SitesService {
           }
       }
       `,
-        (err) => {
-          if (err) {
-            console.error(err);
-          }
-          console.log('VHOST Built');
-          // file written successfully
-        },
       );
 
       const src = `/var/www/tenant`;
@@ -116,7 +109,7 @@ export class SitesService {
             }
             console.log('ENV Created');
 
-            await writeFile(
+            writeFileSync(
               `/var/www/${item.domain}/package.json`,
               `{
                 "name": "event-fronts",
@@ -190,41 +183,23 @@ export class SitesService {
               }
               
             `,
-              async (err) => {
-                if (err) {
-                  console.error(err);
-                }
-                await exec(
-                  `cd ${dist} && pm2 start yarn --name "${item.slug}" bash -- start`,
-                );
-
-                await exec(
-                  `sudo ln -s /etc/nginx/sites-available/${item.domain}.conf /etc/nginx/sites-enabled/`,
-                );
-
-                await exec(`pm2 save`);
-              },
             );
 
-            await exec(`pm2 reload all`);
+            await this.execCommand(
+              `cd ${dist} && pm2 start yarn --name "${item.slug}" bash -- start`,
+            );
 
-            await exec(`sudo service nginx reload`);
-            // exec(
-            //   `cd ${dist} && yarn run build`,
-            //   async (error, stdout, stderr) => {
-            //     if (error) {
-            //       console.log(`error: ${error.message}`);
-            //       return;
-            //     }
-            //     if (stderr) {
-            //       console.log(`stderr: ${stderr}`);
-            //       return;
-            //     }
-            //     console.log(`stdout: ${stdout}`);
-            //   },
-            // );
+            await this.execCommand(
+              `sudo ln -s /etc/nginx/sites-available/${item.domain}.conf /etc/nginx/sites-enabled/`,
+            );
 
-            // file written successfully
+            await this.execCommand(`pm2 save`);
+
+            await this.execCommand('yarn build');
+
+            await this.execCommand(`pm2 reload all`);
+
+            await this.execCommand(`sudo service nginx reload`);
           },
         );
       });
@@ -312,5 +287,17 @@ export class SitesService {
 
     await this.siteRepository.remove(site);
     return true;
+  }
+
+  private execCommand(command: string) {
+    return new Promise((resolve, reject) => {
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve({ stdout, stderr });
+        }
+      });
+    });
   }
 }

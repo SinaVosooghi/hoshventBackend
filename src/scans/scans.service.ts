@@ -170,9 +170,9 @@ export class ScansService {
         .add(30, 'minutes') // Add minutes if needed
         .format('YYYY/MM/D HH:mm'),
       'کاربر (انگلیسی)': scan.user?.firstNameen + ' ' + scan.user?.lastNameen,
-      'دسته بندی': scan.user.category?.title,
-      'شماره تماس': scan.user?.mobilenumber,
-      'کد ملی': scan.user?.nationalcode,
+      'دسته بندی': scan.user?.category?.title ?? '',
+      'شماره تماس': scan.user?.mobilenumber ?? '',
+      'کد ملی': scan.user?.nationalcode ?? '',
     }));
 
     const wsData = [
@@ -348,7 +348,9 @@ export class ScansService {
 
     const uniqueUsers = Array.from(
       new Map(
-        result.map((scan) => [scan.user.id, scan.user]), // Map by user.id
+        result
+          .filter((scan) => scan.user && scan.user.id) // Filter out null or undefined users
+          .map((scan) => [scan.user.id, scan.user]), // Map by user.id
       ).values(),
     );
 

@@ -216,7 +216,11 @@ export class ScansService {
   }
 
   async generateBatchPdf(data: UserData[]): Promise<Buffer> {
-    const doc = new PDFDocument({ size: 'A4', margin: 50 });
+    const doc = new PDFDocument({
+      size: 'A5',
+      margin: 50,
+      layout: 'landscape',
+    });
 
     const filePath = `/tmp/${Date.now()}-batch-cards.pdf`;
     const writeStream = fs.createWriteStream(filePath);

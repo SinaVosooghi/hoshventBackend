@@ -217,7 +217,7 @@ export class ScansService {
 
   async generateBatchPdf(data: UserData[]): Promise<Buffer> {
     const doc = new PDFDocument({
-      size: 'A5',
+      size: 'B8',
       margin: 50,
       layout: 'landscape',
     });

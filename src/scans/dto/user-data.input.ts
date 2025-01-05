@@ -16,4 +16,7 @@ export class UserDataInput {
 
   @Field()
   header: string;
+
+  @Field()
+  enTitle: string;
 }

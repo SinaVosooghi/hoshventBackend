@@ -25,6 +25,7 @@ interface UserData {
   title: string;
   qrUrl: string;
   header: string;
+  enTitle?: string;
 }
 
 @Injectable()
@@ -223,9 +224,15 @@ export class ScansService {
     doc.registerFont('Vazir', 'src/utils/Vazirmatn-Regular.ttf');
     doc.registerFont('Vazir-Bold', 'src/utils/Vazirmatn-Bold.ttf');
 
+    // Dimensions for the card
+    const cardWidth = 8 * 28.35; // 8 cm in points (1 cm = 28.35 points)
+    const cardHeight = 5 * 28.35; // 5 cm in points
+
     // Loop through the users and add each card to the PDF
     for (let i = 0; i < data.length; i++) {
       const user = data[i];
+
+      console.log(user);
 
       // Add a new page for each user
       if (i > 0) {
@@ -236,42 +243,61 @@ export class ScansService {
         doc.moveDown(3); // Move down only on the first page
       }
 
-      // Add title (regular, centered)
+      // Center the card on the page
+      const centerX = (doc.page.width - cardWidth) / 2;
+      const centerY = (doc.page.height - cardHeight) / 2;
+
+      // Draw card border with rounded corners
+      doc
+        .roundedRect(centerX, centerY, cardWidth, cardHeight, 20) // 20 is the corner radius
+        .stroke();
 
       // Add name (bold, centered)
       doc
-        .fontSize(18)
+        .fontSize(12)
         .font('Vazir-Bold')
-        .text(`${user.firstName} ${user.lastName}`, {
+        .text(`${user.firstName} ${user.lastName}`, centerX, centerY + 10, {
+          width: cardWidth,
           align: 'center',
           features: ['rtla'],
-          indent: 6,
         });
-      //.moveDown(0.1);
 
       // Add title (regular, centered)
       if (user.title) {
         const reversedTitle = this.reverseNumbersInText(user.title);
 
         doc
-          .fontSize(18)
+          .fontSize(11)
           .font('Vazir')
-          .text(reversedTitle, {
+          .text(reversedTitle, centerX, centerY + 30, {
+            width: cardWidth,
             align: 'center',
             features: ['rtla'],
-            indent: 6,
-          })
-          .moveDown(0.5);
+          });
       }
 
       // Add QR Code
       if (user.qrUrl) {
         const qrImage = await this.downloadImage(user.qrUrl);
-        doc.image(qrImage, doc.page.width / 2 - 39 + 6, doc.y, {
-          width: 78,
-          align: 'center',
+        const qrSize = 70; // Adjust size as needed
+        const qrX = centerX + (cardWidth - qrSize) / 2;
+        const qrY = centerY + 55; // Adjust spacing below the title
+
+        doc.image(qrImage, qrX, qrY, {
+          width: qrSize,
         });
         fs.remove(qrImage);
+      }
+
+      // Add vertical text on the left ("عنوان انگلیسی")
+      if (user.enTitle) {
+        doc
+          .rotate(90, { origin: [centerX + 65, centerY - 45] })
+          .fontSize(11)
+          .text(user.enTitle, centerX, centerY, {
+            align: 'center',
+          })
+          .rotate(-90); // Reset rotation
       }
     }
 
@@ -412,7 +438,7 @@ export class ScansService {
   }
 
   private reverseNumbersInText(text) {
-    const numberPattern = /\d+/g; // Matches sequences of numbers (0–9)
+    const numberPattern = /\d+|[a-zA-Z]+/g; // Matches sequences of numbers (0–9)
     return text.replace(numberPattern, (match) =>
       match.split('').reverse().join(''),
     );

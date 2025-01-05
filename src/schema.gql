@@ -3553,6 +3553,7 @@ type User {
 }
 
 input UserDataInput {
+  enTitle: String!
   firstName: String!
   header: String!
   lastName: String!

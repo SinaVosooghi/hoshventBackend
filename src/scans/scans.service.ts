@@ -236,8 +236,6 @@ export class ScansService {
     for (let i = 0; i < data.length; i++) {
       const user = data[i];
 
-      console.log(user);
-
       // Add a new page for each user
       if (i > 0) {
         doc.addPage();
@@ -296,7 +294,7 @@ export class ScansService {
       // Add vertical text on the left ("عنوان انگلیسی")
       if (user.enTitle) {
         doc
-          .rotate(90, { origin: [centerX + 65, centerY - 45] })
+          .rotate(90, { origin: [centerX + 17, centerY ] })
           .fontSize(11)
           .text(user.enTitle, centerX, centerY, {
             align: 'center',
